@@ -1,0 +1,88 @@
+/* Fondo global */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('../img/fondo.jpeg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* Contenedor principal con efecto glassmorphism */
+.container {
+    background: rgba(255, 255, 255, 0.15); /* Transparencia */
+    backdrop-filter: blur(12px); /* Difuminado para contraste */
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 15px;
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Títulos */
+h2 {
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+    font-style: italic;
+}
+
+/* Botones */
+button, input[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+button:hover, input[type="submit"]:hover {
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+    transform: scale(1.05);
+}
+
+/* Links */
+a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    margin-top: 15px;
+    transition: color 0.3s ease-in-out;
+}
+
+a:hover {
+    color: #00c6ff;
+}

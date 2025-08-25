@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Login - La Playita</title>
+    <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
+</h:head>
+<h:body styleClass="login-body">
+
+    <h:form styleClass="login-form">
+
+        <h2>Iniciar Sesión</h2>
+
+        <!-- Usuario -->
+        <h:inputText value="#{usuarioBean.username}" styleClass="input-field">
+            <f:passThroughAttribute name="placeholder" value="Usuario"/>
+        </h:inputText>
+
+        <!-- Contraseña -->
+        <h:inputSecret value="#{usuarioBean.password}" styleClass="input-field">
+            <f:passThroughAttribute name="placeholder" value="Contraseña"/>
+        </h:inputSecret>
+
+        <!-- Botón -->
+        <h:commandButton value="Ingresar" action="#{usuarioBean.login}" styleClass="btn"/>
+        
+        <h:messages style="color:red;"/>
+
+        <p>¿No tienes cuenta?
+            <h:link outcome="registro" value="Regístrate aquí"/>
+        </p>
+
+    </h:form>
+
+</h:body>
+</html>

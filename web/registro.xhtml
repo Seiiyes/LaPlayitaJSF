@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Registro - La Playita</title>
+    <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
+</h:head>
+<h:body styleClass="registro-body">
+
+    <h:form styleClass="registro-form">
+
+        <h2>Registro de Usuario</h2>
+
+        <!-- Nombre -->
+        <h:inputText value="#{usuarioBean.nombre}" styleClass="input-field">
+            <f:passThroughAttribute name="placeholder" value="Nombre completo"/>
+        </h:inputText>
+
+        <!-- Usuario -->
+        <h:inputText value="#{usuarioBean.username}" styleClass="input-field">
+            <f:passThroughAttribute name="placeholder" value="Usuario"/>
+        </h:inputText>
+
+        <!-- Correo -->
+        <h:inputText value="#{usuarioBean.email}" styleClass="input-field">
+            <f:passThroughAttribute name="placeholder" value="Correo electrónico"/>
+        </h:inputText>
+
+        <!-- Contraseña -->
+        <h:inputSecret value="#{usuarioBean.password}" styleClass="input-field">
+            <f:passThroughAttribute name="placeholder" value="Contraseña"/>
+        </h:inputSecret>
+
+        <!-- Confirmar Contraseña -->
+        <h:inputSecret value="#{usuarioBean.confirmPassword}" styleClass="input-field">
+            <f:passThroughAttribute name="placeholder" value="Confirmar contraseña"/>
+        </h:inputSecret>
+
+        <!-- Botón -->
+        <h:commandButton value="Registrar" action="#{usuarioBean.registrar}" styleClass="btn"/>
+        
+        <h:messages style="color:red;"/>
+
+        <p>¿Ya tienes cuenta?
+            <h:link outcome="login" value="Inicia sesión aquí"/>
+        </p>
+
+    </h:form>
+
+</h:body>
+</html>
