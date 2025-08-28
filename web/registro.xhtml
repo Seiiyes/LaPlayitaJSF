@@ -1,49 +1,86 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
       xmlns:f="http://xmlns.jcp.org/jsf/core">
 <h:head>
     <title>Registro - La Playita</title>
     <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
 </h:head>
-<h:body styleClass="registro-body">
+<h:body class="login-body">
 
-    <h:form styleClass="registro-form">
+    <h:form id="registroForm" class="container">
 
         <h2>Registro de Usuario</h2>
 
-        <!-- Nombre -->
-        <h:inputText value="#{usuarioBean.nombre}" styleClass="input-field">
-            <f:passThroughAttribute name="placeholder" value="Nombre completo"/>
-        </h:inputText>
+        <!-- Mensajes -->
+        <p:messages id="msgs" showDetail="true" showSummary="false" 
+                    style="color:red; text-align:left;" />
 
-        <!-- Usuario -->
-        <h:inputText value="#{usuarioBean.username}" styleClass="input-field">
-            <f:passThroughAttribute name="placeholder" value="Usuario"/>
-        </h:inputText>
+        <!-- Documento -->
+        <p:inputText id="documento" value="#{registroBean.documento}" 
+                     placeholder="Documento"
+                     styleClass="input-field"
+                     required="true"
+                     requiredMessage="El documento es obligatorio" />
+
+        <!-- Nombres -->
+        <p:inputText id="nombres" value="#{registroBean.nombres}" 
+                     placeholder="Nombres"
+                     styleClass="input-field"
+                     required="true"
+                     requiredMessage="El nombre es obligatorio" />
+
+        <!-- Apellidos -->
+        <p:inputText id="apellidos" value="#{registroBean.apellidos}" 
+                     placeholder="Apellidos"
+                     styleClass="input-field"
+                     required="true"
+                     requiredMessage="El apellido es obligatorio" />
 
         <!-- Correo -->
-        <h:inputText value="#{usuarioBean.email}" styleClass="input-field">
-            <f:passThroughAttribute name="placeholder" value="Correo electrónico"/>
-        </h:inputText>
+        <p:inputText id="correo" value="#{registroBean.correo}" 
+                     placeholder="Correo electrónico"
+                     styleClass="input-field"
+                     required="true"
+                     requiredMessage="El correo es obligatorio"
+                     validatorMessage="Correo no válido">
+            <f:validateRegex pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"/>
+        </p:inputText>
+
+        <!-- Teléfono -->
+        <p:inputText id="telefono" value="#{registroBean.telefono}" 
+                     placeholder="Teléfono"
+                     styleClass="input-field"
+                     required="true"
+                     requiredMessage="El teléfono es obligatorio" />
 
         <!-- Contraseña -->
-        <h:inputSecret value="#{usuarioBean.password}" styleClass="input-field">
-            <f:passThroughAttribute name="placeholder" value="Contraseña"/>
-        </h:inputSecret>
+        <p:password id="password" value="#{registroBean.password}" 
+                    placeholder="Contraseña"
+                    styleClass="input-field"
+                    required="true"
+                    requiredMessage="La contraseña es obligatoria" />
 
         <!-- Confirmar Contraseña -->
-        <h:inputSecret value="#{usuarioBean.confirmPassword}" styleClass="input-field">
-            <f:passThroughAttribute name="placeholder" value="Confirmar contraseña"/>
-        </h:inputSecret>
+        <p:password id="confirmarPassword" value="#{registroBean.confirmarPassword}" 
+                    placeholder="Confirmar contraseña"
+                    styleClass="input-field"
+                    required="true"
+                    requiredMessage="Debe confirmar la contraseña" />
 
-        <!-- Botón -->
-        <h:commandButton value="Registrar" action="#{usuarioBean.registrar}" styleClass="btn"/>
-        
-        <h:messages style="color:red;"/>
+        <!-- Botón Registrar -->
+        <p:commandButton value="Registrar"
+                         action="#{registroBean.registrar}"
+                         styleClass="btn"
+                         process="@form"
+                         update="msgs"
+                         ajax="true"/>
 
-        <p>¿Ya tienes cuenta?
-            <h:link outcome="login" value="Inicia sesión aquí"/>
+        <!-- Link a login -->
+        <p style="color:white; margin-top:15px;">
+            ¿Ya tienes cuenta?
+            <h:link outcome="index" value="Inicia sesión aquí"/>
         </p>
 
     </h:form>

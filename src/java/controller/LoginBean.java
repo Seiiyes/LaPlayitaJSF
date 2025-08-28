@@ -30,7 +30,7 @@ public class LoginBean implements Serializable {
                 return null;
             }
             this.usuarioSesion = u;
-            return "/home.xhtml?faces-redirect=true"; // crea home.xhtml luego
+            return "/home.xhtml?faces-redirect=true";
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error al iniciar sesión", e.getMessage()));
@@ -52,7 +52,8 @@ public class LoginBean implements Serializable {
     public void setUsuarioSesion(Usuario usuarioSesion) { this.usuarioSesion = usuarioSesion; }
 
     public boolean isLogueado() { return usuarioSesion != null; }
+
     public String getNombreMostrado() {
-        return isLogueado() ? usuarioSesion.getpNombre() + " " + usuarioSesion.getpApellido() : "";
+        return isLogueado() ? usuarioSesion.getNombres() + " " + usuarioSesion.getApellidos() : "";
     }
 }

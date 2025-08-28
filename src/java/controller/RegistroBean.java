@@ -14,10 +14,8 @@ public class RegistroBean {
 
     // Campos del formulario
     private String documento;
-    private String pNombre;
-    private String sNombre;
-    private String pApellido;
-    private String sApellido;
+    private String nombres;
+    private String apellidos;
     private String correo;
     private String telefono;
     private String password;
@@ -30,10 +28,8 @@ public class RegistroBean {
         try {
             Usuario u = new Usuario();
             u.setDocumento(documento != null ? documento.trim() : null);
-            u.setpNombre(pNombre != null ? pNombre.trim() : null);
-            u.setsNombre(sNombre != null ? sNombre.trim() : null);
-            u.setpApellido(pApellido != null ? pApellido.trim() : null);
-            u.setsApellido(sApellido != null ? sApellido.trim() : null);
+            u.setNombres(nombres != null ? nombres.trim() : null);
+            u.setApellidos(apellidos != null ? apellidos.trim() : null);
             u.setCorreo(correo != null ? correo.trim() : null);
             u.setTelefono(telefono != null ? telefono.trim() : null);
 
@@ -55,14 +51,10 @@ public class RegistroBean {
     // Getters & Setters
     public String getDocumento() { return documento; }
     public void setDocumento(String documento) { this.documento = documento; }
-    public String getpNombre() { return pNombre; }
-    public void setpNombre(String pNombre) { this.pNombre = pNombre; }
-    public String getsNombre() { return sNombre; }
-    public void setsNombre(String sNombre) { this.sNombre = sNombre; }
-    public String getpApellido() { return pApellido; }
-    public void setpApellido(String pApellido) { this.pApellido = pApellido; }
-    public String getsApellido() { return sApellido; }
-    public void setsApellido(String sApellido) { this.sApellido = sApellido; }
+    public String getNombres() { return nombres; }
+    public void setNombres(String nombres) { this.nombres = nombres; }
+    public String getApellidos() { return apellidos; }
+    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
     public String getTelefono() { return telefono; }

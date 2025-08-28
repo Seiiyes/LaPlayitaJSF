@@ -1,35 +1,26 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:p="http://primefaces.org/ui">
 <h:head>
-    <title>Login - La Playita</title>
+    <title>La Playita - Inicio</title>
     <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
 </h:head>
-<h:body styleClass="login-body">
+<h:body class="home-body">
 
-    <h:form styleClass="login-form">
+    <h:form>
 
-        <h2>Iniciar Sesión</h2>
+        <h1>Bienvenido a La Playita</h1>
 
-        <!-- Usuario -->
-        <h:inputText value="#{usuarioBean.username}" styleClass="input-field">
-            <f:passThroughAttribute name="placeholder" value="Usuario"/>
-        </h:inputText>
+        <h:panelGroup rendered="#{usuarioBean.loggedIn}">
+            <h:outputText value="Usuario: #{usuarioBean.usuarioLogueado.nombres} #{usuarioBean.usuarioLogueado.apellidos}" />
+            <p:commandButton value="Cerrar Sesión" action="#{usuarioBean.logout}" />
+        </h:panelGroup>
 
-        <!-- Contraseña -->
-        <h:inputSecret value="#{usuarioBean.password}" styleClass="input-field">
-            <f:passThroughAttribute name="placeholder" value="Contraseña"/>
-        </h:inputSecret>
-
-        <!-- Botón -->
-        <h:commandButton value="Ingresar" action="#{usuarioBean.login}" styleClass="btn"/>
-        
-        <h:messages style="color:red;"/>
-
-        <p>¿No tienes cuenta?
-            <h:link outcome="registro" value="Regístrate aquí"/>
-        </p>
+        <h:panelGroup rendered="#{!usuarioBean.loggedIn}">
+            <h:outputText value="Por favor, inicia sesión." />
+            <h:link value="Ir al Login" outcome="login" />
+        </h:panelGroup>
 
     </h:form>
 
