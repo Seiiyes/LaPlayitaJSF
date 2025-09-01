@@ -20,6 +20,9 @@ public class LoginBean implements Serializable {
 
     private final UsuarioService service = new UsuarioService();
 
+    /**
+     * Inicia sesión y guarda el usuario en sesión.
+     */
     public String login() {
         try {
             Usuario u = service.login(correo, password);
@@ -30,7 +33,16 @@ public class LoginBean implements Serializable {
                 return null;
             }
             this.usuarioSesion = u;
-            return "/home.xhtml?faces-redirect=true";
+
+            // Guardamos en la sesión HTTP para el filtro
+            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("usuario", u);
+
+            // Redirigir según rol
+            if (u.getIdRol() == 1) {
+                return "/admin/home.xhtml?faces-redirect=true";
+            } else {
+                return "/home.xhtml?faces-redirect=true";
+            }
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error al iniciar sesión", e.getMessage()));
@@ -38,9 +50,13 @@ public class LoginBean implements Serializable {
         }
     }
 
+    /**
+     * Cierra la sesión
+     * @throws java.io.IOException
+     */
     public void logout() throws IOException {
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
-        FacesContext.getCurrentInstance().getExternalContext().redirect("index.xhtml");
+        FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
     }
 
     // Getters & Setters

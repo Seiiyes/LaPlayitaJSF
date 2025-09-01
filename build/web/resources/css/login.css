@@ -1,0 +1,39 @@
+.login-card {
+    max-width: 400px;       /* ancho máximo para no estirarse */
+    margin: 60px auto;      /* centra el card en la pantalla */
+    padding: 30px;          /* espacio interno */
+    text-align: center;     
+    background: #fff;       /* fondo blanco limpio */
+    border-radius: 12px;    /* esquinas redondeadas */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* sombra suave */
+}
+
+.login-card h2 {
+    margin-bottom: 20px;
+    font-size: 1.6em;
+    color: #333;
+}
+
+.login-card .ui-inputfield {
+    width: 100%;            /* inputs full width */
+    margin: 10px 0;         /* separación entre campos */
+    padding: 10px;
+    box-sizing: border-box; 
+}
+
+.btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #007ad9;   /* azul estilo PrimeFaces */
+    color: white;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn:hover {
+    background: #005fa3;
+}

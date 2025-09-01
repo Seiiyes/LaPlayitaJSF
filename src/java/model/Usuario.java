@@ -16,9 +16,15 @@ public class Usuario implements Serializable {
     private Timestamp ultimoLogin;
     private int idRol;             // FK a rol
 
+    // NUEVO: referencia al objeto Rol
+    private Rol rol;
+
     // Getters y setters
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
+
+    // alias conveniente
+    public int getId() { return idUsuario; }
 
     public String getDocumento() { return documento; }
     public void setDocumento(String documento) { this.documento = documento; }
@@ -49,4 +55,21 @@ public class Usuario implements Serializable {
 
     public int getIdRol() { return idRol; }
     public void setIdRol(int idRol) { this.idRol = idRol; }
+
+    // NUEVO: getter/setter para el objeto Rol
+    public Rol getRol() { return rol; }
+    public void setRol(Rol rol) { this.rol = rol; }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "idUsuario=" + idUsuario +
+                ", documento='" + documento + '\'' +
+                ", nombres='" + nombres + '\'' +
+                ", apellidos='" + apellidos + '\'' +
+                ", correo='" + correo + '\'' +
+                ", estadoUsuario=" + estadoUsuario +
+                ", idRol=" + idRol +
+                '}';
+    }
 }

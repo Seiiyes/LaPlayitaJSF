@@ -1,22 +1,49 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
-<h:head>
- b    <title>Home - Administrador</title>
-    <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
-</h:head>
-<h:body>
+<ui:composition template="/templates/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
 
-    <h:form>
+    <ui:define name="content">
+        <div class="card admin-card">
+            <h2>Panel de Administración</h2>
+            <p>Aquí puedes gestionar usuarios y roles.</p>
 
-        <h1>Panel de Administración</h1>
+            <h:form id="adminForm">
+                <p:dataTable value="#{usuarioBean.listaUsuarios}" var="u" 
+                             styleClass="table" rows="10" paginator="true">
 
-        <h:outputText value="Bienvenido, #{usuarioBean.usuarioLogueado.nombres} #{usuarioBean.usuarioLogueado.apellidos}" />
+                    <p:column headerText="ID">
+                        <h:outputText value="#{u.idUsuario}" />
+                    </p:column>
 
-        <p:commandButton value="Cerrar Sesión" action="#{usuarioBean.logout}" />
+                    <p:column headerText="Correo">
+                        <h:outputText value="#{u.correo}" />
+                    </p:column>
 
-    </h:form>
+                    <p:column headerText="Nombre completo">
+                        <h:outputText value="#{u.nombres} #{u.apellidos}" />
+                    </p:column>
 
-</h:body>
-</html>
+                    <p:column headerText="Rol">
+                        <h:outputText value="#{usuarioBean.getDescripcionRol(u.idRol)}" />
+                    </p:column>
+
+
+                    <p:column headerText="Estado">
+                        <h:outputText value="#{u.estadoUsuario eq 1 ? 'Activo' : 'Inactivo'}" />
+                    </p:column>
+
+                    <p:column headerText="Acciones">
+                        <p:commandButton value="Eliminar" 
+                                         action="#{usuarioBean.eliminar(u.idUsuario)}"
+                                         update="adminForm"
+                                         icon="pi pi-trash"
+                                         styleClass="ui-button-danger" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

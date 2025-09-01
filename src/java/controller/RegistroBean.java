@@ -20,10 +20,13 @@ public class RegistroBean {
     private String telefono;
     private String password;
     private String confirmarPassword;
-    private String rol = "VENDEDOR"; // por defecto, o usa un selectOneMenu
+    private String rol = "VENDEDOR"; // por defecto
 
     private final UsuarioService service = new UsuarioService();
 
+    /**
+     * Registrar nuevo usuario
+     */
     public String registrar() {
         try {
             Usuario u = new Usuario();
@@ -34,9 +37,11 @@ public class RegistroBean {
             u.setTelefono(telefono != null ? telefono.trim() : null);
 
             int id = service.registrar(u, password, confirmarPassword, rol);
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro exitoso (ID: " + id + ")", null));
-            return "index.xhtml?faces-redirect=true";
+            return "login.xhtml?faces-redirect=true";
+
         } catch (IllegalArgumentException ie) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_WARN, ie.getMessage(), null));

@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.naming.NamingException;
 
 /**
  * Clase Conexion
@@ -32,7 +33,7 @@ public class Conexion {
             Context ctx = new InitialContext();
             DataSource ds = (DataSource) ctx.lookup(JNDI);
             return ds.getConnection();
-        } catch (Exception jndiEx) {
+        } catch (SQLException | NamingException jndiEx) {
             // Fallback DriverManager si JNDI no disponible
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");

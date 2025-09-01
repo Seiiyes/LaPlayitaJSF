@@ -1,22 +1,14 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:p="http://primefaces.org/ui">
-<h:head>
-    <title>Home - Usuario</title>
-    <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
-</h:head>
-<h:body>
+<ui:composition template="/templates/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui">
 
-    <h:form>
-
-        <h1>Panel de Usuario</h1>
-
-        <h:outputText value="Bienvenido, #{usuarioBean.usuarioLogueado.nombres} #{usuarioBean.usuarioLogueado.apellidos}" />
-
-        <p:commandButton value="Cerrar Sesión" action="#{usuarioBean.logout}" />
-
-    </h:form>
-
-</h:body>
-</html>
+    <ui:define name="content">
+        <div class="card home-card">
+            <h2>Bienvenido #{loginBean.getNombreMostrado} 🎉</h2>
+            <p>Aquí puedes acceder a tus opciones de usuario.</p>
+            <p:commandButton value="Cerrar sesión" action="#{loginBean.logout}" ajax="false"/>
+        </div>
+    </ui:define>
+</ui:composition>

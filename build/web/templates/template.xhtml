@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+    <title>La Playita</title>
+    <h:outputStylesheet library="css" name="base.css"/>
+</h:head>
+
+<h:body>
+    <!-- ===== NAVBAR ===== -->
+    <header class="navbar">
+        <div class="navbar-left">
+            <h:link outcome="/index">
+                <h:graphicImage value="/img/la-playita-logo.png" alt="logo" styleClass="navbar-logo"/>
+            </h:link>
+            <span class="navbar-title">La Playita</span>
+        </div>
+        <nav class="navbar-links">
+            <h:link outcome="index" value="Inicio"/>
+            <h:link outcome="login" value="Login"/>
+            <h:link outcome="registro" value="Registro"/>
+            <h:link outcome="home" value="Usuario"/>
+            <h:link outcome="admin/home" value="Admin"/>
+        </nav>
+    </header>
+
+    <!-- ===== CONTENIDO ===== -->
+    <main class="main-container">
+        <ui:insert name="content"/>
+    </main>
+</h:body>
+</html>
