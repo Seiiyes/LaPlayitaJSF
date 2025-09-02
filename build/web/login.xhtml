@@ -5,23 +5,31 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ui:define name="content">
-        <h:form id="loginForm" styleClass="card login-card">
-            <h2>Iniciar Sesión</h2>
-            <p:messages id="msgs" showDetail="true"/>
+        <!-- Contenedor que centra vertical/horizontal -->
+        <div class="main-container">
 
-            <p:inputText id="correo" value="#{loginBean.correo}"
-                         placeholder="Correo electrónico" required="true"
-                         requiredMessage="El correo es obligatorio"/>
-            <p:password id="password" value="#{loginBean.password}"
-                        placeholder="Contraseña" required="true"
-                        requiredMessage="La contraseña es obligatoria" feedback="true"/>
-            <p:commandButton value="Ingresar" action="#{loginBean.login}"
-                             update="msgs" ajax="false" styleClass="btn"/>
-            <p style="margin-top:15px;">
-                ¿No tienes cuenta?
-                <h:link outcome="registro" value="Regístrate aquí"/>
-            </p>
-        </h:form>
+            <!-- Tarjeta de login -->
+            <h:form id="loginForm" styleClass="card login-card">
+                <h2>Iniciar Sesión</h2>
+                <p:messages id="msgs" showDetail="true"/>
 
+                <p:inputText id="correo" value="#{loginBean.correo}"
+                             placeholder="Correo electrónico" required="true"
+                             requiredMessage="El correo es obligatorio"/>
+                <p:password id="password" value="#{loginBean.password}"
+                            placeholder="Contraseña" required="true"
+                            requiredMessage="La contraseña es obligatoria" feedback="true"/>
+                <!-- Contenedor de botones -->
+                <div class="btn-container">
+                    <p:commandButton value="Ingresar" action="#{loginBean.login}"
+                                     update="msgs" ajax="false" styleClass="btn btn-blue"/>
+                </div>
+
+                <p style="margin-top:15px;">
+                    ¿No tienes cuenta?
+                    <h:link outcome="registro" value="Regístrate aquí" styleClass="link-btn"/>
+                </p>
+            </h:form>
+        </div>
     </ui:define>
 </ui:composition>

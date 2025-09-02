@@ -1,10 +1,29 @@
-/* Fondo global */
-body {
+/* ===== RESET BÁSICO ===== */
+* {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+/* ===== LAYOUT GLOBAL ===== */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: url("#{resource['img/fondo.jpeg']}") no-repeat center center fixed;
     background-size: cover;
-    color: white;
+    color: #f1f1f1;
+    line-height: 1.6;
+}
+
+main, .main-container {
+    flex: 1; /* empuja el footer al final */
 }
 
 /* ===== NAVBAR ===== */
@@ -13,7 +32,7 @@ body {
     top: 0;
     width: 100%;
     height: 70px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(12px);
     display: flex;
     justify-content: space-between;
@@ -29,19 +48,28 @@ body {
 }
 
 .navbar-logo {
-    width: 50px;
+    width: 45px;
     height: auto;
     margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 50px;   /* controla altura fija */
+    width: auto;    /* mantiene proporción */
+    display: block; /* evita espacios fantasmas */
 }
 
 .navbar-title {
-    font-size: 20px;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #fff;
+    letter-spacing: 1px;
 }
 
 .navbar-links a {
-    color: #fff;
+    color: #f1f1f1;
     margin-left: 20px;
     text-decoration: none;
     font-weight: bold;
@@ -52,20 +80,220 @@ body {
     color: #00c6ff;
 }
 
-/* Contenedor principal */
+/* ===== CONTENEDOR PRINCIPAL ===== */
 .main-container {
-    margin-top: 90px;
+    flex: 1;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: center;   /* centro horizontal */
+    align-items: center;       /* centro vertical */
     padding: 20px;
+    flex-wrap: wrap;
+    min-height: calc(100vh - 70px - 60px); /* alto total menos navbar y footer */
+    margin-top: 70px; /* espacio para que no tape la navbar */
 }
 
-/* Tarjetas generales */
+/* ===== TARJETAS ===== */
 .card {
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.65);
     padding: 30px;
     border-radius: 12px;
-    width: 400px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    color: #f1f1f1;
+    text-align: center;
+}
+
+.card h2 {
+    margin-bottom: 20px;
+    font-size: clamp(1.3rem, 2vw, 1.6rem);
+    color: #00c6ff;
+}
+
+/* ===== INPUTS ===== */
+.ui-inputfield, 
+input, 
+textarea, 
+select {
+    width: 100%;
+    margin: 20px 0;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 1rem;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ui-inputfield:focus, 
+input:focus, 
+textarea:focus, 
+select:focus {
+    outline: none;
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 10px #00c6ff;
+}
+
+/* ===== BOTONES ===== */
+.btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-blue {
+    background: #007ad9;
+    color: #fff;
+}
+.btn-blue:hover {
+    background: #005fa3;
+}
+
+.btn-green {
+    background: #28a745;
+    color: #fff;
+}
+.btn-green:hover {
+    background: #218838;
+}
+
+/* Contenedor de botones en fila */
+.btn-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap; /* en móviles se apilan */
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    background: rgba(0,0,0,0.7);
+    color: #ccc;
+    text-align: center;
+    padding: 15px;
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.footer a {
+    color: #00c6ff;
+    text-decoration: none;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #fff;
+}
+
+/* ===== MENSAJES ===== */
+.ui-messages, .ui-message {
+    margin-top: 10px;
+    color: #ff4d4d;
+    font-size: 0.9rem;
+    text-align: left;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .navbar {
+        padding: 0 20px;
+    }
+    .navbar-links a {
+        margin-left: 15px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        height: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 20px;
+    }
+
+    .navbar-left {
+        margin-bottom: 10px;
+    }
+
+    .main-container {
+        margin-top: 120px;
+        padding: 15px;
+    }
+
+    .card {
+        max-width: 100%;
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-title {
+        font-size: 1rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    .card h2 {
+        font-size: 1.2rem;
+    }
+}
+
+/* ===== WELCOME SECTION ===== */
+.welcome-container {
+    display: flex;
+    justify-content: center; /* centra logo + texto */
+    align-items: center;
+    gap: 12px; /* espacio entre logo y texto */
+    margin-bottom: 20px;
+}
+
+.welcome-logo {
+    height: 50px;
+    width: auto;
+}
+
+.welcome-text {
+    font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+    color: #00c6ff;
+    font-weight: bold;
+}
+/* ===== ESPACIADO EXTRA EN FORMULARIO DE REGISTRO ===== */
+.registro-card .ui-inputfield,
+.registro-card .ui-password {
+    margin-bottom: 25px !important; /* más aire entre los inputs */
+}
+
+.registro-card .btn-green {
+    margin-top: 15px; /* separa el botón del último input */
+}
+.alt-link {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.alt-link a {
+    color: #00c6ff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.alt-link a:hover {
+    color: #fff;
+    text-decoration: underline;
 }

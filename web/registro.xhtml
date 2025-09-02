@@ -6,33 +6,54 @@
                 xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="content">
-        <h:form id="registroForm" styleClass="card registro-card">
-            <h2>Registro de Usuario</h2>
-            <p:messages id="msgs" showDetail="true"/>
+        <!-- Contenedor centrado -->
+        <div class="main-container">
+            
+            <!-- Tarjeta de registro -->
+            <h:form id="registroForm" styleClass="card registro-card">
+                <h2>Registro de Usuario</h2>
+                <p:messages id="msgs" showDetail="true"/>
 
-            <p:inputText id="documento" value="#{registroBean.documento}" 
-                         placeholder="Documento" required="true"/>
-            <p:inputText id="nombres" value="#{registroBean.nombres}" 
-                         placeholder="Nombres" required="true"/>
-            <p:inputText id="apellidos" value="#{registroBean.apellidos}" 
-                         placeholder="Apellidos" required="true"/>
-            <p:inputText id="telefono" value="#{registroBean.telefono}" 
-                         placeholder="Teléfono"/>
+                <p:inputText id="documento" value="#{registroBean.documento}" 
+                             placeholder="Documento" required="true"
+                             requiredMessage="El documento es obligatorio"/>
 
-            <p:inputText id="email" value="#{registroBean.correo}" 
-                         placeholder="Correo electrónico" required="true"
-                         validatorMessage="Formato de correo inválido">
-                <f:validateRegex pattern="^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$"/>
-            </p:inputText>
+                <p:inputText id="nombres" value="#{registroBean.nombres}" 
+                             placeholder="Nombres" required="true"
+                             requiredMessage="Los nombres son obligatorios"/>
 
-            <p:password id="password" value="#{registroBean.password}" 
-                        placeholder="Contraseña" required="true" feedback="true"/>
-            <p:password id="confirmPassword" value="#{registroBean.confirmarPassword}" 
-                        placeholder="Confirmar contraseña" required="true"/>
+                <p:inputText id="apellidos" value="#{registroBean.apellidos}" 
+                             placeholder="Apellidos" required="true"
+                             requiredMessage="Los apellidos son obligatorios"/>
 
-            <p:commandButton value="Registrarse" action="#{registroBean.registrar}" 
-                             update="msgs" ajax="false" styleClass="btn"/>
-        </h:form>
+                <p:inputText id="telefono" value="#{registroBean.telefono}" 
+                             placeholder="Teléfono"/>
 
+                <p:inputText id="email" value="#{registroBean.correo}" 
+                             placeholder="Correo electrónico" required="true"
+                             requiredMessage="El correo es obligatorio"
+                             validatorMessage="Formato de correo inválido">
+                    <f:validateRegex pattern="^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$"/>
+                </p:inputText>
+
+                <p:password id="password" value="#{registroBean.password}" 
+                            placeholder="Contraseña" required="true" feedback="true"
+                            requiredMessage="La contraseña es obligatoria"/>
+
+                <p:password id="confirmPassword" value="#{registroBean.confirmarPassword}" 
+                            placeholder="Confirmar contraseña" required="true"
+                            requiredMessage="Debes confirmar la contraseña"/>
+
+                <!-- Botón alineado al centro -->
+                <div class="btn-container">
+                    <p:commandButton value="Registrarse" action="#{registroBean.registrar}" 
+                                     update="msgs" ajax="false" styleClass="btn btn-green"/>
+                </div>
+                <p class="alt-link">
+                    ¿Ya tienes cuenta?
+                    <h:link outcome="login" value="Inicia sesión aquí"/>
+                </p>
+            </h:form>
+        </div>
     </ui:define>
 </ui:composition>

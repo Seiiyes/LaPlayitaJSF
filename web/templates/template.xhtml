@@ -8,27 +8,27 @@
     <h:outputStylesheet library="css" name="base.css"/>
 </h:head>
 
-<h:body>
+<h:body style="display:flex; flex-direction:column; min-height:100vh; margin:0;">
+    
     <!-- ===== NAVBAR ===== -->
-    <header class="navbar">
-        <div class="navbar-left">
-            <h:link outcome="/index">
-                <h:graphicImage value="/img/la-playita-logo.png" alt="logo" styleClass="navbar-logo"/>
-            </h:link>
-            <span class="navbar-title">La Playita</span>
+    <nav class="navbar">
+        <div class="navbar-logo">
+            <h:graphicImage library="img" name="la-playita-logo.png" alt="logo" styleClass="logo"/>
         </div>
-        <nav class="navbar-links">
-            <h:link outcome="index" value="Inicio"/>
-            <h:link outcome="login" value="Login"/>
-            <h:link outcome="registro" value="Registro"/>
-            <h:link outcome="home" value="Usuario"/>
-            <h:link outcome="admin/home" value="Admin"/>
-        </nav>
-    </header>
+        <ul class="navbar-links">
+            <li><h:link value="Inicio" outcome="/index"/></li>
 
+        </ul>
+    </nav>
     <!-- ===== CONTENIDO ===== -->
-    <main class="main-container">
-        <ui:insert name="content"/>
+    <main class="main-content" style="flex:1; margin-top:90px; padding:20px;">
+        <ui:insert name="content">Contenido aquí...</ui:insert>
     </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <p>© 2025 La Playita - Todos los derechos reservados</p>
+    </footer>
+
 </h:body>
 </html>

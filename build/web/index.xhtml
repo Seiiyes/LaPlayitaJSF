@@ -1,16 +1,29 @@
 <ui:composition template="/templates/template.xhtml"
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:p="http://primefaces.org/ui">
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
 
     <ui:define name="content">
-        <div class="card index-card">
-            <h2>Bienvenido a La Playita ☀️🌴</h2>
-            <p>Disfruta de la experiencia de usuario con nuestro sistema.</p>
-            <h:link outcome="login" value="Iniciar Sesión"/>
-            <br/>
-            <h:link outcome="registro" value="Registrarse"/>
+        <!-- Contenedor que centra contenido -->
+        <div class="main-container">
+
+            <!-- Tarjeta de bienvenida -->
+            <div class="card index-card">
+                
+                <!-- Logo + Texto lado a lado -->
+                <div class="welcome-container">
+                    <h:graphicImage library="img" name="la-playita-logo.png" alt="logo" styleClass="welcome-logo"/>             
+                    <h2 class="welcome-text">Bienvenido a La Playita</h2>
+                </div>
+
+                <p>Disfruta de la experiencia de usuario con nuestro sistema.</p>
+
+                <!-- Botones en fila -->
+                <div class="btn-container">
+                    <h:link outcome="login" value="Iniciar Sesión" styleClass="btn btn-blue"/>
+                    <h:link outcome="registro" value="Registrarse" styleClass="btn btn-green"/>
+                </div>
+            </div>
         </div>
     </ui:define>
 </ui:composition>

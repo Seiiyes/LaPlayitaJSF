@@ -20,26 +20,36 @@ public class RegistroBean {
     private String telefono;
     private String password;
     private String confirmarPassword;
-    private String rol = "VENDEDOR"; // por defecto
+    private String rol = "VENDEDOR"; // valor por defecto
 
     private final UsuarioService service = new UsuarioService();
 
     /**
      * Registrar nuevo usuario
+     * @return 
      */
     public String registrar() {
         try {
+            // Validación rápida antes de ir al servicio
+            if (password == null || confirmarPassword == null || !password.equals(confirmarPassword)) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN, "Las contraseñas no coinciden", null));
+                return null;
+            }
+
             Usuario u = new Usuario();
-            u.setDocumento(documento != null ? documento.trim() : null);
-            u.setNombres(nombres != null ? nombres.trim() : null);
-            u.setApellidos(apellidos != null ? apellidos.trim() : null);
-            u.setCorreo(correo != null ? correo.trim() : null);
-            u.setTelefono(telefono != null ? telefono.trim() : null);
+            u.setDocumento(trimOrNull(documento));
+            u.setNombres(trimOrNull(nombres));
+            u.setApellidos(trimOrNull(apellidos));
+            u.setCorreo(trimOrNull(correo));
+            u.setTelefono(trimOrNull(telefono));
 
             int id = service.registrar(u, password, confirmarPassword, rol);
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro exitoso (ID: " + id + ")", null));
+
+            resetForm(); // limpiamos campos
             return "login.xhtml?faces-redirect=true";
 
         } catch (IllegalArgumentException ie) {
@@ -50,7 +60,26 @@ public class RegistroBean {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error al registrar", e.getMessage()));
             return null;
+        } finally {
+            // Seguridad: limpiar contraseñas en memoria
+            password = null;
+            confirmarPassword = null;
         }
+    }
+
+    // Utilidad para evitar repetir trim
+    private String trimOrNull(String value) {
+        return (value != null) ? value.trim() : null;
+    }
+
+    // Reset de formulario tras registrar
+    private void resetForm() {
+        documento = null;
+        nombres = null;
+        apellidos = null;
+        correo = null;
+        telefono = null;
+        rol = "VENDEDOR";
     }
 
     // Getters & Setters
