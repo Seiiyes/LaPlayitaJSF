@@ -5,10 +5,18 @@
                 xmlns:p="http://primefaces.org/ui">
 
     <ui:define name="content">
-        <div class="card home-card">
-            <h2>Bienvenido #{loginBean.nombreMostrado} 🎉</h2>
-            <p>Aquí puedes acceder a tus opciones de usuario.</p>
-            <p:commandButton value="Cerrar sesión" action="#{loginBean.logout}" ajax="false"/>
+        <div class="main-container">
+            <div class="card home-card">
+                <h2>Bienvenido #{loginBean.nombreMostrado}</h2>
+                <p>Accede a tus opciones de usuario desde este panel.</p>
+
+                <div class="btn-container">
+                    <p:commandButton value="Cerrar sesión"
+                                     action="#{loginBean.logout}"
+                                     ajax="false"
+                                     styleClass="btn btn-blue"/>
+                </div>
+            </div>
         </div>
     </ui:define>
 </ui:composition>

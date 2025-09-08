@@ -1,0 +1,77 @@
+<ui:composition template="/templates/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+    <ui:define name="content">
+
+        <div class="main-content">
+            <div class="card admin-card">
+                <h2>Gestión de Usuarios</h2>
+                <p>Administra los usuarios registrados en el sistema.</p>
+
+                <h:form id="adminForm">
+                    <div class="table-container">
+                        <p:dataTable value="#{usuarioBean.listaUsuarios}" var="u"
+                                     paginator="true" rows="10"
+                                     resizableColumns="true"
+                                     styleClass="custom-datatable"
+                                     emptyMessage="No se encontraron usuarios">
+
+                            <!-- ID (SIN width) -->
+                            <p:column headerText="ID" style="text-align:center;">
+                                <h:outputText value="#{u.idUsuario}" pt:data-label="ID"/>
+                            </p:column>
+
+                            <!-- Correo (SIN min-width) -->
+                            <p:column headerText="Correo" filterBy="#{u.correo}" filterMatchMode="contains">
+                                <h:outputText value="#{u.correo}" pt:data-label="Correo"/>
+                            </p:column>
+
+                            <!-- Nombre completo (SIN min-width) -->
+                            <p:column headerText="Nombre completo" filterBy="#{u.nombres}" filterMatchMode="contains">
+                                <h:outputText value="#{u.nombres} #{u.apellidos}" pt:data-label="Nombre completo"/>
+                            </p:column>
+
+                            <!-- Rol (SIN width) -->
+                            <p:column headerText="Rol" style="text-align:center;"
+                                      filterBy="#{usuarioBean.getDescripcionRol(u.idRol)}"
+                                      filterMatchMode="equals">
+                                <h:outputText value="#{usuarioBean.getDescripcionRol(u.idRol)}" pt:data-label="Rol"/>
+                            </p:column>
+
+                            <!-- Estado (SIN width) -->
+                            <p:column headerText="Estado" style="text-align:center;"
+                                      filterBy="#{u.estadoUsuario}" filterMatchMode="equals">
+                                <h:outputText value="#{u.estadoUsuario eq 1 ? 'Activo' : 'Inactivo'}"
+                                              styleClass="#{u.estadoUsuario eq 1 ? 'estado-activo' : 'estado-inactivo'}"
+                                              pt:data-label="Estado"/>
+                            </p:column>
+
+                            <!-- Acciones (SIN width) -->
+                            <p:column headerText="Acciones" style="text-align:center;">
+                                <p:commandButton value="Editar"
+                                                 action="#{usuarioBean.actualizarUsuario(u)}"
+                                                 update=":adminForm"
+                                                 icon="pi pi-pencil"
+                                                 styleClass="ui-button-info ui-button-raised ui-button-rounded mr-2"
+                                                 pt:data-label="Acciones"/>
+                                <p:commandButton value="Eliminar"
+                                                 action="#{usuarioBean.eliminar(u)}"
+                                                 update=":adminForm"
+                                                 icon="pi pi-trash"
+                                                 styleClass="ui-button-danger ui-button-raised ui-button-rounded"
+                                                 onclick="return confirm('¿Seguro que deseas eliminar este usuario?');"
+                                                 pt:data-label="Acciones"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+
+    </ui:define>
+</ui:composition>

@@ -8,20 +8,31 @@
     <h:outputStylesheet library="css" name="base.css"/>
 </h:head>
 
-<h:body style="display:flex; flex-direction:column; min-height:100vh; margin:0;">
-    
+<h:body class="app-root">
+
     <!-- ===== NAVBAR ===== -->
-    <nav class="navbar">
+    <nav class="navbar app-nav">
         <div class="navbar-logo">
             <h:graphicImage library="img" name="la-playita-logo.png" alt="logo" styleClass="logo"/>
         </div>
         <ul class="navbar-links">
-            <li><h:link value="Inicio" outcome="/index"/></li>
-
+            <li>
+                <h:link value="Inicio" outcome="/index"
+                        styleClass="#{facesContext.viewRoot.viewId eq '/index.xhtml' ? 'active' : ''}"/>
+            </li>
+            <li>
+                <h:link value="Login" outcome="/login"
+                        styleClass="#{facesContext.viewRoot.viewId eq '/login.xhtml' ? 'active' : ''}"/>
+            </li>
+            <li>
+                <h:link value="Registro" outcome="/registro"
+                        styleClass="#{facesContext.viewRoot.viewId eq '/registro.xhtml' ? 'active' : ''}"/>
+            </li>
         </ul>
     </nav>
+
     <!-- ===== CONTENIDO ===== -->
-    <main class="main-content" style="flex:1; margin-top:90px; padding:20px;">
+    <main class="main-content">
         <ui:insert name="content">Contenido aquí...</ui:insert>
     </main>
 

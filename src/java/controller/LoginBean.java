@@ -2,11 +2,11 @@ package controller;
 
 import model.Usuario;
 import service.UsuarioService;
-
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.io.IOException;
 
@@ -22,46 +22,50 @@ public class LoginBean implements Serializable {
 
     /**
      * Inicia sesión y guarda el usuario en sesión.
-     * @return 
      */
-    public String login() {
+    public void login() {
+        FacesContext context = FacesContext.getCurrentInstance();
         try {
-            // Validación rápida antes de ir al servicio
+            // Validación rápida
             if (correo == null || correo.trim().isEmpty() || password == null || password.isEmpty()) {
-                FacesContext.getCurrentInstance().addMessage(null,
+                context.addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_WARN, "Debe ingresar correo y contraseña", null));
-                return null;
+                return; // usamos void, no null
             }
 
             Usuario u = service.login(correo.trim(), password);
 
             if (u == null) {
-                FacesContext.getCurrentInstance().addMessage(null,
+                context.addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Credenciales inválidas o usuario inactivo", null));
-                return null;
+                return; // void evita error de navegación
             }
 
             this.usuarioSesion = u;
 
-            // Guardamos en la sesión HTTP para el filtro
-            FacesContext.getCurrentInstance().getExternalContext().getSessionMap().put("usuario", u);
+            // Guardar usuario en sesión
+            context.getExternalContext().getSessionMap().put("usuario", u);
+            HttpSession session = (HttpSession) context.getExternalContext().getSession(true);
+            session.setMaxInactiveInterval(30 * 60); // 30 min
 
-            // Limpieza de password por seguridad
             password = null;
 
-            // Redirigir según rol (se puede mejorar con enum o tabla de rutas)
+            // Redirigir según rol
             if (u.getIdRol() == 1) {
-                return "/admin/home.xhtml?faces-redirect=true";
+                context.getExternalContext().redirect("admin/adminHome.xhtml");
             } else {
-                return "/home.xhtml?faces-redirect=true";
+                context.getExternalContext().redirect("home.xhtml");
             }
 
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
+        } catch (IOException e) {
+            context.addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error al iniciar sesión", "Intente nuevamente más tarde."));
-            return null;
+        } catch (Exception e) {
+            context.addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Error inesperado", e.getMessage()));
         }
     }
 
@@ -70,19 +74,22 @@ public class LoginBean implements Serializable {
      * @throws java.io.IOException
      */
     public void logout() throws IOException {
-        FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
-        FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().invalidateSession();
+        context.getExternalContext().redirect("login.xhtml");
     }
 
-    // Helpers
-    public boolean isLogueado() { return usuarioSesion != null; }
+    public boolean isLogueado() {
+        return usuarioSesion != null;
+    }
 
     public String getNombreMostrado() {
         return isLogueado()
                 ? usuarioSesion.getNombres() + " " + usuarioSesion.getApellidos()
                 : "";
     }
-    // Getters & Setters
+
+    // Getters y Setters
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
     public String getPassword() { return password; }

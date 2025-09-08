@@ -3,7 +3,6 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Java/LaPlayita/web/WEB-INF/web.xml</file>
             <file>file:/C:/Java/LaPlayita/src/java/dao/Conexion.java</file>
             <file>file:/C:/Java/LaPlayita/src/java/model/Usuario.java</file>
             <file>file:/C:/Java/LaPlayita/src/java/model/Rol.java</file>
@@ -12,13 +11,18 @@
             <file>file:/C:/Java/LaPlayita/src/java/service/UsuarioService.java</file>
             <file>file:/C:/Java/LaPlayita/src/java/controller/LoginBean.java</file>
             <file>file:/C:/Java/LaPlayita/src/java/controller/RegistroBean.java</file>
-            <file>file:/C:/Java/LaPlayita/web/resources/css/style.css</file>
             <file>file:/C:/Java/LaPlayita/web/index.xhtml</file>
             <file>file:/C:/Java/LaPlayita/web/registro.xhtml</file>
             <file>file:/C:/Java/LaPlayita/src/java/controller/UsuarioBean.java</file>
             <file>file:/C:/Java/LaPlayita/web/home.xhtml</file>
-            <file>file:/C:/Java/LaPlayita/web/admin/home.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/admin/adminHome.xhtml</file>
             <file>file:/C:/Java/LaPlayita/web/login.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/templates/template.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/resources/css/base.css</file>
+            <file>file:/C:/Java/LaPlayita/src/java/filter/AuthFilter.java</file>
+            <file>file:/C:/Java/LaPlayita/web/admin/usuarios.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/src/java/filter/SecurityHeadersFilter.java</file>
+            <file>file:/C:/Java/LaPlayita/web/WEB-INF/web.xml</file>
         </group>
     </open-files>
 </project-private>

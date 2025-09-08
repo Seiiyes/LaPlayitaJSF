@@ -2,29 +2,40 @@
                 xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
                 xmlns:p="http://primefaces.org/ui">
-
     <ui:define name="content">
-        <!-- Contenedor que centra vertical/horizontal -->
         <div class="main-container">
-
-            <!-- Tarjeta de login -->
-            <h:form id="loginForm" styleClass="card login-card">
-                <h2>Iniciar Sesión</h2>
-                <p:messages id="msgs" showDetail="true"/>
-
-                <p:inputText id="correo" value="#{loginBean.correo}"
-                             placeholder="Correo electrónico" required="true"
-                             requiredMessage="El correo es obligatorio"/>
-                <p:password id="password" value="#{loginBean.password}"
-                            placeholder="Contraseña" required="true"
-                            requiredMessage="La contraseña es obligatoria" feedback="true"/>
-                <!-- Contenedor de botones -->
+            <h:form id="loginForm" styleClass="card login-card">              
+                <!-- Token CSRF oculto -->
+                <h:inputHidden id="csrfToken" 
+                               value="#{facesContext.externalContext.sessionMap['csrfToken']}" />
+                <h2>Iniciar Sesión</h2>             
+                <p:messages id="msgs" showDetail="true" closable="true" styleClass="msg-box"/>
+                <!-- Campo correo -->
+                <p:inputText id="correo" 
+                             value="#{loginBean.correo}" 
+                             placeholder="Correo electrónico"
+                             required="true" 
+                             requiredMessage="El correo es obligatorio"
+                             styleClass="input-text"/>
+                <!-- Campo contraseña -->
+                <p:password id="password" 
+                            value="#{loginBean.password}" 
+                            placeholder="Contraseña"
+                            required="true" 
+                            requiredMessage="La contraseña es obligatoria"
+                            feedback="true" 
+                            styleClass="input-text"/>
+                <!-- Botón de login -->
                 <div class="btn-container">
-                    <p:commandButton value="Ingresar" action="#{loginBean.login}"
-                                     update="msgs" ajax="false" styleClass="btn btn-blue"/>
+                    <p:commandButton value="Ingresar" 
+                                     action="#{loginBean.login}" 
+                                     update="msgs"
+                                     ajax="false"
+                                     styleClass="btn btn-blue"/>
                 </div>
-
+                <!-- Link a registro -->
                 <p style="margin-top:15px;">
                     ¿No tienes cuenta?
                     <h:link outcome="registro" value="Regístrate aquí" styleClass="link-btn"/>
