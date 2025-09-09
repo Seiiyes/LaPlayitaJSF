@@ -4,7 +4,6 @@ import dao.RolDAO;
 import model.Usuario;
 import model.Rol;
 import service.UsuarioService;
-
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -21,84 +20,93 @@ public class UsuarioBean implements Serializable {
 
     private List<Usuario> listaUsuarios;
     private Map<Integer, String> rolesMap;
+    private List<Rol> listaRoles;
+
+    private Usuario usuarioSeleccionado;
+    private String nuevaContrasena;
 
     private final UsuarioService usuarioService = new UsuarioService();
     private final RolDAO rolDAO = new RolDAO();
 
-    // Campo temporal para nueva contraseña
-    private String nuevaContrasena;
-
     @PostConstruct
     public void init() {
         try {
-            // Cargar usuarios
             listaUsuarios = usuarioService.listarUsuarios();
+            listaRoles = rolDAO.findAll();
 
-            // Cargar roles en un mapa para acceso rápido
             rolesMap = new HashMap<>();
-            for (Rol rol : rolDAO.findAll()) {
+            for (Rol rol : listaRoles) {
                 rolesMap.put(rol.getIdRol(), rol.getDescripcionRol());
             }
+            // Inicializa el objeto para evitar errores de NullPointerException en la carga inicial de la página
+            this.usuarioSeleccionado = new Usuario();
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Error al cargar usuarios o roles", e.getMessage()));
+                            "Error al cargar datos iniciales", e.getMessage()));
         }
     }
 
-    // Eliminar usuario
+    public void prepararNuevoUsuario() {
+        this.usuarioSeleccionado = new Usuario();
+        this.nuevaContrasena = null;
+    }
+
+    public void prepararEdicion(Usuario usuario) {
+        // Se clona el objeto para evitar modificar la tabla directamente antes de guardar
+        this.usuarioSeleccionado = new Usuario();
+        this.usuarioSeleccionado.setIdUsuario(usuario.getIdUsuario());
+        this.usuarioSeleccionado.setDocumento(usuario.getDocumento());
+        this.usuarioSeleccionado.setNombres(usuario.getNombres());
+        this.usuarioSeleccionado.setApellidos(usuario.getApellidos());
+        this.usuarioSeleccionado.setCorreo(usuario.getCorreo());
+        this.usuarioSeleccionado.setTelefono(usuario.getTelefono());
+        this.usuarioSeleccionado.setEstadoUsuario(usuario.getEstadoUsuario());
+        this.usuarioSeleccionado.setIdRol(usuario.getIdRol());
+        this.nuevaContrasena = null;
+    }
+    
+    public void guardarCambios() {
+        try {
+            boolean esNuevo = (usuarioSeleccionado.getIdUsuario() == 0);
+
+            if (esNuevo) {
+                usuarioService.agregarUsuario(usuarioSeleccionado, nuevaContrasena);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Usuario agregado con éxito", null));
+            } else {
+                usuarioService.actualizarUsuario(usuarioSeleccionado, nuevaContrasena);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Usuario actualizado con éxito", null));
+            }
+
+            // Recargar la lista desde la BD para reflejar los cambios en la tabla
+            listaUsuarios = usuarioService.listarUsuarios();
+
+            // Limpiar el formulario y dejarlo listo para un nuevo ingreso
+            prepararNuevoUsuario();
+
+        } catch (Exception e) {
+            // En caso de error, no limpiamos el formulario para que el usuario pueda corregir los datos
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error al guardar", e.getMessage()));
+        }
+    }
+    
     public void eliminar(Usuario u) {
         try {
             usuarioService.eliminarUsuario(u.getIdUsuario());
             listaUsuarios.remove(u);
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Usuario eliminado", null));
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Usuario eliminado", null));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "No se pudo eliminar", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se pudo eliminar", e.getMessage()));
         }
     }
 
-    // Obtener descripción del rol de manera eficiente
-    public String getDescripcionRol(int idRol) {
-        return rolesMap.getOrDefault(idRol, "Desconocido");
-    }
-
-    // Agregar usuario
-    public void agregarUsuario(Usuario u) {
-        try {
-            usuarioService.agregarUsuario(u, nuevaContrasena);
-            listaUsuarios.add(u);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Usuario agregado", null));
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "No se pudo agregar el usuario", e.getMessage()));
-        }
-    }
-
-    // Actualizar usuario
-    public void actualizarUsuario(Usuario u) {
-        try {
-            // Pasamos nuevaContrasena; si es null, no se cambia
-            usuarioService.actualizarUsuario(u, nuevaContrasena);
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Usuario actualizado", null));
-            // Limpiar contraseña temporal
-            nuevaContrasena = null;
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "No se pudo actualizar el usuario", e.getMessage()));
-        }
-    }
-
-    // Getters y Setters
+    // Getters y Setters (sin cambios)
     public List<Usuario> getListaUsuarios() {
         return listaUsuarios;
     }
@@ -107,11 +115,27 @@ public class UsuarioBean implements Serializable {
         this.listaUsuarios = listaUsuarios;
     }
 
+    public List<Rol> getListaRoles() {
+        return listaRoles;
+    }
+
+    public Usuario getUsuarioSeleccionado() {
+        return usuarioSeleccionado;
+    }
+
+    public void setUsuarioSeleccionado(Usuario usuarioSeleccionado) {
+        this.usuarioSeleccionado = usuarioSeleccionado;
+    }
+
     public String getNuevaContrasena() {
         return nuevaContrasena;
     }
 
     public void setNuevaContrasena(String nuevaContrasena) {
         this.nuevaContrasena = nuevaContrasena;
+    }
+
+    public String getDescripcionRol(int idRol) {
+        return rolesMap.getOrDefault(idRol, "Desconocido");
     }
 }

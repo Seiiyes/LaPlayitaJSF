@@ -3,58 +3,21 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui">
-
     <ui:define name="content">
-        <div class="main-content admin-home" style="padding:20px;">
-
-            <!-- Card principal de bienvenida -->
-            <div class="card" style="padding:30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+        <div class="main-content">
+            <div class="card admin-home-card">
                 <h2>Bienvenido, Administrador</h2>
-                <p>Desde aquí puede gestionar usuarios, roles y configuraciones del sistema.</p>
+                <p>Desde aquí puede gestionar los módulos principales del sistema.</p>
+                <h:form>
+                    <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
-                <!-- Menú tipo dashboard -->
-                <div class="dashboard-menu" style="margin-top:30px; display:flex; gap:20px; flex-wrap:wrap;">
-
-                    <!-- Usuarios -->
-                    <h:link outcome="/admin/usuarios"
-                            style="display:flex; align-items:center; flex-direction:column; 
-                                   text-decoration:none; padding:20px; border-radius:8px; 
-                                   background:#f0f0f0; color:#333; font-weight:bold; text-align:center;">
-                        <i class="pi pi-users" style="font-size:36px; margin-bottom:8px;"></i>
-                        Usuarios
-                    </h:link>
-
-                    <!-- Roles -->
-                    <h:link outcome="/admin/roles"
-                            style="display:flex; align-items:center; flex-direction:column; 
-                                   text-decoration:none; padding:20px; border-radius:8px; 
-                                   background:#f0f0f0; color:#333; font-weight:bold; text-align:center;">
-                        <i class="pi pi-id-card" style="font-size:36px; margin-bottom:8px;"></i>
-                        Roles
-                    </h:link>
-
-                    <!-- Productos -->
-                    <h:link outcome="/admin/productos"
-                            style="display:flex; align-items:center; flex-direction:column; 
-                                   text-decoration:none; padding:20px; border-radius:8px; 
-                                   background:#f0f0f0; color:#333; font-weight:bold; text-align:center;">
-                        <i class="pi pi-shopping-cart" style="font-size:36px; margin-bottom:8px;"></i>
-                        Productos
-                    </h:link>
-
-                    <!-- Cerrar Sesión -->
-                    <h:form>
-                        <p:commandButton value="Cerrar Sesión" icon="pi pi-sign-out"
-                                         action="#{loginBean.logout}" ajax="false"
-                                         style="display:flex; align-items:center; justify-content:center; 
-                                                padding:20px; border-radius:8px; background:#f44336; 
-                                                color:white; font-weight:bold; text-align:center;"/>
-                    </h:form>
-
-                </div>
+                    <div class="dashboard-menu">                   
+                        <p:commandButton value="Usuarios" action="#{adminBean.irUsuarios}" ajax="false" icon="pi pi-users" styleClass="dashboard-button"/>
+                        <p:commandButton value="Roles" action="#{adminBean.irRoles}" ajax="false" icon="pi pi-id-card" styleClass="dashboard-button" disabled="true"/>
+                        <p:commandButton value="Productos" action="#{adminBean.irProductos}" ajax="false" icon="pi pi-shopping-cart" styleClass="dashboard-button" disabled="true"/>
+                    </div>
+                </h:form>
             </div>
-
         </div>
     </ui:define>
-
 </ui:composition>

@@ -1,44 +1,53 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
-
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
 <h:head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>La Playita</title>
+    
     <h:outputStylesheet library="css" name="base.css"/>
 </h:head>
-
-<h:body class="app-root">
-
-    <!-- ===== NAVBAR ===== -->
-    <nav class="navbar app-nav">
-        <div class="navbar-logo">
-            <h:graphicImage library="img" name="la-playita-logo.png" alt="logo" styleClass="logo"/>
+<h:body>
+    <header class="navbar">
+        <div class="navbar-left">
+            <div class="navbar-logo">
+                <h:graphicImage name="img/la-playita-logo.png" styleClass="logo" alt="Logo La Playita"/>
+            </div>
+            <ul class="navbar-links">
+                <li><h:link outcome="/home" value="Inicio"/></li>
+                
+                <h:panelGroup rendered="#{loginBean.usuarioSesion != null and loginBean.usuarioSesion.idRol == 1}">
+                    <li><h:link outcome="/admin/usuarios" value="Gestión Usuarios"/></li>
+                </h:panelGroup>
+            </ul>
         </div>
-        <ul class="navbar-links">
-            <li>
-                <h:link value="Inicio" outcome="/index"
-                        styleClass="#{facesContext.viewRoot.viewId eq '/index.xhtml' ? 'active' : ''}"/>
-            </li>
-            <li>
-                <h:link value="Login" outcome="/login"
-                        styleClass="#{facesContext.viewRoot.viewId eq '/login.xhtml' ? 'active' : ''}"/>
-            </li>
-            <li>
-                <h:link value="Registro" outcome="/registro"
-                        styleClass="#{facesContext.viewRoot.viewId eq '/registro.xhtml' ? 'active' : ''}"/>
-            </li>
-        </ul>
-    </nav>
+        
+        <div class="navbar-right">
+            <h:form>
+                <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
-    <!-- ===== CONTENIDO ===== -->
+                <h:panelGroup rendered="#{loginBean.isLogueado()}">
+                    <span style="margin-right: 15px; color: #f0f0f0;">Hola, #{loginBean.nombreMostrado}</span>   
+                    <p:commandButton value="Cerrar Sesión" action="#{loginBean.logout()}" ajax="false" icon="pi pi-sign-out" styleClass="ui-button-warning"/>
+                </h:panelGroup>
+
+                <h:panelGroup rendered="#{!loginBean.isLogueado()}">
+                     <ul class="navbar-links">
+                         <li><h:link outcome="/login" value="Login"/></li>
+                         <li><h:link outcome="/registro" value="Registro"/></li>
+                     </ul>
+                </h:panelGroup>
+            </h:form>
+        </div>
+    </header>
     <main class="main-content">
-        <ui:insert name="content">Contenido aquí...</ui:insert>
+        <ui:insert name="content"/>
     </main>
-
-    <!-- ===== FOOTER ===== -->
     <footer class="footer">
-        <p>© 2025 La Playita - Todos los derechos reservados</p>
+        <p>&#169; 2025 La Playita - Todos los derechos reservados</p>
     </footer>
 
 </h:body>

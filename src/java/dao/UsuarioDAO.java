@@ -155,9 +155,17 @@ public class UsuarioDAO {
         return u;
     }
     public void actualizar(Usuario u) {
-        String sql = "UPDATE usuario SET documento=?, nombres=?, apellidos=?, correo=?, telefono=?, idRol=?, estadoUsuario=? "
-                + "WHERE idUsuario=?";
-        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        // Se usa un StringBuilder para construir la consulta dinámicamente
+        StringBuilder sql = new StringBuilder("UPDATE usuario SET documento=?, nombres=?, apellidos=?, correo=?, telefono=?, idRol=?, estadoUsuario=? ");
+
+        // Solo se añade la parte de la contraseña si se ha proporcionado un nuevo hash
+        if (u.getContrasenaHash() != null && !u.getContrasenaHash().isEmpty()) {
+            sql.append(", contrasena=? ");
+        }
+
+        sql.append("WHERE idUsuario=?");
+
+        try (Connection con = Conexion.getConnection(); PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
             ps.setString(1, u.getDocumento());
             ps.setString(2, u.getNombres());
@@ -166,15 +174,20 @@ public class UsuarioDAO {
             ps.setString(5, u.getTelefono());
             ps.setInt(6, u.getIdRol());
             ps.setInt(7, u.getEstadoUsuario());
-            ps.setInt(8, u.getIdUsuario());
+            int parameterIndex = 8; // Siguiente índice de parámetro
+            if (u.getContrasenaHash() != null && !u.getContrasenaHash().isEmpty()) {
+                ps.setString(parameterIndex++, u.getContrasenaHash());
+            }
+
+            ps.setInt(parameterIndex, u.getIdUsuario());
 
             int affected = ps.executeUpdate();
             if (affected == 0) {
-                throw new SQLException("No se actualizó ningún usuario");
+                throw new SQLException("No se actualizó ningún usuario con ID: " + u.getIdUsuario());
             }
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            throw new RuntimeException("⚠️ Correo o documento ya registrado", e);
+            throw new RuntimeException("⚠️ Correo o documento ya registrado para otro usuario", e);
         } catch (SQLException e) {
             throw new RuntimeException("Error actualizando usuario", e);
         }

@@ -3,75 +3,100 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 xmlns:h="http://xmlns.jcp.org/jsf/html"
                 xmlns:p="http://primefaces.org/ui"
-                xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
 
     <ui:define name="content">
+        <div class="page-container">
+            
+            <!-- PANEL IZQUIERDO: TABLA DE USUARIOS -->
+            <div class="table-panel">
+                <div class="card admin-card">
+                    <h2>Gestión de Usuarios</h2>
+                    <p>Seleccione un usuario para editarlo o cree uno nuevo.</p>
 
-        <div class="main-content">
-            <div class="card admin-card">
-                <h2>Gestión de Usuarios</h2>
-                <p>Administra los usuarios registrados en el sistema.</p>
-
-                <h:form id="adminForm">
-                    <div class="table-container">
-                        <p:dataTable value="#{usuarioBean.listaUsuarios}" var="u"
-                                     paginator="true" rows="10"
-                                     resizableColumns="true"
-                                     styleClass="custom-datatable"
-                                     emptyMessage="No se encontraron usuarios">
-
-                            <!-- ID (SIN width) -->
-                            <p:column headerText="ID" style="text-align:center;">
-                                <h:outputText value="#{u.idUsuario}" pt:data-label="ID"/>
+                    <h:form id="adminForm">
+                        <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
+                        
+                        <p:dataTable id="tablaUsuarios" widgetVar="tablaUsuariosWV" value="#{usuarioBean.listaUsuarios}" var="u"
+                                     paginator="true" rows="8" resizableColumns="false"
+                                     styleClass="custom-datatable" emptyMessage="No se encontraron usuarios"
+                                     reflow="true">
+                            
+                            <p:column headerText="Correo" sortBy="#{u.correo}" filterBy="#{u.correo}" filterMatchMode="contains" styleClass="col-correo">
+                                <h:outputText value="#{u.correo}" />
                             </p:column>
-
-                            <!-- Correo (SIN min-width) -->
-                            <p:column headerText="Correo" filterBy="#{u.correo}" filterMatchMode="contains">
-                                <h:outputText value="#{u.correo}" pt:data-label="Correo"/>
+                            <p:column headerText="Nombre completo" sortBy="#{u.nombres}" filterBy="#{u.nombres}" filterMatchMode="contains" styleClass="col-nombre">
+                                <h:outputText value="#{u.nombres} #{u.apellidos}" />
                             </p:column>
-
-                            <!-- Nombre completo (SIN min-width) -->
-                            <p:column headerText="Nombre completo" filterBy="#{u.nombres}" filterMatchMode="contains">
-                                <h:outputText value="#{u.nombres} #{u.apellidos}" pt:data-label="Nombre completo"/>
+                            <p:column headerText="Rol" sortBy="#{usuarioBean.getDescripcionRol(u.idRol)}" filterBy="#{usuarioBean.getDescripcionRol(u.idRol)}" filterMatchMode="equals" styleClass="col-rol">
+                                <f:facet name="filter"><p:selectOneMenu onchange="PF('tablaUsuariosWV').filter()"><f:selectItem itemLabel="Todos" itemValue="#{null}" noSelectionOption="true" /><f:selectItems value="#{usuarioBean.listaRoles}" var="r" itemValue="#{r.descripcionRol}" itemLabel="#{r.descripcionRol}" /></p:selectOneMenu></f:facet>
+                                <h:outputText value="#{usuarioBean.getDescripcionRol(u.idRol)}" />
                             </p:column>
-
-                            <!-- Rol (SIN width) -->
-                            <p:column headerText="Rol" style="text-align:center;"
-                                      filterBy="#{usuarioBean.getDescripcionRol(u.idRol)}"
-                                      filterMatchMode="equals">
-                                <h:outputText value="#{usuarioBean.getDescripcionRol(u.idRol)}" pt:data-label="Rol"/>
+                            <p:column headerText="Estado" styleClass="col-estado">
+                                <h:outputText value="#{u.estadoUsuario eq 1 ? 'Activo' : 'Inactivo'}" styleClass="#{u.estadoUsuario eq 1 ? 'estado-activo' : 'estado-inactivo'}" />
                             </p:column>
-
-                            <!-- Estado (SIN width) -->
-                            <p:column headerText="Estado" style="text-align:center;"
-                                      filterBy="#{u.estadoUsuario}" filterMatchMode="equals">
-                                <h:outputText value="#{u.estadoUsuario eq 1 ? 'Activo' : 'Inactivo'}"
-                                              styleClass="#{u.estadoUsuario eq 1 ? 'estado-activo' : 'estado-inactivo'}"
-                                              pt:data-label="Estado"/>
+                            <p:column headerText="Acciones" styleClass="col-acciones">
+                                <p:commandButton title="Editar este usuario" actionListener="#{usuarioBean.prepararEdicion(u)}" update=":formPanel" icon="pi pi-pencil" styleClass="ui-button-info"/>
+                                <p:commandButton title="Eliminar este usuario" actionListener="#{usuarioBean.eliminar(u)}" update="tablaUsuarios" icon="pi pi-trash" styleClass="ui-button-danger">
+                                    <p:confirm header="Confirmación" message="¿Seguro que deseas eliminar a #{u.nombres}?" icon="pi pi-exclamation-triangle"/>
+                                </p:commandButton>
                             </p:column>
-
-                            <!-- Acciones (SIN width) -->
-                            <p:column headerText="Acciones" style="text-align:center;">
-                                <p:commandButton value="Editar"
-                                                 action="#{usuarioBean.actualizarUsuario(u)}"
-                                                 update=":adminForm"
-                                                 icon="pi pi-pencil"
-                                                 styleClass="ui-button-info ui-button-raised ui-button-rounded mr-2"
-                                                 pt:data-label="Acciones"/>
-                                <p:commandButton value="Eliminar"
-                                                 action="#{usuarioBean.eliminar(u)}"
-                                                 update=":adminForm"
-                                                 icon="pi pi-trash"
-                                                 styleClass="ui-button-danger ui-button-raised ui-button-rounded"
-                                                 onclick="return confirm('¿Seguro que deseas eliminar este usuario?');"
-                                                 pt:data-label="Acciones"/>
-                            </p:column>
-
                         </p:dataTable>
-                    </div>
-                </h:form>
+                        <p:confirmDialog global="true"><p:commandButton value="Sí, eliminar" type="button" styleClass="ui-confirmdialog-yes ui-button-danger"/><p:commandButton value="No, cancelar" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"/></p:confirmDialog>
+                    </h:form>
+                </div>
+            </div>
+
+            <!-- PANEL DERECHO: FORMULARIO -->
+            <div class="form-panel">
+                 <div class="card form-card">
+                    <h:form id="formPanel">
+                        <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
+                        
+                        <h3>#{empty usuarioBean.usuarioSeleccionado.idUsuario ? 'Crear Nuevo Usuario' : 'Editando Usuario'}</h3>
+                        
+                        <p:messages id="formMessages" showDetail="true" closable="true"><p:autoUpdate/></p:messages>
+                        
+                        <div class="form-grid">
+                            <p:outputLabel for="nombres" value="Nombres" styleClass="required"/>
+                            <p:inputText id="nombres" value="#{usuarioBean.usuarioSeleccionado.nombres}" required="true"/>
+
+                            <p:outputLabel for="apellidos" value="Apellidos" styleClass="required"/>
+                            <p:inputText id="apellidos" value="#{usuarioBean.usuarioSeleccionado.apellidos}" required="true"/>
+
+                            <p:outputLabel for="documento" value="Documento" styleClass="required"/>
+                            <p:inputText id="documento" value="#{usuarioBean.usuarioSeleccionado.documento}" required="true"/>
+                            
+                            <p:outputLabel for="correo" value="Correo" styleClass="required"/>
+                            <p:inputText id="correo" value="#{usuarioBean.usuarioSeleccionado.correo}" required="true"/>
+
+                            <p:outputLabel for="telefono" value="Teléfono"/>
+                            <p:inputText id="telefono" value="#{usuarioBean.usuarioSeleccionado.telefono}"/>
+
+                            <p:outputLabel for="rol" value="Rol" styleClass="required"/>
+                            <p:selectOneMenu id="rol" value="#{usuarioBean.usuarioSeleccionado.idRol}" required="true">
+                                <f:selectItem itemLabel="Seleccione un rol" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{usuarioBean.listaRoles}" var="r" itemValue="#{r.idRol}" itemLabel="#{r.descripcionRol}"/>
+                            </p:selectOneMenu>
+
+                            <p:outputLabel for="estado" value="Estado" styleClass="required"/>
+                            <p:selectOneMenu id="estado" value="#{usuarioBean.usuarioSeleccionado.estadoUsuario}" required="true">
+                                <f:selectItem itemLabel="Activo" itemValue="1"/><f:selectItem itemLabel="Inactivo" itemValue="0"/><f:selectItem itemLabel="Suspendido" itemValue="2"/>
+                            </p:selectOneMenu>
+
+                            <p:outputLabel for="pass" value="Contraseña" styleClass="#{empty usuarioBean.usuarioSeleccionado.idUsuario ? 'required' : ''}"/>
+                            <p:password id="pass" value="#{usuarioBean.nuevaContrasena}" 
+                                        placeholder="#{empty usuarioBean.usuarioSeleccionado.idUsuario ? '' : '(No cambiar)'}"
+                                        required="#{empty usuarioBean.usuarioSeleccionado.idUsuario}"/>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <p:commandButton value="Guardar" actionListener="#{usuarioBean.guardarCambios()}" update=":adminForm:tablaUsuarios :formPanel" icon="pi pi-save" styleClass="ui-button-success"/>
+                            <p:commandButton value="Limpiar" actionListener="#{usuarioBean.prepararNuevoUsuario()}" update=":formPanel" icon="pi pi-refresh" styleClass="ui-button-secondary" process="@this"/>
+                        </div>
+                    </h:form>
+                </div>
             </div>
         </div>
-
     </ui:define>
 </ui:composition>

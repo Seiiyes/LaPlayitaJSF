@@ -109,14 +109,19 @@ public class UsuarioService {
     // ---------------- ACTUALIZAR USUARIO ----------------
     public void actualizarUsuario(Usuario u, String nuevaContrasena) {
         if (u == null || u.getIdUsuario() <= 0) {
-            throw new IllegalArgumentException("Usuario inválido");
+            throw new IllegalArgumentException("Usuario inválido para actualizar");
         }
 
-        if (nuevaContrasena != null && !nuevaContrasena.isEmpty()) {
-            // validación básica
-            if (nuevaContrasena.length() < 8)
+        // Solo hashear y establecer la nueva contraseña si se proporcionó una
+        if (nuevaContrasena != null && !nuevaContrasena.trim().isEmpty()) {
+            if (nuevaContrasena.length() < 8) {
                 throw new IllegalArgumentException("La nueva contraseña debe tener mínimo 8 caracteres");
+            }
+
             u.setContrasenaHash(BCrypt.hashpw(nuevaContrasena, BCrypt.gensalt(10)));
+        } else {
+            // Asegurarse de que no se envíe un hash vacío o nulo al DAO si no se cambia
+            u.setContrasenaHash(null);
         }
 
         usuarioDAO.actualizar(u);
