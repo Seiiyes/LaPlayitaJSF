@@ -25,9 +25,6 @@ public class LoginBean implements Serializable {
     public void login() {
         FacesContext context = FacesContext.getCurrentInstance();
 
-        // ==========================================================
-        // ===== CAMBIO 1: OBTENER EL CONTEXT PATH AL INICIO ======
-        // ==========================================================
         HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
         String contextPath = request.getContextPath();
 
@@ -51,9 +48,6 @@ public class LoginBean implements Serializable {
 
             password = null;
 
-            // ==========================================================
-            // ===== CAMBIO 2: USAR RUTAS ABSOLUTAS PARA REDIRIGIR ======
-            // ==========================================================
             if (u.getIdRol() == 1) { // Administrador
                 context.getExternalContext().redirect(contextPath + "/admin/adminHome.xhtml");
             } else { // Otros roles

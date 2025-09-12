@@ -10,6 +10,14 @@
             <file>file:/C:/Java/LaPlayita/web/index.xhtml</file>
             <file>file:/C:/Java/LaPlayita/web/resources/css/base.css</file>
             <file>file:/C:/Java/LaPlayita/src/java/controller/UsuarioBean.java</file>
+            <file>file:/C:/Java/LaPlayita/web/login.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/compras/gestion.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/compras/reportes.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/pedidos/gestion.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/ventas/historial.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/web/ventas/registrar.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/src/java/filter/AuthFilter.java</file>
+            <file>file:/C:/Java/LaPlayita/web/access-denied.xhtml</file>
         </group>
     </open-files>
 </project-private>

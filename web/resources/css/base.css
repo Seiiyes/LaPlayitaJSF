@@ -61,6 +61,18 @@ body {
     width: auto;
     display: block;
 }
+.navbar-logo-link {
+    display: flex;
+    align-items: center;
+    border-radius: 50%;
+}
+.navbar-logo-link .logo {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease;
+}
+.navbar-logo-link:hover .logo {
+    transform: scale(1.1);
+    opacity: 0.9;
+}
 .navbar-links {
     display: flex;
     align-items: center;
@@ -420,4 +432,43 @@ body {
     .main-content {
         margin-top: 140px;
     }
+}
+/* ======================================================= */
+/* ======        REFINAMIENTOS PUNTUALES FINALES      ====== */
+/* ======================================================= */
+
+/* --- 1. Estilo para los enlaces deshabilitados de la navbar --- */
+/* Esta regla es necesaria para que p:link disabled="true" se vea correctamente */
+.navbar-links li .ui-link.ui-state-disabled {
+    color: #6c757d !important;      /* Color gris para indicar inactividad */
+    pointer-events: none;           /* Desactiva la interacción del ratón */
+    background: none !important;    /* Quita cualquier efecto de hover */
+}
+
+/* --- 2. Solución para que los iconos en botones de la tabla sean visibles --- */
+/* PrimeFaces por defecto oculta los iconos si el botón tiene texto (aunque el texto sea un title) */
+.custom-datatable .ui-button.ui-button-icon-only .ui-icon {
+    margin: 0 auto; /* Centra el icono dentro del botón de acciones */
+}
+
+/* --- 3. Mejoras de layout para la página de usuarios y otras páginas de contenido principal --- */
+/* Le damos un ancho máximo al contenedor principal para que no se estire indefinidamente */
+.main-content > .page-container {
+    max-width: 1600px;  /* Ancho máximo razonable para la vista */
+    margin: 0 auto;     /* Centra el contenedor en la página */
+    width: 100%;
+}
+
+/* --- 4. Mejoras de contraste y color para la tabla, manteniendo tu paleta --- */
+.custom-datatable .ui-widget-header {
+    background: #2a2a2a !important; /* Cabecera un poco más oscura para mejor contraste */
+    border-bottom-color: #00e0ff !important;
+}
+.custom-datatable .ui-datatable-data > tr {
+    background: rgba(25, 25, 25, 0.9) !important; /* Fondo de fila más oscuro y uniforme */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.custom-datatable .ui-datatable-data > tr:hover {
+    background: rgba(40, 40, 40, 0.95) !important; /* Un hover sutil que respeta el tema */
+    border-color: rgba(0, 220, 255, 0.3);
 }

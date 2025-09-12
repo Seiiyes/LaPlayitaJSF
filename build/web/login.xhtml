@@ -1,46 +1,52 @@
-<ui:composition template="/templates/template.xhtml"
-                xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-                xmlns:h="http://xmlns.jcp.org/jsf/html"
-                xmlns:f="http://xmlns.jcp.org/jsf/core"
-                xmlns:p="http://primefaces.org/ui">
-    <ui:define name="content">
-        <div class="main-container">
-            <h:form id="loginForm" styleClass="card login-card">              
-                <!-- Token CSRF oculto -->
-                <h:inputHidden id="csrfToken" 
-                               value="#{facesContext.externalContext.sessionMap['csrfToken']}" />
-                <h2>Iniciar Sesión</h2>             
-                <p:messages id="msgs" showDetail="true" closable="true" styleClass="msg-box"/>
-                <!-- Campo correo -->
-                <p:inputText id="correo" 
-                             value="#{loginBean.correo}" 
-                             placeholder="Correo electrónico"
-                             required="true" 
-                             requiredMessage="El correo es obligatorio"
-                             styleClass="input-text"/>
-                <!-- Campo contraseña -->
-                <p:password id="password" 
-                            value="#{loginBean.password}" 
-                            placeholder="Contraseña"
-                            required="true" 
-                            requiredMessage="La contraseña es obligatoria"
-                            feedback="true" 
-                            styleClass="input-text"/>
-                <!-- Botón de login -->
-                <div class="btn-container">
-                    <p:commandButton value="Ingresar" 
-                                     action="#{loginBean.login}" 
-                                     update="msgs"
-                                     ajax="false"
-                                     styleClass="btn btn-blue"/>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="content">
+
+            <div class="login-container">
+                <div class="card login-card">
+
+                    <h:form id="loginForm">
+                        <!-- Token CSRF corregido con input plano -->
+                        <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
+
+                        <h2>Iniciar Sesión</h2>
+
+                        <!-- Contenedor para mensajes de error/advertencia -->
+                        <p:messages id="loginMessages" showDetail="false" closable="true">
+                            <p:autoUpdate/>
+                        </p:messages>
+
+                        <div class="form-group">
+                            <p:inputText id="correo" value="#{loginBean.correo}" 
+                                         placeholder="Correo electrónico" required="true"
+                                         requiredMessage="El correo es obligatorio."/>
+                        </div>
+
+                        <div class="form-group">
+                            <!-- Se elimina feedback="true" para quitar el medidor -->
+                            <p:password id="password" value="#{loginBean.password}" 
+                                        placeholder="Contraseña" required="true"
+                                        requiredMessage="La contraseña es obligatoria."/>
+                        </div>
+
+                        <p:commandButton value="Ingresar" actionListener="#{loginBean.login}"
+                                         styleClass="login-button" icon="pi pi-sign-in"
+                                         update="loginMessages"/>
+
+                        <div class="register-link">
+                            <span>¿No tienes cuenta? </span>
+                            <h:link outcome="/registro" value="Regístrate aquí"/>
+                        </div>
+
+                    </h:form>
                 </div>
-                <!-- Link a registro -->
-                <p style="margin-top:15px;">
-                    ¿No tienes cuenta?
-                    <h:link outcome="registro" value="Regístrate aquí" styleClass="link-btn"/>
-                </p>
-            </h:form>
-        </div>
-    </ui:define>
-</ui:composition>
+            </div>
+
+        </ui:define>
+    </ui:composition>
+</html>

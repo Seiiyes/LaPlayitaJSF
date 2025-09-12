@@ -3,52 +3,78 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
-<h:head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>La Playita</title>
-    
-    <h:outputStylesheet library="css" name="base.css"/>
-</h:head>
-<h:body>
-    <header class="navbar">
-        <div class="navbar-left">
-            <div class="navbar-logo">
-                <h:graphicImage name="img/la-playita-logo.png" styleClass="logo" alt="Logo La Playita"/>
+    <h:head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>La Playita</title>
+        <link rel="icon" type="image/png" href="#{resource['img/la-playita-logo.png']}" />
+        <h:outputStylesheet library="css" name="base.css"/>
+    </h:head>
+    <h:body>
+        <header class="navbar">
+            <div class="navbar-left">
+
+                <h:link outcome="/home" styleClass="navbar-logo-link" title="Ir a la página de inicio">
+                    <h:graphicImage name="img/la-playita-logo.png" styleClass="logo" alt="Logo La Playita"/>
+                </h:link>
+
+                <ul class="navbar-links">
+
+                    <h:panelGroup rendered="#{loginBean.isLogueado()}">
+
+                        <!-- MÓDULOS PARA ADMINISTRADOR (Rol 1) -->
+                        <h:panelGroup rendered="#{loginBean.usuarioSesion.idRol == 1}">
+                            <li><p:link outcome="/compras/gestion" value="Compras" disabled="true"/></li>
+                            <li><p:link outcome="/ventas/historial" value="Ventas" disabled="true"/></li>
+                            <li><p:link outcome="/pedidos/gestion" value="Pedidos" disabled="true"/></li>
+                            <li><p:link outcome="/pqrc/gestion" value="PQRC" disabled="true"/></li>
+                            <li><p:link outcome="/admin/usuarios" value="Usuarios"/></li>
+                        </h:panelGroup>
+
+                        <!-- MÓDULOS PARA VENDEDOR (Rol 2) -->
+                        <h:panelGroup rendered="#{loginBean.usuarioSesion.idRol == 2}">
+                            <li><p:link outcome="/ventas/registrar" value="Registrar Venta" disabled="true"/></li>
+                            <li><p:link outcome="/pedidos/gestion" value="Pedidos" disabled="true"/></li>
+                            <li><p:link outcome="/pqrc/crear" value="Crear PQRC" disabled="true"/></li>
+                        </h:panelGroup>
+
+                        <!-- MÓDULOS PARA PRACTICANTE (Rol 3) -->
+                        <h:panelGroup rendered="#{loginBean.usuarioSesion.idRol == 3}">
+                            <li><p:link outcome="/compras/reportes" value="Reporte Compras" disabled="true"/></li>
+                            <li><p:link outcome="/ventas/historial" value="Historial Ventas" disabled="true"/></li>
+                        </h:panelGroup>
+
+                    </h:panelGroup>
+                </ul>
             </div>
-            <ul class="navbar-links">
-                <li><h:link outcome="/home" value="Inicio"/></li>
-                
-                <h:panelGroup rendered="#{loginBean.usuarioSesion != null and loginBean.usuarioSesion.idRol == 1}">
-                    <li><h:link outcome="/admin/usuarios" value="Gestión Usuarios"/></li>
-                </h:panelGroup>
-            </ul>
-        </div>
-        
-        <div class="navbar-right">
-            <h:form>
-                <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
-                <h:panelGroup rendered="#{loginBean.isLogueado()}">
-                    <span style="margin-right: 15px; color: #f0f0f0;">Hola, #{loginBean.nombreMostrado}</span>   
-                    <p:commandButton value="Cerrar Sesión" action="#{loginBean.logout()}" ajax="false" icon="pi pi-sign-out" styleClass="ui-button-warning"/>
-                </h:panelGroup>
+            <div class="navbar-right">
+                <h:form>
+                    <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
-                <h:panelGroup rendered="#{!loginBean.isLogueado()}">
-                     <ul class="navbar-links">
-                         <li><h:link outcome="/login" value="Login"/></li>
-                         <li><h:link outcome="/registro" value="Registro"/></li>
-                     </ul>
-                </h:panelGroup>
-            </h:form>
-        </div>
-    </header>
-    <main class="main-content">
-        <ui:insert name="content"/>
-    </main>
-    <footer class="footer">
-        <p>&#169; 2025 La Playita - Todos los derechos reservados</p>
-    </footer>
+                    <h:panelGroup rendered="#{loginBean.isLogueado()}">
+                        <span style="margin-right: 15px; color: #f0f0f0;">Hola, #{loginBean.nombreMostrado}</span>   
+                        <p:commandButton value="Cerrar Sesión" action="#{loginBean.logout()}" ajax="false" 
+                                         icon="pi pi-sign-out" styleClass="ui-button-warning"/>
+                    </h:panelGroup>
 
-</h:body>
+                    <h:panelGroup rendered="#{!loginBean.isLogueado()}">
+                        <ul class="navbar-links">
+                            <li><h:link outcome="/login" value="Login"/></li>
+                            <li><h:link outcome="/registro" value="Registro"/></li>
+                        </ul>
+                    </h:panelGroup>
+                </h:form>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <ui:insert name="content"/>
+        </main>
+
+        <footer class="footer">
+            <p>&#169; 2025 La Playita - Todos los derechos reservados</p>
+        </footer>
+
+    </h:body>
 </html>
