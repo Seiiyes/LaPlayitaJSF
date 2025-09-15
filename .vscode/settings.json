@@ -1,0 +1,18 @@
+{
+    // Configuración del proyecto Java para Visual Studio Code
+    "java.project.referencedLibraries": {
+        // Incluye todas las librerías .jar que están en tu carpeta 'lib'
+        "include": [
+            "lib/**/*.jar",
+            // A continuación, añade las librerías esenciales de tu servidor GlassFish.
+            // Rutas actualizadas según la configuración de tu proyecto NetBeans.
+            "C:/GlassFish4/glassfish4/glassfish/modules/javax.faces.jar",
+            "C:/GlassFish4/glassfish4/glassfish/modules/javax.servlet-api.jar",
+            "C:/GlassFish4/glassfish4/glassfish/modules/javax.servlet.jsp-api.jar",
+            "C:/GlassFish4/glassfish4/glassfish/modules/javax.el.jar",
+            "C:/GlassFish4/glassfish4/glassfish/modules/javax.annotation-api.jar",
+            "C:/GlassFish4/glassfish4/glassfish/modules/javax.inject.jar", // Para @Inject y @Named
+            "C:/GlassFish4/glassfish4/glassfish/modules/cdi-api.jar"      // Para @ApplicationScoped, etc.
+        ]
+    }
+}

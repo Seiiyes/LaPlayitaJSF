@@ -3,18 +3,20 @@ package controller;
 import dao.RolDAO;
 import model.Usuario;
 import model.Rol;
+import javax.inject.Inject; // CDI: Importar Inject
 import service.UsuarioService;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.inject.Named; // CDI: Reemplaza a ManagedBean
+import javax.faces.view.ViewScoped; // CDI: Usar este ViewScoped
 import javax.faces.context.FacesContext;
+import org.primefaces.PrimeFaces;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ManagedBean(name = "usuarioBean")
+@Named("usuarioBean") // CDI: Anotación estándar para nombrar un bean
 @ViewScoped
 public class UsuarioBean implements Serializable {
 
@@ -25,8 +27,13 @@ public class UsuarioBean implements Serializable {
     private Usuario usuarioSeleccionado;
     private String nuevaContrasena;
 
-    private final UsuarioService usuarioService = new UsuarioService();
-    private final RolDAO rolDAO = new RolDAO();
+    // CDI: Inyecta las dependencias en lugar de crearlas manualmente.
+    // Para que esto funcione, UsuarioService y RolDAO deben ser beans de CDI
+    // (ej. anotados con @ApplicationScoped o @RequestScoped).
+    @Inject
+    private UsuarioService usuarioService;
+    @Inject
+    private RolDAO rolDAO;
 
     @PostConstruct
     public void init() {
@@ -54,20 +61,14 @@ public class UsuarioBean implements Serializable {
     }
 
     public void prepararEdicion(Usuario usuario) {
-        // Se clona el objeto para evitar modificar la tabla directamente antes de guardar
-        this.usuarioSeleccionado = new Usuario();
-        this.usuarioSeleccionado.setIdUsuario(usuario.getIdUsuario());
-        this.usuarioSeleccionado.setDocumento(usuario.getDocumento());
-        this.usuarioSeleccionado.setNombres(usuario.getNombres());
-        this.usuarioSeleccionado.setApellidos(usuario.getApellidos());
-        this.usuarioSeleccionado.setCorreo(usuario.getCorreo());
-        this.usuarioSeleccionado.setTelefono(usuario.getTelefono());
-        this.usuarioSeleccionado.setEstadoUsuario(usuario.getEstadoUsuario());
-        this.usuarioSeleccionado.setIdRol(usuario.getIdRol());
+        // Usamos el constructor de copia para clonar el objeto de forma segura.
+        // Esto evita modificar la fila de la tabla visualmente antes de guardar.
+        this.usuarioSeleccionado = new Usuario(usuario);
         this.nuevaContrasena = null;
     }
     
     public void guardarCambios() {
+        boolean guardadoExitosamente = false;
         try {
             boolean esNuevo = (usuarioSeleccionado.getIdUsuario() == 0);
 
@@ -86,12 +87,24 @@ public class UsuarioBean implements Serializable {
 
             // Limpiar el formulario y dejarlo listo para un nuevo ingreso
             prepararNuevoUsuario();
+            guardadoExitosamente = true;
 
-        } catch (Exception e) {
-            // En caso de error, no limpiamos el formulario para que el usuario pueda corregir los datos
+        } catch (IllegalArgumentException e) {
+            // Error de validación de negocio (ej: correo duplicado). Mostramos el mensaje específico.
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error al guardar", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Advertencia", e.getMessage()));
+        } catch (Exception e) {
+            // Error inesperado del sistema. No limpiamos el formulario para que el usuario pueda corregir.
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error inesperado al guardar", "Ocurrió un error. Revise los logs."));
+            // Es una buena práctica registrar el error completo en el log del servidor para diagnóstico.
+            // Para un proyecto real, usa un framework de logging como SLF4J o Log4j.
+            e.printStackTrace();
         }
+        
+        // Para un mejor control en la vista (especialmente con diálogos de PrimeFaces),
+        // enviamos un parámetro de vuelta al cliente AJAX para saber si la operación fue exitosa.
+        PrimeFaces.current().ajax().addCallbackParam("guardado", guardadoExitosamente);
     }
     
     public void eliminar(Usuario u) {
@@ -100,9 +113,12 @@ public class UsuarioBean implements Serializable {
             listaUsuarios.remove(u);
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Usuario eliminado", null));
+        } catch (IllegalArgumentException e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "No se pudo eliminar", e.getMessage()));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se pudo eliminar", e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error inesperado al eliminar", "Contacte al administrador."));
         }
     }
 

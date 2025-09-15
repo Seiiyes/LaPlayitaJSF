@@ -3,14 +3,16 @@ package controller;
 import model.Usuario;
 import service.UsuarioService;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.enterprise.context.SessionScoped; // CDI: Usar este SessionScoped
+import javax.inject.Inject; // CDI: Importar Inject
+import javax.inject.Named; // CDI: Reemplaza a ManagedBean
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
-@ManagedBean(name = "loginBean")
+
+@Named("loginBean") // CDI: Anotación estándar
 @SessionScoped
 public class LoginBean implements Serializable {
 
@@ -18,7 +20,8 @@ public class LoginBean implements Serializable {
     private String password;
     private Usuario usuarioSesion;
 
-    private final UsuarioService service = new UsuarioService();
+    @Inject // CDI: Inyectar el servicio
+    private UsuarioService service;
     /**
      * Inicia sesión y guarda el usuario en sesión usando rutas absolutas.
      */
@@ -48,7 +51,8 @@ public class LoginBean implements Serializable {
 
             password = null;
 
-            if (u.getIdRol() == 1) { // Administrador
+            // Redirigir según el nombre del rol, que viene de la base de datos.
+            if (u.getRol() != null && "ADMIN".equalsIgnoreCase(u.getRol().getDescripcionRol())) {
                 context.getExternalContext().redirect(contextPath + "/admin/adminHome.xhtml");
             } else { // Otros roles
                 context.getExternalContext().redirect(contextPath + "/home.xhtml");

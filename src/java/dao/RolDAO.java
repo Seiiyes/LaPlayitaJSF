@@ -1,10 +1,12 @@
 package dao;
 
+import javax.enterprise.context.ApplicationScoped;
 import model.Rol;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@ApplicationScoped
 public class RolDAO {
 
     /**

@@ -18,6 +18,9 @@
             <file>file:/C:/Java/LaPlayita/web/ventas/registrar.xhtml</file>
             <file>file:/C:/Java/LaPlayita/src/java/filter/AuthFilter.java</file>
             <file>file:/C:/Java/LaPlayita/web/access-denied.xhtml</file>
+            <file>file:/C:/Java/LaPlayita/src/java/controller/RegistroBean.java</file>
+            <file>file:/C:/Java/LaPlayita/src/java/dao/RolDAO.java</file>
+            <file>file:/C:/Java/LaPlayita/src/java/model/Rol.java</file>
         </group>
     </open-files>
 </project-private>

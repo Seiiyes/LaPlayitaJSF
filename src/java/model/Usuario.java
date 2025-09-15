@@ -19,6 +19,24 @@ public class Usuario implements Serializable {
     // NUEVO: referencia al objeto Rol
     private Rol rol;
 
+    // Constructor por defecto
+    public Usuario() {
+    }
+
+    // Constructor de copia para clonar objetos de forma segura
+    public Usuario(Usuario original) {
+        this.idUsuario = original.idUsuario;
+        this.documento = original.documento;
+        this.nombres = original.nombres;
+        this.apellidos = original.apellidos;
+        this.correo = original.correo;
+        this.telefono = original.telefono;
+        this.contrasenaHash = original.contrasenaHash;
+        this.estadoUsuario = original.estadoUsuario;
+        this.idRol = original.idRol;
+        this.rol = original.rol; // Copia también el objeto anidado
+    }
+
     // Getters y setters
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }

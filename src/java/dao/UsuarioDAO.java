@@ -2,10 +2,12 @@ package dao;
 
 import model.Usuario;
 import model.Rol;
+import javax.enterprise.context.ApplicationScoped;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@ApplicationScoped
 public class UsuarioDAO {
 
     public Usuario findByCorreo(String correo) {

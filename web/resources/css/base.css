@@ -7,17 +7,46 @@
 html, body {
     height: 100%;
 }
+/* ===== VARIABLES CSS (CUSTOM PROPERTIES) ===== */
+:root {
+    --color-primario: #00dcff;
+    --color-primario-transparente-10: rgba(0,220,255,0.1);
+    --color-primario-transparente-15: rgba(0,220,255,0.15);
+    --color-primario-transparente-20: rgba(0,220,255,0.2);
+    --color-primario-transparente-30: rgba(0,220,255,0.3);
+    --color-primario-sombra: rgba(0,220,255,0.4);
 
+    --color-texto: #f1f1f1;
+    --color-texto-claro: #e0e0e0;
+    --color-texto-medio: #ccc;
+    --color-texto-apagado: rgba(230,230,230,0.9);
+
+    --color-fondo: #0d0d0d;
+    --color-fondo-oscuro-rgba: rgba(0, 0, 0, 0.75);
+    --color-fondo-mas-oscuro-rgba: rgba(0,0,0,0.85);
+    --color-fondo-tarjeta-rgba: rgba(10,10,10,0.85);
+    --color-fondo-input-rgba: rgba(255,255,255,0.08);
+    --color-fondo-input-focus-rgba: rgba(255,255,255,0.15);
+
+    --borde-color-claro: rgba(255,255,255,0.15);
+    --borde-color-oscuro: rgba(255,255,255,0.1);
+    --borde-color-input: rgba(255,255,255,0.05);
+
+    --estado-activo: #38e06a;
+    --estado-inactivo: #ff5c5c;
+    
+    --fuente-familia: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 /* ===== LAYOUT GLOBAL ===== */
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: url("#{resource['img/fondo.jpeg']}") no-repeat center center fixed;
+    font-family: var(--fuente-familia);
+    background: url("../img/fondo.jpeg") no-repeat center center fixed;
     background-size: cover;
-    background-color: #0d0d0d;
-    color: #f1f1f1;
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
     line-height: 1.6;
 }
 
@@ -37,14 +66,14 @@ body {
     top: 0;
     width: 100%;
     height: 70px;
-    background: rgba(0, 0, 0, 0.75);
+    background: var(--color-fondo-oscuro-rgba);
     backdrop-filter: blur(15px);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
     z-index: 1000;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
+    border-bottom: 1px solid var(--borde-color-claro);
 }
 .navbar-left {
     display: flex;
@@ -82,39 +111,39 @@ body {
     display: inline-block;
 }
 .navbar-links li a {
-    color: #e0e0e0;
+    color: var(--color-texto-claro);
     margin-left: 15px;
     text-decoration: none;
     font-weight: bold;
     padding: 8px 12px;
     border-radius: 6px;
-    transition: background 0.3s, color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
 }
 .navbar-links li a:hover {
-    background: rgba(0,220,255,0.1);
-    color: #00dcff;
+    background-color: var(--color-primario-transparente-10);
+    color: var(--color-primario);
 }
 .navbar-links li a.active {
-    background: rgba(0,220,255,0.2);
-    color: #00dcff;
+    background-color: var(--color-primario-transparente-20);
+    color: var(--color-primario);
 }
 
 /* ===== TARJETAS ===== */
 .card {
-    background: rgba(10,10,10,0.85);
+    background: var(--color-fondo-tarjeta-rgba);
     padding: 30px;
     border-radius: 12px;
     width: 100%;
     max-width: 450px;
     box-shadow: 0 6px 25px rgba(0,0,0,0.7);
-    color: #f1f1f1;
+    color: var(--color-texto);
     text-align: center;
-    border: 1px solid rgba(0,220,255,0.15);
+    border: 1px solid var(--color-primario-transparente-15);
 }
 .card h2 {
     margin-bottom: 20px;
     font-size: clamp(1.3rem, 2vw, 1.6rem);
-    color: #00dcff;
+    color: var(--color-primario);
 }
 
 .admin-card {
@@ -125,11 +154,11 @@ body {
 }
 .admin-card h2 {
     font-size: 2.2rem;
-    text-shadow: 0 0 10px rgba(0,220,255,0.4);
+    text-shadow: 0 0 10px var(--color-primario-sombra);
 }
 .admin-card p {
     margin-bottom: 30px;
-    color: rgba(230,230,230,0.9);
+    color: var(--color-texto-apagado);
     font-size: 1.1rem;
 }
 
@@ -140,27 +169,27 @@ body {
     padding: 14px;
     border: none;
     border-radius: 8px;
-    background: rgba(255,255,255,0.08);
+    background: var(--color-fondo-input-rgba);
     color: #fff;
     font-size: 1rem;
-    transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    border: 1px solid rgba(255,255,255,0.05);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 1px solid var(--borde-color-input);
 }
 .ui-inputfield:focus, input:focus, textarea:focus, .ui-selectonemenu:focus {
     outline: none !important;
-    background: rgba(255,255,255,0.15) !important;
-    box-shadow: 0 0 12px #00dcff !important;
-    border-color: #00dcff !important;
+    background: var(--color-fondo-input-focus-rgba) !important;
+    box-shadow: 0 0 12px var(--color-primario) !important;
+    border-color: var(--color-primario) !important;
 }
 
 /* ===== FOOTER ===== */
 .footer {
-    background: rgba(0,0,0,0.85);
-    color: #ccc;
+    background: var(--color-fondo-mas-oscuro-rgba);
+    color: var(--color-texto-medio);
     text-align: center;
     padding: 20px;
     font-size: 0.95rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid var(--borde-color-oscuro);
     width: 100%;
     margin-top: auto;
 }
@@ -179,23 +208,23 @@ body {
 }
 .custom-datatable .ui-datatable-thead th {
     background: transparent !important;
-    color: #00e0ff !important;
+    color: var(--color-primario) !important;
     font-weight: 700;
     text-align: center;
     padding: 16px 15px !important;
     border: none !important;
-    border-bottom: 2px solid rgba(0,220,255,0.3) !important;
+    border-bottom: 2px solid var(--color-primario-transparente-30) !important;
     font-size: 1rem;
     white-space: nowrap;
 }
 .custom-datatable .ui-datatable-data > tr {
-    background: rgba(35, 35, 35, 0.8);
+    background: var(--color-fondo-input-rgba); /* Reutilizando una variable similar */
     border-radius: 8px;
-    transition: background 0.3s ease, transform 0.2s ease;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: 1px solid var(--borde-color-input);
 }
 .custom-datatable .ui-datatable-data > tr:hover {
-    background: rgba(50, 50, 50, 0.95);
+    background: var(--color-fondo-input-focus-rgba); /* Reutilizando una variable similar */
     transform: translateY(-3px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
@@ -219,18 +248,18 @@ body {
     padding-top: 20px !important;
 }
 .ui-paginator .ui-paginator-page, .ui-paginator .ui-paginator-current {
-    color: #00e0ff !important;
+    color: var(--color-primario) !important;
     font-weight: bold;
 }
 .ui-paginator .ui-paginator-icon {
-    color: #00e0ff !important;
+    color: var(--color-primario) !important;
 }
 .estado-activo {
-    color: #38e06a;
+    color: var(--estado-activo);
     font-weight: 700;
 }
 .estado-inactivo {
-    color: #ff5c5c;
+    color: var(--estado-inactivo);
     font-weight: 700;
 }
 .ui-button {
@@ -243,24 +272,24 @@ body {
 /* ===== ESTILOS DIÁLOGO MODAL ===== */
 .ui-dialog {
     background: rgba(20, 20, 20, 0.98) !important;
-    border: 1px solid rgba(0, 220, 255, 0.3) !important;
+    border: 1px solid var(--color-primario-transparente-30) !important;
     box-shadow: 0 8px 40px rgba(0,0,0,0.7) !important;
     border-radius: 12px !important;
 }
 .ui-dialog .ui-dialog-titlebar {
     background: transparent !important;
-    color: #00e0ff !important;
-    border-bottom: 1px solid rgba(0, 220, 255, 0.2) !important;
+    color: var(--color-primario) !important;
+    border-bottom: 1px solid var(--color-primario-transparente-20) !important;
     font-size: 1.4rem;
     padding: 18px 25px !important;
     border-radius: 12px 12px 0 0 !important;
 }
 .ui-dialog .ui-dialog-titlebar-icon {
-    color: #f0f0f0 !important;
+    color: var(--color-texto-claro) !important;
 }
 .ui-dialog .ui-dialog-content {
     background: transparent !important;
-    color: #f1f1f1;
+    color: var(--color-texto);
     padding: 25px !important;
 }
 .ui-dialog .ui-panelgrid-blank.ui-panelgrid .ui-panelgrid-cell {
@@ -269,7 +298,7 @@ body {
 }
 .ui-dialog .ui-panelgrid-blank.ui-panelgrid .ui-outputlabel {
     font-weight: bold;
-    color: #00e0ff;
+    color: var(--color-primario);
     text-align: left;
     padding-right: 15px;
 }
@@ -286,7 +315,7 @@ body {
     background: rgba(255, 179, 68, 0.4) !important;
 }
 .ui-messages-info {
-    background: rgba(0, 220, 255, 0.2) !important;
+    background: var(--color-primario-transparente-20) !important;
 }
 
 /* ===== ESTILOS PANEL DE ADMINISTRADOR ===== */
@@ -334,8 +363,8 @@ body {
 
 .form-card h3 {
     font-size: 1.8rem;
-    color: #00e0ff;
-    text-shadow: 0 0 8px rgba(0,220,255,0.4);
+    color: var(--color-primario);
+    text-shadow: 0 0 8px var(--color-primario-sombra);
     margin-bottom: 25px;
     text-align: center;
 }
@@ -350,7 +379,7 @@ body {
 
 .form-grid .ui-outputlabel {
     font-weight: bold;
-    color: #00e0ff;
+    color: var(--color-primario);
     text-align: right;
 }
 
@@ -384,7 +413,7 @@ body {
     .custom-datatable .ui-datatable-data > tr {
         display: block;
         margin-bottom: 25px;
-        border: 1px solid rgba(0, 220, 255, 0.2);
+        border: 1px solid var(--color-primario-transparente-20);
         box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         border-radius: 8px;
     }
@@ -410,7 +439,7 @@ body {
         top: 50%;
         transform: translateY(-50%);
         font-weight: bold;
-        color: #00e0ff;
+        color: var(--color-primario);
         text-align: left;
         width: calc(50% - 20px);
     }
@@ -462,7 +491,7 @@ body {
 /* --- 4. Mejoras de contraste y color para la tabla, manteniendo tu paleta --- */
 .custom-datatable .ui-widget-header {
     background: #2a2a2a !important; /* Cabecera un poco más oscura para mejor contraste */
-    border-bottom-color: #00e0ff !important;
+    border-bottom-color: var(--color-primario) !important;
 }
 .custom-datatable .ui-datatable-data > tr {
     background: rgba(25, 25, 25, 0.9) !important; /* Fondo de fila más oscuro y uniforme */
@@ -470,5 +499,5 @@ body {
 }
 .custom-datatable .ui-datatable-data > tr:hover {
     background: rgba(40, 40, 40, 0.95) !important; /* Un hover sutil que respeta el tema */
-    border-color: rgba(0, 220, 255, 0.3);
+    border-color: var(--color-primario-transparente-30);
 }

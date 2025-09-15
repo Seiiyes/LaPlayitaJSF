@@ -3,12 +3,13 @@ package controller;
 import model.Usuario;
 import service.UsuarioService;
 
+import javax.enterprise.context.RequestScoped; // CDI: Usar este RequestScoped
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject; // CDI: Importar Inject
+import javax.inject.Named; // CDI: Reemplaza a ManagedBean
 
-@ManagedBean
+@Named("registroBean") // CDI: Anotación estándar
 @RequestScoped
 public class RegistroBean {
 
@@ -20,9 +21,11 @@ public class RegistroBean {
     private String telefono;
     private String password;
     private String confirmarPassword;
-    private String rol = "VENDEDOR"; // valor por defecto
+    // El rol por defecto para nuevos registros. Este nombre debe existir en la tabla 'rol'.
+    private String rol = "VENDEDOR";
 
-    private final UsuarioService service = new UsuarioService();
+    @Inject // CDI: Inyectar el servicio
+    private UsuarioService service;
 
     /**
      * Registrar nuevo usuario

@@ -5,13 +5,18 @@ import dao.UsuarioDAO;
 import model.Usuario;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class UsuarioService {
+@ApplicationScoped
+public class UsuarioService { // Ahora es un bean de CDI
 
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
-    private final RolDAO rolDAO = new RolDAO();
+    @Inject
+    private UsuarioDAO usuarioDAO;
+    @Inject
+    private RolDAO rolDAO;
 
     private static final Pattern EMAIL_RE =
             Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
@@ -98,11 +103,12 @@ public class UsuarioService {
     // ---------------- AGREGAR USUARIO ----------------
     public void agregarUsuario(Usuario u, String nuevacontrasena) {
         if (u == null) throw new IllegalArgumentException("Usuario inválido");
-        if (nuevacontrasena != null && !nuevacontrasena.isEmpty()) {
-            u.setContrasenaHash(BCrypt.hashpw(nuevacontrasena, BCrypt.gensalt(10)));
-        } else if (u.getContrasenaHash() == null || u.getContrasenaHash().isEmpty()) {
-            throw new IllegalArgumentException("La contraseña es obligatoria");
+
+        if (nuevacontrasena == null || nuevacontrasena.trim().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria para un nuevo usuario.");
         }
+        // Aquí podrías agregar las mismas validaciones de complejidad que en `validarRegistro` si lo deseas.
+        u.setContrasenaHash(BCrypt.hashpw(nuevacontrasena, BCrypt.gensalt(10)));
         usuarioDAO.crear(u);
     }
 
