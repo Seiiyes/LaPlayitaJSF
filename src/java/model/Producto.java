@@ -3,6 +3,7 @@ package model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Objects;
 
 public class Producto implements Serializable {
 
@@ -83,5 +84,18 @@ public class Producto implements Serializable {
 
     public void setIdCategoria(int idCategoria) {
         this.idCategoria = idCategoria;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Producto producto = (Producto) o;
+        return idProducto == producto.idProducto;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idProducto);
     }
 }
