@@ -7,47 +7,8 @@
 
     <ui:define name="content">
         <div class="page-container">
-            
-            <!-- PANEL IZQUIERDO: TABLA DE USUARIOS -->
-            <div class="table-panel">
-                <div class="card admin-card">
-                    <h2>Gestión de Usuarios</h2>
-                    <p>Seleccione un usuario para editarlo o cree uno nuevo.</p>
 
-                    <h:form id="adminForm">
-                        <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
-                        
-                        <p:dataTable id="tablaUsuarios" widgetVar="tablaUsuariosWV" value="#{usuarioBean.listaUsuarios}" var="u"
-                                     paginator="true" rows="8" resizableColumns="false"
-                                     styleClass="custom-datatable" emptyMessage="No se encontraron usuarios"
-                                     reflow="true">
-                            
-                            <p:column headerText="Correo" sortBy="#{u.correo}" filterBy="#{u.correo}" filterMatchMode="contains" styleClass="col-correo">
-                                <h:outputText value="#{u.correo}" />
-                            </p:column>
-                            <p:column headerText="Nombre completo" sortBy="#{u.nombres}" filterBy="#{u.nombres}" filterMatchMode="contains" styleClass="col-nombre">
-                                <h:outputText value="#{u.nombres} #{u.apellidos}" />
-                            </p:column>
-                            <p:column headerText="Rol" sortBy="#{usuarioBean.getDescripcionRol(u.idRol)}" filterBy="#{usuarioBean.getDescripcionRol(u.idRol)}" filterMatchMode="equals" styleClass="col-rol">
-                                <f:facet name="filter"><p:selectOneMenu onchange="PF('tablaUsuariosWV').filter()"><f:selectItem itemLabel="Todos" itemValue="#{null}" noSelectionOption="true" /><f:selectItems value="#{usuarioBean.listaRoles}" var="r" itemValue="#{r.descripcionRol}" itemLabel="#{r.descripcionRol}" /></p:selectOneMenu></f:facet>
-                                <h:outputText value="#{usuarioBean.getDescripcionRol(u.idRol)}" />
-                            </p:column>
-                            <p:column headerText="Estado" styleClass="col-estado">
-                                <h:outputText value="#{u.estadoUsuario eq 1 ? 'Activo' : 'Inactivo'}" styleClass="#{u.estadoUsuario eq 1 ? 'estado-activo' : 'estado-inactivo'}" />
-                            </p:column>
-                            <p:column headerText="Acciones" styleClass="col-acciones">
-                                <p:commandButton title="Editar este usuario" actionListener="#{usuarioBean.prepararEdicion(u)}" update=":formPanel" icon="pi pi-pencil" styleClass="ui-button-info"/>
-                                <p:commandButton title="Eliminar este usuario" actionListener="#{usuarioBean.eliminar(u)}" update="tablaUsuarios" icon="pi pi-trash" styleClass="ui-button-danger">
-                                    <p:confirm header="Confirmación" message="¿Seguro que deseas eliminar a #{u.nombres}?" icon="pi pi-exclamation-triangle"/>
-                                </p:commandButton>
-                            </p:column>
-                        </p:dataTable>
-                        <p:confirmDialog global="true"><p:commandButton value="Sí, eliminar" type="button" styleClass="ui-confirmdialog-yes ui-button-danger"/><p:commandButton value="No, cancelar" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"/></p:confirmDialog>
-                    </h:form>
-                </div>
-            </div>
-
-            <!-- PANEL DERECHO: FORMULARIO -->
+            <!-- PANEL IZQUIERDO: FORMULARIO -->
             <div class="form-panel">
                  <div class="card form-card">
                     <h:form id="formPanel">
@@ -91,10 +52,51 @@
                         </div>
                         
                         <div class="form-actions">
-                            <p:commandButton value="Guardar" actionListener="#{usuarioBean.guardarCambios()}" update=":adminForm:tablaUsuarios :formPanel" icon="pi pi-save" styleClass="ui-button-success"/>
-                            <p:commandButton value="Limpiar" actionListener="#{usuarioBean.prepararNuevoUsuario()}" update=":formPanel" icon="pi pi-refresh" styleClass="ui-button-secondary" process="@this"/>
+                            <p:commandButton value="Guardar" actionListener="#{usuarioBean.guardarCambios()}" update=":adminForm:tablaUsuarios :formPanel" icon="pi pi-save" styleClass="ui-button-primary btn-glow-primary"/>
+                            <p:commandButton value="Limpiar" actionListener="#{usuarioBean.prepararNuevoUsuario()}" update=":formPanel" icon="pi pi-eraser" styleClass="ui-button-secondary" process="@this"/>
                         </div>
                     </h:form>
+                </div>
+            </div>
+
+            <!-- PANEL DERECHO: TABLA DE USUARIOS -->
+            <div class="table-panel">
+                <div class="card admin-card">
+                    <h2>Gestión de Usuarios</h2>
+                    <p>Seleccione un usuario para editarlo o cree uno nuevo.</p>
+
+                    <div class="table-responsive-wrapper">
+                        <h:form id="adminForm">
+                            <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
+
+                            <p:dataTable id="tablaUsuarios" widgetVar="tablaUsuariosWV" value="#{usuarioBean.listaUsuarios}" var="u"
+                                         paginator="true" rows="8" resizableColumns="false"
+                                         styleClass="custom-datatable" emptyMessage="No se encontraron usuarios"
+                                         reflow="true">
+
+                                <p:column headerText="Correo" sortBy="#{u.correo}" filterBy="#{u.correo}" filterMatchMode="contains" styleClass="col-correo">
+                                    <h:outputText value="#{u.correo}" />
+                                </p:column>
+                                <p:column headerText="Nombre completo" sortBy="#{u.nombres}" filterBy="#{u.nombres}" filterMatchMode="contains" styleClass="col-nombre">
+                                    <h:outputText value="#{u.nombres} #{u.apellidos}" />
+                                </p:column>
+                                <p:column headerText="Rol" sortBy="#{usuarioBean.getDescripcionRol(u.idRol)}" filterBy="#{usuarioBean.getDescripcionRol(u.idRol)}" filterMatchMode="equals" styleClass="col-rol">
+                                    <f:facet name="filter"><p:selectOneMenu onchange="PF('tablaUsuariosWV').filter()"><f:selectItem itemLabel="Todos" itemValue="#{null}" noSelectionOption="true" /><f:selectItems value="#{usuarioBean.listaRoles}" var="r" itemValue="#{r.descripcionRol}" itemLabel="#{r.descripcionRol}" /></p:selectOneMenu></f:facet>
+                                    <h:outputText value="#{usuarioBean.getDescripcionRol(u.idRol)}" />
+                                </p:column>
+                                <p:column headerText="Estado" styleClass="col-estado">
+                                    <h:outputText value="#{u.estadoUsuario eq 1 ? 'Activo' : 'Inactivo'}" styleClass="#{u.estadoUsuario eq 1 ? 'estado-activo' : 'estado-inactivo'}" />
+                                </p:column>
+                                <p:column headerText="Acciones" styleClass="col-acciones">
+                                    <p:commandButton title="Editar este usuario" actionListener="#{usuarioBean.prepararEdicion(u)}" update=":formPanel" icon="material-symbols-outlined icon-edit" styleClass="ui-button-warning" process="@this"/>
+                                    <p:commandButton title="Eliminar este usuario" actionListener="#{usuarioBean.eliminar(u)}" update=":adminForm:tablaUsuarios :formPanel" icon="material-symbols-outlined icon-delete" styleClass="ui-button-danger">
+                                        <p:confirm header="Confirmación" message="¿Seguro que deseas eliminar a #{u.nombres}?" icon="pi pi-exclamation-triangle"/>
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+                            <p:confirmDialog global="true"><p:commandButton value="Sí, eliminar" type="button" styleClass="ui-confirmdialog-yes ui-button-danger"/><p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"/></p:confirmDialog>
+                        </h:form>
+                    </div>
                 </div>
             </div>
         </div>

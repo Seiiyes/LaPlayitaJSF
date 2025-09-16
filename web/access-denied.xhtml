@@ -5,12 +5,11 @@
 
 <ui:composition template="/templates/template.xhtml">
     <ui:define name="content">
-        <div class="card" style="max-width: 600px; margin: 40px auto; border-color: #ffc107;">
-            <h2 style="color: #ffc107;">Acceso Denegado</h2>
+        <div class="card card-warning" style="max-width: 600px; margin: 40px auto;">
+            <h2>Acceso Denegado</h2>
             <p style="font-size: 1.1rem; color: #f0f0f0;">
                 Lo sentimos, no tienes los permisos necesarios para acceder a esta página.
             </p>
-            <br/>
             <h:link outcome="/home" value="Volver a la página de inicio" styleClass="link-btn"/>
         </div>
     </ui:define>

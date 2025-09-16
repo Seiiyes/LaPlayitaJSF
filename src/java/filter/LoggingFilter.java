@@ -45,7 +45,9 @@ public class LoggingFilter implements Filter {
             throw e; // re-lanzar para que el contenedor maneje la excepción
         } finally {
             long tiempo = System.currentTimeMillis() - inicio;
-            System.out.println("[LOG] URI: " + uri 
+            int status = res.getStatus();
+            System.out.println("[LOG] URI: " + uri
+                    + " | Status: " + status
                     + " | IP: " + ip 
                     + " | Usuario: " + usuario 
                     + " | Tiempo: " + tiempo + " ms");

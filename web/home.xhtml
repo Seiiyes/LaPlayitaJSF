@@ -7,15 +7,41 @@
     <ui:define name="content">
         <div class="main-container">
             <div class="card home-card">
-                <h2>Bienvenido #{loginBean.nombreMostrado}</h2>
-                <p>Accede a tus opciones de usuario desde este panel.</p>
+                <h2>Bienvenido, #{loginBean.nombreMostrado}</h2>
+                
+                <!-- Panel para Vendedor (Rol 2) -->
+                <h:panelGroup rendered="#{loginBean.usuarioSesion.idRol == 2}">
+                    <p>Seleccione una opción para comenzar a trabajar.</p>
+                    <div class="dashboard-menu">
+                        <p:link outcome="#{homeBean.irRegistrarVenta()}" styleClass="dashboard-button" disabled="true">
+                            <i class="pi pi-shopping-cart" style="margin-right: .5rem;"></i> Registrar Venta
+                        </p:link>
+                        <p:link outcome="#{homeBean.irGestionPedidos()}" styleClass="dashboard-button" disabled="true">
+                            <i class="pi pi-inbox" style="margin-right: .5rem;"></i> Gestionar Pedidos
+                        </p:link>
+                        <p:link outcome="#{homeBean.irCrearPqrc()}" styleClass="dashboard-button" disabled="true">
+                            <i class="pi pi-comment" style="margin-right: .5rem;"></i> Crear PQRC
+                        </p:link>
+                    </div>
+                </h:panelGroup>
 
-                <div class="btn-container">
-                    <p:commandButton value="Cerrar sesión"
-                                     action="#{loginBean.logout}"
-                                     ajax="false"
-                                     styleClass="btn btn-blue"/>
-                </div>
+                <!-- Panel para Practicante (Rol 3) -->
+                <h:panelGroup rendered="#{loginBean.usuarioSesion.idRol == 3}">
+                    <p>Acceda a los reportes disponibles para su rol.</p>
+                     <div class="dashboard-menu">
+                        <p:link outcome="#{homeBean.irReporteCompras()}" styleClass="dashboard-button" disabled="true">
+                            <i class="pi pi-chart-bar" style="margin-right: .5rem;"></i> Reporte de Compras
+                        </p:link>
+                        <p:link outcome="#{homeBean.irHistorialVentas()}" styleClass="dashboard-button" disabled="true">
+                            <i class="pi pi-book" style="margin-right: .5rem;"></i> Historial de Ventas
+                        </p:link>
+                    </div>
+                </h:panelGroup>
+                
+                <!-- Mensaje genérico para otros roles (si existieran) o si no hay rol definido -->
+                <h:panelGroup rendered="#{loginBean.usuarioSesion.idRol != 1 and loginBean.usuarioSesion.idRol != 2 and loginBean.usuarioSesion.idRol != 3}">
+                    <p>Accede a tus opciones de usuario desde este panel.</p>
+                </h:panelGroup>
             </div>
         </div>
     </ui:define>

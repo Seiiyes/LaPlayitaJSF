@@ -4,12 +4,169 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to c
 Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/XHtml.xhtml to edit this template
 -->
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>TODO supply a title</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="content">
+            <div class="page-container">
+
+                <!-- PANEL IZQUIERDO: FORMULARIO DE REABASTECIMIENTO -->
+                <div class="form-panel">
+                    <div class="card form-card">
+                        <h:form id="formReabastecimiento">
+                            <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
+
+                            <h3>#{empty reabastecimientoBean.seleccionado.id ? 'Nuevo Reabastecimiento' : 'Editando Reabastecimiento'}</h3>
+
+                            <p:messages id="formMessages" showDetail="true" closable="true"><p:autoUpdate/></p:messages>
+
+                            <div class="form-grid">
+                                <p:outputLabel for="fecha" value="Fecha" styleClass="required"/>
+                                <p:calendar id="fecha" value="#{reabastecimientoBean.seleccionado.fecha}" required="true" showOn="button" pattern="dd/MM/yyyy"/>
+
+                                <p:outputLabel for="proveedor" value="Proveedor" styleClass="required"/>
+                                <p:selectOneMenu id="proveedor" value="#{reabastecimientoBean.seleccionado.idProveedor}" required="true" filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{reabastecimientoBean.listaProveedores}" var="p" itemValue="#{p.id}" itemLabel="#{p.nombres}"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="producto" value="Producto" styleClass="required"/>
+                                <p:selectOneMenu id="producto" value="#{reabastecimientoBean.seleccionado.idProducto}" required="true" filter="true" filterMatchMode="contains">
+                                    <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{reabastecimientoBean.listaProductos}" var="prod" itemValue="#{prod.id}" itemLabel="#{prod.nombreProducto}"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="cantidad" value="Cantidad" styleClass="required"/>
+                                <p:inputNumber id="cantidad" value="#{reabastecimientoBean.seleccionado.cantidad}" required="true" decimalPlaces="0"/>
+
+                                <p:outputLabel for="costo" value="Costo Unitario" styleClass="required"/>
+                                <p:inputNumber id="costo" value="#{reabastecimientoBean.seleccionado.costoUnitario}" required="true" symbol="$ " symbolPosition="p" decimalPlaces="2"/>
+
+                                <p:outputLabel for="estado" value="Estado" styleClass="required"/>
+                                <p:selectOneMenu id="estado" value="#{reabastecimientoBean.seleccionado.estado}" required="true">
+                                    <f:selectItem itemLabel="Recibido" itemValue="Recibido"/>
+                                    <f:selectItem itemLabel="Pedido" itemValue="Pedido"/>
+                                    <f:selectItem itemLabel="Cancelado" itemValue="Cancelado"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel for="observaciones" value="Observaciones"/>
+                                <p:inputTextarea id="observaciones" value="#{reabastecimientoBean.seleccionado.observaciones}" rows="3" autoResize="false"/>
+                            </div>
+
+                            <div class="form-actions">
+                                <p:commandButton value="Guardar" actionListener="#{reabastecimientoBean.guardar}"
+                                                 update=":tableForm:tablaReabastecimientos :formReabastecimiento"
+                                                 icon="pi pi-save" styleClass="ui-button-primary btn-glow-primary">
+                                    <p:ajaxStatus onstart="PF('statusDialog').show()" onsuccess="PF('statusDialog').hide()"/>
+                                </p:commandButton>
+                                <p:commandButton value="Limpiar" actionListener="#{reabastecimientoBean.prepararNuevo}"
+                                                 update=":formReabastecimiento" icon="pi pi-eraser"
+                                                 styleClass="ui-button-secondary" process="@this" />
+                            </div>
+                        </h:form>
+                    </div>
+                </div>
+
+                <!-- PANEL DERECHO: TABLA DE REABASTECIMIENTOS -->
+                <div class="table-panel">
+                    <div class="card admin-card">
+                        <h2>Historial de Reabastecimientos</h2>
+                        <p>Aquí puedes ver y gestionar todos los reabastecimientos de inventario.</p>
+
+                    <div class="table-responsive-wrapper">
+                        <h:form id="tableForm">
+                            <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
+
+                            <p:dataTable id="tablaReabastecimientos" widgetVar="tablaReabastecimientosWV" value="#{reabastecimientoBean.listaReabastecimientos}" var="item"
+                                         paginator="true" rows="10" paginatorPosition="bottom"
+                                         styleClass="custom-datatable" emptyMessage="No se encontraron registros" reflow="true"
+                                         filteredValue="#{reabastecimientoBean.listaFiltrada}">
+
+                                <f:facet name="header">
+                                    <p:inputText id="globalFilter" onkeyup="PF('tablaReabastecimientosWV').filter()" style="width:300px" placeholder="Buscar en la tabla..."/>
+                                </f:facet>
+
+                                <p:column headerText="Fecha" sortBy="#{item.fecha}" filterBy="#{item.fecha}" filterMatchMode="contains" styleClass="col-fecha">
+                                    <h:outputText value="#{item.fecha}"><f:convertDateTime pattern="dd/MM/yyyy" /></h:outputText>
+                                </p:column>
+
+                                <p:column headerText="Proveedor" sortBy="#{item.proveedor.nombres}" filterBy="#{item.proveedor.nombres}" filterMatchMode="contains" styleClass="col-proveedor">
+                                    <h:outputText value="#{item.proveedor.nombres}" />
+                                </p:column>
+
+                                <p:column headerText="Producto" sortBy="#{item.producto.nombreProducto}" filterBy="#{item.producto.nombreProducto}" filterMatchMode="contains" styleClass="col-producto">
+                                    <h:outputText value="#{item.producto.nombreProducto}" />
+                                </p:column>
+
+                                <p:column headerText="Cantidad" sortBy="#{item.cantidad}" styleClass="col-cantidad">
+                                    <h:outputText value="#{item.cantidad}" />
+                                </p:column>
+
+                                <p:column headerText="Costo Unit." sortBy="#{item.costoUnitario}" styleClass="col-costo">
+                                    <h:outputText value="#{item.costoUnitario}"><f:convertNumber type="currency" currencySymbol="$" /></h:outputText>
+                                </p:column>
+
+                                <p:column headerText="Total" styleClass="col-total">
+                                    <h:outputText value="#{item.cantidad * item.costoUnitario}"><f:convertNumber type="currency" currencySymbol="$" /></h:outputText>
+                                </p:column>
+
+                                <p:column headerText="Estado" filterBy="#{item.estado}" filterMatchMode="equals" styleClass="col-estado-compra">
+                                    <f:facet name="filter"><p:selectOneMenu onchange="PF('tablaReabastecimientosWV').filter()"><f:selectItem itemLabel="Todos" itemValue="#{null}" noSelectionOption="true" /><f:selectItem itemLabel="Recibido" itemValue="Recibido"/><f:selectItem itemLabel="Pedido" itemValue="Pedido"/><f:selectItem itemLabel="Cancelado" itemValue="Cancelado"/></p:selectOneMenu></f:facet>
+                                    <h:outputText value="#{item.estado}" />
+                                </p:column>
+
+                                <p:column headerText="Acciones" exportable="false" styleClass="col-acciones-compra">
+                                    <p:commandButton value="Editar" title="Editar" actionListener="#{reabastecimientoBean.prepararEdicion(item)}" update=":formReabastecimiento" icon="pi pi-pencil" styleClass="ui-button-warning" process="@this"/>
+                                    <p:commandButton value="Eliminar" title="Eliminar" actionListener="#{reabastecimientoBean.eliminar(item)}" update=":tableForm:tablaReabastecimientos :formReabastecimiento" icon="pi pi-trash" styleClass="ui-button-danger">
+                                        <p:confirm header="Confirmación" message="¿Seguro que deseas eliminar este registro?" icon="pi pi-exclamation-triangle"/>
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
+
+                            <p:confirmDialog global="true"><p:commandButton value="Sí, eliminar" type="button" styleClass="ui-confirmdialog-yes ui-button-danger"/><p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"/></p:confirmDialog>
+                        </h:form>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BARRA DE ACCIONES INFERIOR -->
+            <div class="bottom-actions-bar">
+                <h:form>
+                    <p:commandButton value="Exportar a Excel" icon="pi pi-file-excel" styleClass="ui-button-success">
+                        <p:dataExporter type="xlsx" target=":tableForm:tablaReabastecimientos" fileName="reabastecimientos"/>
+                    </p:commandButton>
+                    <p:commandButton value="Exportar a PDF" icon="pi pi-file-pdf" styleClass="ui-button-info">
+                         <p:dataExporter type="pdf" target=":tableForm:tablaReabastecimientos" fileName="reabastecimientos"/>
+                    </p:commandButton>
+                    <p:commandButton value="Carga Masiva" icon="pi pi-upload" styleClass="ui-button-purple" onclick="PF('uploadDialogWV').show(); return false;"/>
+                </h:form>
+            </div>
+
+            <!-- DIALOGO DE CARGA MASIVA -->
+            <p:dialog header="Carga Masiva de Reabastecimientos" widgetVar="uploadDialogWV" modal="true" width="600">
+                <h:form enctype="multipart/form-data">
+                    <p>Sube un archivo CSV o Excel para registrar múltiples reabastecimientos a la vez.</p>
+                    <p:commandButton value="Descargar Plantilla" icon="pi pi-download" ajax="false" styleClass="ui-button-secondary" >
+                        <!-- Lógica para descargar archivo de plantilla -->
+                    </p:commandButton>
+                    <p:fileUpload listener="#{reabastecimientoBean.handleFileUpload}" mode="advanced" dragDropSupport="true"
+                                  update="messages" sizeLimit="1000000" allowTypes="/(\.|\/)(csv|xlsx)$/"
+                                  label="Seleccionar o arrastrar archivo"/>
+                    <p:growl id="messages" showDetail="true" />
+                    <!-- Aquí iría una tabla de previsualización de los datos cargados -->
+                </h:form>
+            </p:dialog>
+
+            <!-- DIALOGO DE ESTADO (LOADING) -->
+            <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+                <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+            </p:dialog>
+
+        </ui:define>
+    </ui:composition>
 </html>

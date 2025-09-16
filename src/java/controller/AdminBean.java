@@ -1,10 +1,13 @@
 package controller;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
 import java.io.Serializable;
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Named;
 
-@ManagedBean
+/**
+ * Backing bean para gestionar la navegación desde el panel de administrador.
+ */
+@Named("adminBean")
 @RequestScoped
 public class AdminBean implements Serializable {
 
@@ -12,13 +15,15 @@ public class AdminBean implements Serializable {
         return "/admin/usuarios?faces-redirect=true";
     }
 
-    public String irRoles() {
-        // Futura implementación
-        return "/admin/roles?faces-redirect=true"; 
+    public String irCompras() {
+        return "/compras/gestion?faces-redirect=true";
+    }
+    
+    public String irProductos() {
+        return "#"; // Deshabilitado por ahora
     }
 
-    public String irProductos() {
-        // Futura implementación
-        return "/admin/productos?faces-redirect=true";
+    public String irRoles() {
+        return "#"; // Deshabilitado por ahora
     }
 }

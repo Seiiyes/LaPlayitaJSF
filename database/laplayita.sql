@@ -35,7 +35,7 @@ CREATE TABLE `categoria` (
 
 LOCK TABLES `categoria` WRITE;
 /*!40000 ALTER TABLE `categoria` DISABLE KEYS */;
-INSERT INTO `categoria` VALUES (2,'Lacteos ');
+INSERT INTO `categoria` VALUES (2,'Lacteos');
 /*!40000 ALTER TABLE `categoria` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -64,7 +64,7 @@ CREATE TABLE `cliente` (
 
 LOCK TABLES `cliente` WRITE;
 /*!40000 ALTER TABLE `cliente` DISABLE KEYS */;
-INSERT INTO `cliente` VALUES (1,'12345678','pepito ','perez ','pepito@gmail.com','12342155124'),(3,'10001','Laura ','Martinez ','laura.m@gmail.com','3124567890'),(4,'10002','Carlos Alberto','Gomez ','carlos.g@gmail.com','3101234567'),(5,'10003','Andrea ','Ruiz Sanchez','andrea.rs@gmail.com','3145678901'),(6,'10004','Diego ','Ramirez ','diego.r@gmail.com','3112345678'),(7,'10005','Sofia Elena','Perez ','sofia.p@gmail.com','3109876543'),(8,'10006','Felipe ','Torres Moreno','felipe.t@gmail.com','3165432109'),(9,'10007','Camila ','Vargas ','camila.v@gmail.com','3173214567'),(10,'10008','Jorge ','Castro ','jorge.c@gmail.com','3184567890'),(11,'10009','Natalia ','Jimenez Rodriguez','natalia.j@gmail.com','3196543210');
+INSERT INTO `cliente` VALUES (1,'12345678','Pepito','Perez','pepito@gmail.com','12342155124'),(3,'10001','Laura','Martinez','laura.m@gmail.com','3124567890'),(4,'10002','Carlos Alberto','Gomez','carlos.g@gmail.com','3101234567'),(5,'10003','Andrea','Ruiz Sanchez','andrea.rs@gmail.com','3145678901'),(6,'10004','Diego','Ramirez','diego.r@gmail.com','3112345678'),(7,'10005','Sofia Elena','Perez','sofia.p@gmail.com','3109876543'),(8,'10006','Felipe','Torres Moreno','felipe.t@gmail.com','3165432109'),(9,'10007','Camila','Vargas','camila.v@gmail.com','3173214567'),(10,'10008','Jorge','Castro','jorge.c@gmail.com','3184567890'),(11,'10009','Natalia','Jimenez Rodriguez','natalia.j@gmail.com','3196543210');
 /*!40000 ALTER TABLE `cliente` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -82,8 +82,8 @@ CREATE TABLE `detallepedido` (
   `precioUnitario` decimal(12,2) NOT NULL,
   PRIMARY KEY (`idPedido`,`idProducto`),
   KEY `idProducto` (`idProducto`),
-  CONSTRAINT `detallePedido_ibfk_1` FOREIGN KEY (`idPedido`) REFERENCES `pedido` (`idPedido`),
-  CONSTRAINT `detallePedido_ibfk_2` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`)
+  CONSTRAINT `fk_detallepedido_pedido` FOREIGN KEY (`idPedido`) REFERENCES `pedido` (`idPedido`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_detallepedido_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -106,11 +106,12 @@ DROP TABLE IF EXISTS `detallereabastecimiento`;
 CREATE TABLE `detallereabastecimiento` (
   `idProducto` int(11) NOT NULL,
   `idReabastecimiento` int(11) NOT NULL,
-  `cantidadReabastecimiento` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `costoUnitario` decimal(12,2) NOT NULL,
   PRIMARY KEY (`idProducto`,`idReabastecimiento`),
   KEY `idReabastecimiento` (`idReabastecimiento`),
-  CONSTRAINT `detalleReabastecimiento_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`),
-  CONSTRAINT `detalleReabastecimiento_ibfk_2` FOREIGN KEY (`idReabastecimiento`) REFERENCES `reabastecimiento` (`idReabastecimiento`)
+  CONSTRAINT `fk_detallereab_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_detallereab_reabastecimiento` FOREIGN KEY (`idReabastecimiento`) REFERENCES `reabastecimiento` (`idReabastecimiento`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -137,8 +138,8 @@ CREATE TABLE `detalleventa` (
   `subtotal` decimal(12,2) NOT NULL,
   PRIMARY KEY (`idProducto`,`idVenta`),
   KEY `idVenta` (`idVenta`),
-  CONSTRAINT `detalleVenta_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`),
-  CONSTRAINT `detalleVenta_ibfk_2` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`)
+  CONSTRAINT `fk_detalleventa_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_detalleventa_venta` FOREIGN KEY (`idVenta`) REFERENCES `venta` (`idVenta`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -193,8 +194,8 @@ CREATE TABLE `pedido` (
   PRIMARY KEY (`idPedido`),
   KEY `idCliente` (`idCliente`),
   KEY `idUsuario` (`idUsuario`),
-  CONSTRAINT `pedido_ibfk_1` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`),
-  CONSTRAINT `pedido_ibfk_2` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`)
+  CONSTRAINT `fk_pedido_cliente` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `fk_pedido_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -225,8 +226,8 @@ CREATE TABLE `pqrc` (
   PRIMARY KEY (`idPqrc`),
   KEY `idCliente` (`idCliente`),
   KEY `idUsuario` (`idUsuario`),
-  CONSTRAINT `pqrc_ibfk_1` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`),
-  CONSTRAINT `pqrc_ibfk_2` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`)
+  CONSTRAINT `fk_pqrc_cliente` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `fk_pqrc_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -251,14 +252,14 @@ CREATE TABLE `producto` (
   `idProducto` int(11) NOT NULL AUTO_INCREMENT,
   `nombreProducto` varchar(50) NOT NULL,
   `precioUnitario` decimal(12,2) NOT NULL,
-  `iva` double DEFAULT NULL,
+  `iva` decimal(5,2) DEFAULT 0.00,
   `cantidadStock` int(11) NOT NULL,
   `fechaCaducidad` date DEFAULT NULL,
   `descripcion` varchar(255) DEFAULT NULL,
   `idCategoria` int(11) NOT NULL,
   PRIMARY KEY (`idProducto`),
   KEY `idCategoria` (`idCategoria`),
-  CONSTRAINT `producto_ibfk_1` FOREIGN KEY (`idCategoria`) REFERENCES `categoria` (`idCategoria`)
+  CONSTRAINT `fk_producto_categoria` FOREIGN KEY (`idCategoria`) REFERENCES `categoria` (`idCategoria`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -268,7 +269,7 @@ CREATE TABLE `producto` (
 
 LOCK TABLES `producto` WRITE;
 /*!40000 ALTER TABLE `producto` DISABLE KEYS */;
-INSERT INTO `producto` VALUES (1,'Leche Entera',3800.00,19,120,'2025-12-01','Leche pasteurizada',2),(2,'Queso Campesino',9500.00,5,60,'2025-09-01','Queso fresco de vaca',2),(3,'Yogurt Fresa',4500.00,19,75,'2025-08-10','Yogurt de fruta',2),(4,'Mantequilla',7000.00,10,50,'2025-10-15','Mantequilla sin sal',2),(5,'Leche Deslactosada',4000.00,19,110,'2025-11-01','Leche para intolerantes',2),(6,'Queso Mozzarella',12000.00,5,40,'2025-09-15','Queso fundido',2),(7,'Yogurt Natural',4300.00,19,90,'2025-08-05','Yogurt sin azÃºcar',2),(8,'Kumis',4600.00,19,70,'2025-08-20','Bebida lÃ¡ctea',2),(9,'Queso doble crema',9800.00,5,45,'2025-09-30','Suave y cremoso',2),(10,'Leche en polvo',15000.00,19,80,'2026-01-01','DuraciÃ³n prolongada',2);
+INSERT INTO `producto` VALUES (1,'Leche Entera',3800.00,19.00,120,'2025-12-01','Leche pasteurizada',2),(2,'Queso Campesino',9500.00,5.00,60,'2025-09-01','Queso fresco de vaca',2),(3,'Yogurt Fresa',4500.00,19.00,75,'2025-08-10','Yogurt de fruta',2),(4,'Mantequilla',7000.00,10.00,50,'2025-10-15','Mantequilla sin sal',2),(5,'Leche Deslactosada',4000.00,19.00,110,'2025-11-01','Leche para intolerantes',2),(6,'Queso Mozzarella',12000.00,5.00,40,'2025-09-15','Queso fundido',2),(7,'Yogurt Natural',4300.00,19.00,90,'2025-08-05','Yogurt sin azúcar',2),(8,'Kumis',4600.00,19.00,70,'2025-08-20','Bebida láctea',2),(9,'Queso doble crema',9800.00,5.00,45,'2025-09-30','Suave y cremoso',2),(10,'Leche en polvo',15000.00,19.00,80,'2026-01-01','Duración prolongada',2);
 /*!40000 ALTER TABLE `producto` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -296,6 +297,7 @@ CREATE TABLE `proveedor` (
 
 LOCK TABLES `proveedor` WRITE;
 /*!40000 ALTER TABLE `proveedor` DISABLE KEYS */;
+INSERT INTO `proveedor` VALUES (1,'Lácteos del Campo S.A.','','3101234567','contacto@lacteosdelcampo.com','Zona Franca Láctea, Bodega 5'),(2,'Distribuidora Alpina','','3209876543','ventas.bogota@alpina.com','Carrera 10 # 20-30, Bogotá');
 /*!40000 ALTER TABLE `proveedor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -312,11 +314,12 @@ CREATE TABLE `reabastecimiento` (
   `hora` time NOT NULL,
   `costo` decimal(12,2) NOT NULL,
   `estadoCompra` varchar(20) DEFAULT 'recibido',
-  `formaPago` varchar(25) DEFAULT 'efectivo',
+  `formaPago` varchar(25) DEFAULT 'Efectivo',
+  `observaciones` text DEFAULT NULL,
   `idProveedor` int(11) NOT NULL,
   PRIMARY KEY (`idReabastecimiento`),
   KEY `idProveedor` (`idProveedor`),
-  CONSTRAINT `reabastecimiento_ibfk_1` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`)
+  CONSTRAINT `fk_reabastecimiento_proveedor` FOREIGN KEY (`idProveedor`) REFERENCES `proveedor` (`idProveedor`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -369,7 +372,7 @@ CREATE TABLE `salidainventario` (
   `motivo` varchar(255) NOT NULL,
   PRIMARY KEY (`idSalida`),
   KEY `idProducto` (`idProducto`),
-  CONSTRAINT `salidaInventario_ibfk_1` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`)
+  CONSTRAINT `fk_salidainventario_producto` FOREIGN KEY (`idProducto`) REFERENCES `producto` (`idProducto`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -406,8 +409,8 @@ CREATE TABLE `usuario` (
   UNIQUE KEY `correo` (`correo`),
   KEY `estadoUsuario` (`estadoUsuario`),
   KEY `idRol` (`idRol`),
-  CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`estadoUsuario`) REFERENCES `estadousuario` (`idEstado`),
-  CONSTRAINT `usuario_ibfk_2` FOREIGN KEY (`idRol`) REFERENCES `rol` (`idRol`)
+  CONSTRAINT `fk_usuario_estadousuario` FOREIGN KEY (`estadoUsuario`) REFERENCES `estadousuario` (`idEstado`) ON UPDATE CASCADE,
+  CONSTRAINT `fk_usuario_rol` FOREIGN KEY (`idRol`) REFERENCES `rol` (`idRol`) ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -417,7 +420,7 @@ CREATE TABLE `usuario` (
 
 LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
-INSERT INTO `usuario` VALUES (1,'1014477103','juan andres','lizarazo capera','liza@gmail.com','3105416287','$2a$10$NFwQSzu8/6T5IZTPGEKStu89rBkNLd1VloKWkIvXROYJlh.f6m4G.',1,'2025-06-27 01:49:49','2025-08-28 00:44:52',2),(3,'1234567','admin ','principal ','admin@playita.com','32124551','$2a$10$US7SvdS/PAlx89Ui241LKOyWoT12q5Z7pGE/3WCzznSNPYcvZhrgG',1,'2025-07-01 18:49:19','2025-08-27 23:19:08',1),(5,'123456789','pepe ','alca ','vendedor@gmail.com',NULL,'$2a$10$7Fcj6KuAUR//UdXWoIa7f.21C124s4Tw6J/nNUkuUNKcbkRl6y51K',1,'2025-07-02 07:39:42',NULL,2);
+INSERT INTO `usuario` VALUES (1,'1014477103','Juan Andres','Lizarazo Capera','liza@gmail.com','3105416287','$2a$10$NFwQSzu8/6T5IZTPGEKStu89rBkNLd1VloKWkIvXROYJlh.f6m4G.',1,'2025-06-27 01:49:49','2025-08-28 00:44:52',2),(3,'1234567','Admin','Principal','admin@playita.com','32124551','$2a$10$US7SvdS/PAlx89Ui241LKOyWoT12q5Z7pGE/3WCzznSNPYcvZhrgG',1,'2025-07-01 18:49:19','2025-08-27 23:19:08',1),(5,'123456789','Pepe','Alca','vendedor@gmail.com',NULL,'$2a$10$7Fcj6KuAUR//UdXWoIa7f.21C124s4Tw6J/nNUkuUNKcbkRl6y51K',1,'2025-07-02 07:39:42',NULL,2);
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -438,8 +441,8 @@ CREATE TABLE `venta` (
   PRIMARY KEY (`idVenta`),
   KEY `idCliente` (`idCliente`),
   KEY `idUsuario` (`idUsuario`),
-  CONSTRAINT `venta_ibfk_1` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`),
-  CONSTRAINT `venta_ibfk_2` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`)
+  CONSTRAINT `fk_venta_cliente` FOREIGN KEY (`idCliente`) REFERENCES `cliente` (`idCliente`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `fk_venta_usuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

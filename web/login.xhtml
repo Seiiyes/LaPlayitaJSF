@@ -7,7 +7,7 @@
     <ui:composition template="/templates/template.xhtml">
         <ui:define name="content">
 
-            <div class="login-container">
+            <div class="main-container">
                 <div class="card login-card">
 
                     <h:form id="loginForm">
@@ -34,9 +34,9 @@
                                         requiredMessage="La contraseña es obligatoria."/>
                         </div>
 
-                        <p:commandButton value="Ingresar" actionListener="#{loginBean.login}"
-                                         styleClass="login-button" icon="pi pi-sign-in"
-                                         update="loginMessages"/>
+                        <p:commandButton value="Ingresar" action="#{loginBean.login}"
+                                         styleClass="ui-button-primary" icon="pi pi-sign-in"
+                                         ajax="false"/>
 
                         <div class="register-link">
                             <span>¿No tienes cuenta? </span>

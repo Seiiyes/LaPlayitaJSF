@@ -12,9 +12,18 @@
                     <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
                     <div class="dashboard-menu">                   
-                        <p:commandButton value="Usuarios" action="#{adminBean.irUsuarios}" ajax="false" icon="pi pi-users" styleClass="dashboard-button"/>
-                        <p:commandButton value="Roles" action="#{adminBean.irRoles}" ajax="false" icon="pi pi-id-card" styleClass="dashboard-button" disabled="true"/>
-                        <p:commandButton value="Productos" action="#{adminBean.irProductos}" ajax="false" icon="pi pi-shopping-cart" styleClass="dashboard-button" disabled="true"/>
+                        <p:link outcome="#{adminBean.irUsuarios()}" styleClass="dashboard-button">
+                            <i class="pi pi-users" style="margin-right: .5rem;"></i> Gestión de Usuarios
+                        </p:link>
+                        <p:link outcome="#{adminBean.irCompras()}" styleClass="dashboard-button">
+                            <i class="pi pi-shopping-bag" style="margin-right: .5rem;"></i> Gestión de Compras
+                        </p:link>
+                        <p:link outcome="#{adminBean.irProductos()}" styleClass="dashboard-button" disabled="true">
+                            <i class="pi pi-box" style="margin-right: .5rem;"></i> Gestión de Productos
+                        </p:link>
+                        <p:link outcome="#{adminBean.irRoles()}" styleClass="dashboard-button" disabled="true">
+                            <i class="pi pi-id-card" style="margin-right: .5rem;"></i> Gestión de Roles
+                        </p:link>
                     </div>
                 </h:form>
             </div>

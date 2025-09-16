@@ -12,7 +12,6 @@
             <file>file:/C:/Java/LaPlayita/src/java/controller/UsuarioBean.java</file>
             <file>file:/C:/Java/LaPlayita/web/login.xhtml</file>
             <file>file:/C:/Java/LaPlayita/web/compras/gestion.xhtml</file>
-            <file>file:/C:/Java/LaPlayita/web/compras/reportes.xhtml</file>
             <file>file:/C:/Java/LaPlayita/web/pedidos/gestion.xhtml</file>
             <file>file:/C:/Java/LaPlayita/web/ventas/historial.xhtml</file>
             <file>file:/C:/Java/LaPlayita/web/ventas/registrar.xhtml</file>
@@ -21,6 +20,9 @@
             <file>file:/C:/Java/LaPlayita/src/java/controller/RegistroBean.java</file>
             <file>file:/C:/Java/LaPlayita/src/java/dao/RolDAO.java</file>
             <file>file:/C:/Java/LaPlayita/src/java/model/Rol.java</file>
+            <file>file:/C:/Java/LaPlayita/src/java/filter/LoggingFilter.java</file>
+            <file>file:/C:/Java/LaPlayita/src/java/controller/AdminBean.java</file>
+            <file>file:/C:/Java/LaPlayita/src/java/dao/ReabastecimientoDAO.java</file>
         </group>
     </open-files>
 </project-private>

@@ -23,9 +23,14 @@ public class AuthFilter implements Filter {
             Arrays.asList("/login.xhtml", "/registro.xhtml", "/home.xhtml", "/index.xhtml")
     );
 
+    // IDs de Roles para una comprobación más robusta y segura
+    private static final int ROLE_ADMIN = 1;
+    private static final int ROLE_VENDEDOR = 2;
+    // private static final int ROLE_PRACTICANTE = 3; // Descomentar si se usa
+
     // Páginas que solo los Admins (Rol 1) pueden ver
     private static final Set<String> ADMIN_PAGES = new HashSet<>(
-            Arrays.asList("/admin/usuarios.xhtml", "/compras/gestion.xhtml", "/pqrc/gestion.xhtml")
+            Arrays.asList("/admin/usuarios.xhtml", "/compras/gestion.xhtml", "/pqrc/gestion.xhtml", "/admin/adminHome.xhtml")
     // A medida que crees más páginas de admin, añádelas aquí.
     );
 
@@ -67,17 +72,17 @@ public class AuthFilter implements Filter {
         }
 
         // Si llegamos aquí, el usuario ESTÁ logueado. Ahora verificamos sus permisos.
-        // Obtenemos el nombre del rol directamente del objeto Usuario en sesión.
-        if (usuario.getRol() == null || usuario.getRol().getDescripcionRol() == null) {
-            // Si no hay rol, es un problema de datos. Denegar acceso por seguridad.
+        int userRoleId = usuario.getIdRol();
+
+        // Si el ID del rol es 0, significa que no se asignó correctamente.
+        if (userRoleId == 0) {
             res.sendRedirect(req.getContextPath() + "/access-denied.xhtml");
             return;
         }
-        String userRoleName = usuario.getRol().getDescripcionRol();
 
         // Regla 1: ¿La página es exclusiva para Admins?
         if (ADMIN_PAGES.contains(path)) {
-            if ("ADMIN".equalsIgnoreCase(userRoleName)) {
+            if (userRoleId == ROLE_ADMIN) {
                 chain.doFilter(request, response); // Es Admin, tiene acceso
             } else {
                 res.sendRedirect(req.getContextPath() + "/access-denied.xhtml"); // No es Admin, acceso denegado
@@ -87,7 +92,7 @@ public class AuthFilter implements Filter {
 
         // Regla 2: ¿La página es para el personal (Admin o Vendedor)?
         if (STAFF_PAGES.contains(path)) {
-            if ("ADMIN".equalsIgnoreCase(userRoleName) || "VENDEDOR".equalsIgnoreCase(userRoleName)) {
+            if (userRoleId == ROLE_ADMIN || userRoleId == ROLE_VENDEDOR) {
                 chain.doFilter(request, response); // Es Admin o Vendedor, tiene acceso
             } else {
                 res.sendRedirect(req.getContextPath() + "/access-denied.xhtml"); // No tiene el rol adecuado, acceso denegado
