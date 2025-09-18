@@ -22,18 +22,18 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.AbstractMap;
 import java.util.Map;
-import org.primefaces.PrimeFaces; // Added import
 
 @ManagedBean
 @ViewScoped
 public class VentaBean implements Serializable {
 
+    // Claves para guardar el carrito en la sesión HTTP
+    private static final String CART_PRODUCTS_KEY = "session.cart.products";
+    private static final String CART_QUANTITIES_KEY = "session.cart.quantities";
+
     private List<Producto> productosDisponibles;
     private List<Cliente> clientes;
-    private Map<Integer, Integer> carritoCantidades; // idProducto -> cantidad
-    private Map<Integer, Producto> carritoProductos; // idProducto -> Producto
     private int idClienteSeleccionado;
     private BigDecimal totalVenta;
 
@@ -46,78 +46,90 @@ public class VentaBean implements Serializable {
         productoDAO = new ProductoDAO();
         clienteDAO = new ClienteDAO();
         ventaService = new VentaService();
-        carritoCantidades = new LinkedHashMap<>();
-        carritoProductos = new LinkedHashMap<>();
         totalVenta = BigDecimal.ZERO;
 
+        // Cargar datos que no cambian con cada acción
         try {
             productosDisponibles = productoDAO.findAll();
         } catch (SQLException e) {
             addMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudieron cargar los productos.");
             productosDisponibles = new ArrayList<>();
         }
-
         clientes = clienteDAO.listarTodos();
+        
+        // Recalcular el total basado en el carrito actual en la sesión
+        calcularTotal();
     }
+
+    // --- Métodos para manejar los mapas del carrito en la SESIÓN ---
+
+    private Map<Integer, Producto> getCarritoProductos() {
+        Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+        Map<Integer, Producto> carrito = (Map<Integer, Producto>) sessionMap.get(CART_PRODUCTS_KEY);
+        if (carrito == null) {
+            carrito = new LinkedHashMap<>();
+            sessionMap.put(CART_PRODUCTS_KEY, carrito);
+        }
+        return carrito;
+    }
+
+    public Map<Integer, Integer> getCarritoCantidades() {
+        Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+        Map<Integer, Integer> carrito = (Map<Integer, Integer>) sessionMap.get(CART_QUANTITIES_KEY);
+        if (carrito == null) {
+            carrito = new LinkedHashMap<>();
+            sessionMap.put(CART_QUANTITIES_KEY, carrito);
+        }
+        return carrito;
+    }
+
+    // --- Lógica de la Venta ---
 
     public void agregarProductoPorId(int idProducto) {
-        Producto productoAAgregar = null;
-        for (Producto p : productosDisponibles) {
-            if (p.getIdProducto() == idProducto) {
-                productoAAgregar = p;
-                break;
-            }
-        }
+        Map<Integer, Producto> carritoProds = getCarritoProductos();
+        Map<Integer, Integer> carritoCant = getCarritoCantidades();
 
-        if (productoAAgregar != null) {
-            int cantidadActual = carritoCantidades.getOrDefault(idProducto, 0);
-            carritoCantidades.put(idProducto, cantidadActual + 1);
-            carritoProductos.put(idProducto, productoAAgregar); // Store the product object
-
-            calcularTotal();
-            PrimeFaces.current().ajax().update("formVenta:panelCarrito", "formVenta:growl");
-        } else {
+        Producto productoAAgregar = findProductoById(idProducto);
+        if (productoAAgregar == null) {
             addMessage(FacesMessage.SEVERITY_ERROR, "Error", "Producto no encontrado.");
-            PrimeFaces.current().ajax().update("formVenta:growl");
+            return;
         }
-    }
 
-    public void quitarProducto(Producto producto) {
-        int idProducto = producto.getIdProducto();
-        carritoCantidades.remove(idProducto);
-        carritoProductos.remove(idProducto);
+        int cantidadActual = carritoCant.getOrDefault(idProducto, 0);
+        carritoCant.put(idProducto, cantidadActual + 1);
+        carritoProds.putIfAbsent(idProducto, productoAAgregar);
+
         calcularTotal();
-        PrimeFaces.current().ajax().update("formVenta:panelCarrito", "formVenta:growl");
     }
 
-    public void actualizarCantidad(Producto producto) {
-        int idProducto = producto.getIdProducto();
-        Integer cantidad = carritoCantidades.get(idProducto); // Get the potentially updated quantity
+    public void quitarProducto(int idProducto) {
+        getCarritoProductos().remove(idProducto);
+        getCarritoCantidades().remove(idProducto);
+        calcularTotal();
+    }
 
+    public void onCantidadChange(int idProducto) {
+        Integer cantidad = getCarritoCantidades().get(idProducto);
         if (cantidad != null && cantidad <= 0) {
-            quitarProducto(producto);
+            quitarProducto(idProducto);
         } else {
             calcularTotal();
         }
-        PrimeFaces.current().ajax().update("formVenta:panelCarrito", "formVenta:growl");
     }
 
     public void registrarVenta() {
         if (idClienteSeleccionado == 0) {
             addMessage(FacesMessage.SEVERITY_WARN, "Atención", "Debe seleccionar un cliente.");
-            PrimeFaces.current().ajax().update("formVenta:growl");
             return;
         }
-        if (carritoCantidades.isEmpty()) {
+        if (getCarritoCantidades().isEmpty()) {
             addMessage(FacesMessage.SEVERITY_WARN, "Atención", "El carrito está vacío.");
-            PrimeFaces.current().ajax().update("formVenta:growl");
             return;
         }
 
         Usuario vendedor = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
         if (vendedor == null) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Error de Sesión", "No se pudo identificar al vendedor. Por favor, inicie sesión de nuevo.");
-            PrimeFaces.current().ajax().update("formVenta:growl");
+            addMessage(FacesMessage.SEVERITY_ERROR, "Error de Sesión", "No se pudo identificar al vendedor.");
             return;
         }
 
@@ -130,13 +142,13 @@ public class VentaBean implements Serializable {
         venta.setHoraVenta(new Time(now));
 
         List<DetalleVenta> detalles = new ArrayList<>();
-        for (Map.Entry<Integer, Integer> entry : carritoCantidades.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : getCarritoCantidades().entrySet()) {
             Integer idProducto = entry.getKey();
             Integer cantidad = entry.getValue();
-            Producto p = carritoProductos.get(idProducto); // Get the product object
-            if (p != null) {
+            Producto p = getCarritoProductos().get(idProducto);
+            if (p != null && cantidad > 0) {
                 BigDecimal subtotal = p.getPrecioUnitario().multiply(new BigDecimal(cantidad));
-                detalles.add(new DetalleVenta(p.getIdProducto(), 0, cantidad, subtotal)); // idVenta se setea en el DAO
+                detalles.add(new DetalleVenta(p.getIdProducto(), 0, cantidad, subtotal));
             }
         }
 
@@ -144,19 +156,17 @@ public class VentaBean implements Serializable {
             ventaService.realizarVenta(venta, detalles);
             addMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Venta registrada correctamente.");
             limpiarFormulario();
-            PrimeFaces.current().ajax().update("formVenta", "formVenta:growl");
         } catch (Exception e) {
             addMessage(FacesMessage.SEVERITY_FATAL, "Error Crítico", "No se pudo registrar la venta: " + e.getMessage());
-            PrimeFaces.current().ajax().update("formVenta:growl");
         }
     }
 
     private void calcularTotal() {
         totalVenta = BigDecimal.ZERO;
-        for (Map.Entry<Integer, Integer> entry : carritoCantidades.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : getCarritoCantidades().entrySet()) {
             Integer idProducto = entry.getKey();
             Integer cantidad = entry.getValue();
-            Producto p = carritoProductos.get(idProducto);
+            Producto p = getCarritoProductos().get(idProducto);
             if (p != null) {
                 totalVenta = totalVenta.add(p.getPrecioUnitario().multiply(new BigDecimal(cantidad)));
             }
@@ -164,24 +174,27 @@ public class VentaBean implements Serializable {
     }
 
     private void limpiarFormulario() {
-        carritoCantidades.clear();
-        carritoProductos.clear();
+        Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
+        sessionMap.remove(CART_PRODUCTS_KEY);
+        sessionMap.remove(CART_QUANTITIES_KEY);
         idClienteSeleccionado = 0;
         totalVenta = BigDecimal.ZERO;
-        // Recargar productos por si el stock cambió
-        try {
-            productosDisponibles = productoDAO.findAll();
-        } catch (SQLException e) {
-            addMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudieron recargar los productos.");
-        }
-        PrimeFaces.current().ajax().update("formVenta"); // Update entire form after clearing
     }
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severity, summary, detail));
     }
+    
+    private Producto findProductoById(int idProducto) {
+        for (Producto p : productosDisponibles) {
+            if (p.getIdProducto() == idProducto) {
+                return p;
+            }
+        }
+        return null;
+    }
 
-    // Getters y Setters
+    // --- Getters y Setters para la VISTA ---
 
     public List<Producto> getProductosDisponibles() {
         return productosDisponibles;
@@ -190,8 +203,6 @@ public class VentaBean implements Serializable {
     public List<Cliente> getClientes() {
         return clientes;
     }
-
-    
 
     public int getIdClienteSeleccionado() {
         return idClienteSeleccionado;
@@ -205,16 +216,7 @@ public class VentaBean implements Serializable {
         return totalVenta;
     }
 
-    public List<Map.Entry<Producto, Integer>> getCarritoAsList() {
-        List<Map.Entry<Producto, Integer>> list = new ArrayList<>();
-        for (Map.Entry<Integer, Integer> entry : carritoCantidades.entrySet()) {
-            Integer idProducto = entry.getKey();
-            Integer cantidad = entry.getValue();
-            Producto p = carritoProductos.get(idProducto);
-            if (p != null) {
-                list.add(new AbstractMap.SimpleEntry<>(p, cantidad));
-            }
-        }
-        return list;
+    public List<Producto> getCarritoAsList() {
+        return new ArrayList<>(getCarritoProductos().values());
     }
 }

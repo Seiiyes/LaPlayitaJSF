@@ -8,7 +8,7 @@
     <ui:define name="content">
         <h:form id="formVenta">
             <h:inputHidden id="csrfToken" value="#{sessionScope.csrfToken}" />
-            <p:growl id="growl" showDetail="true"/>
+            <p:growl id="growl" showDetail="true" life="3000"/>
 
             <div class="card">
                 <h2><i class="pi pi-shopping-cart" style="margin-right: .5rem;"></i> Nueva Venta</h2>
@@ -21,9 +21,9 @@
                     </p:selectOneMenu>
                 </p:panel>
 
-                <div class="p-grid ui-fluid" style="margin-top: 20px;">
+                <div class="grid ui-fluid" style="margin-top: 20px;">
                     <!-- SECCIÓN PRODUCTOS DISPONIBLES -->
-                    <div class="p-col-12 p-md-7">
+                    <div class="col-12 md:col-7">
                         <p:panel header="2. Productos Disponibles">
                             <p:dataTable id="tablaProductos" var="producto" value="#{ventaBean.productosDisponibles}" rows="5" paginator="true"
                                          paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -40,26 +40,31 @@
                                     <h:outputText value="#{producto.cantidadStock}"/>
                                 </p:column>
                                 <p:column headerText="Acción" style="width:100px; text-align: center">
-                                    <p:commandButton icon="pi pi-plus" title="Agregar" action="#{ventaBean.agregarProductoPorId(producto.idProducto)}" update=":formVenta:tablaProductos :formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
+                                    <p:commandButton icon="pi pi-plus" title="Agregar"
+                                                     actionListener="#{ventaBean.agregarProductoPorId(producto.idProducto)}"
+                                                     update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
                                 </p:column>
                             </p:dataTable>
                         </p:panel>
                     </div>
 
                     <!-- SECCIÓN CARRITO -->
-                    <div class="p-col-12 p-md-5">
+                    <div class="col-12 md:col-5">
                         <p:panel id="panelCarrito" header="3. Carrito de Compras">
-                            <p:dataTable id="tablaCarrito" var="entry" value="#{ventaBean.carritoAsList}" emptyMessage="El carrito está vacío.">
+                            <p:dataTable id="tablaCarrito" var="prodCarrito" value="#{ventaBean.carritoAsList}" emptyMessage="El carrito está vacío.">
                                 <p:column headerText="Producto">
-                                    <h:outputText value="#{entry.key.nombreProducto}"/>
+                                    <h:outputText value="#{prodCarrito.nombreProducto}"/>
                                 </p:column>
                                 <p:column headerText="Cantidad" style="width: 120px;">
-                                    <p:inputNumber value="#{entry.value}" minValue="1" maxValue="#{entry.key.cantidadStock}">
-                                        <p:ajax event="change" listener="#{ventaBean.actualizarCantidad(entry.key)}" update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
+                                    <p:inputNumber value="#{ventaBean.carritoCantidades[prodCarrito.idProducto]}" minValue="0" maxValue="#{prodCarrito.cantidadStock}">
+                                        <p:ajax event="change" listener="#{ventaBean.onCantidadChange(prodCarrito.idProducto)}" update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
                                     </p:inputNumber>
                                 </p:column>
                                 <p:column headerText="Acción" style="width:50px; text-align: center">
-                                    <p:commandButton icon="pi pi-trash" title="Quitar" action="#{ventaBean.quitarProducto(entry.key)}" update=":formVenta:tablaProductos :formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl" styleClass="ui-button-danger"/>
+                                    <p:commandButton icon="pi pi-trash" title="Quitar"
+                                                     actionListener="#{ventaBean.quitarProducto(prodCarrito.idProducto)}"
+                                                     update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"
+                                                     styleClass="ui-button-danger"/>
                                 </p:column>
                             </p:dataTable>
 
@@ -77,8 +82,11 @@
 
                 <!-- SECCIÓN FINALIZAR -->
                 <div style="margin-top: 20px; text-align: center;">
-                    <p:commandButton value="Registrar Venta" actionListener="#{ventaBean.registrarVenta}" 
-                                     icon="pi pi-check" update=":formVenta" styleClass="ui-button-success"/>
+                    <p:commandButton value="Registrar Venta" 
+                                     actionListener="#{ventaBean.registrarVenta}" 
+                                     icon="pi pi-check" 
+                                     update=":formVenta"
+                                     styleClass="ui-button-success"/>
                 </div>
             </div>
         </h:form>
