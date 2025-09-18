@@ -11,7 +11,10 @@
                 <h:form>
                     <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
-                    <div class="dashboard-menu">                   
+                    <div class="dashboard-menu">
+                        <p:link outcome="/ventas/registrar.xhtml" styleClass="dashboard-button">
+                            <i class="pi pi-shopping-cart" style="margin-right: .5rem;"></i> Registrar Venta
+                        </p:link>
                         <p:link outcome="#{adminBean.irUsuarios()}" styleClass="dashboard-button">
                             <i class="pi pi-users" style="margin-right: .5rem;"></i> Gestión de Usuarios
                         </p:link>

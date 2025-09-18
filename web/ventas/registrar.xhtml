@@ -1,15 +1,86 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/XHtml.xhtml to edit this template
--->
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>TODO supply a title</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
-</html>
+<ui:composition template="/templates/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <ui:define name="content">
+        <h:form id="formVenta">
+            <h:inputHidden id="csrfToken" value="#{sessionScope.csrfToken}" />
+            <p:growl id="growl" showDetail="true"/>
+
+            <div class="card">
+                <h2><i class="pi pi-shopping-cart" style="margin-right: .5rem;"></i> Nueva Venta</h2>
+
+                <!-- SECCIÓN CLIENTE -->
+                <p:panel header="1. Seleccionar Cliente">
+                    <p:selectOneMenu id="cliente" value="#{ventaBean.idClienteSeleccionado}" required="true" requiredMessage="Debe seleccionar un cliente.">
+                        <f:selectItem itemLabel="Seleccione un cliente" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{ventaBean.clientes}" var="cliente" itemLabel="#{cliente.nombres} #{cliente.apellidos} - #{cliente.documento}" itemValue="#{cliente.idCliente}"/>
+                    </p:selectOneMenu>
+                </p:panel>
+
+                <div class="p-grid ui-fluid" style="margin-top: 20px;">
+                    <!-- SECCIÓN PRODUCTOS DISPONIBLES -->
+                    <div class="p-col-12 p-md-7">
+                        <p:panel header="2. Productos Disponibles">
+                            <p:dataTable id="tablaProductos" var="producto" value="#{ventaBean.productosDisponibles}" rows="5" paginator="true"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         rowsPerPageTemplate="5,10,15">
+                                <p:column headerText="Nombre">
+                                    <h:outputText value="#{producto.nombreProducto}"/>
+                                </p:column>
+                                <p:column headerText="Precio">
+                                    <h:outputText value="#{producto.precioUnitario}">
+                                        <f:convertNumber type="currency" currencySymbol="$"/>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Stock">
+                                    <h:outputText value="#{producto.cantidadStock}"/>
+                                </p:column>
+                                <p:column headerText="Acción" style="width:100px; text-align: center">
+                                    <p:commandButton icon="pi pi-plus" title="Agregar" action="#{ventaBean.agregarProductoPorId(producto.idProducto)}" update=":formVenta:tablaProductos :formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
+                                </p:column>
+                            </p:dataTable>
+                        </p:panel>
+                    </div>
+
+                    <!-- SECCIÓN CARRITO -->
+                    <div class="p-col-12 p-md-5">
+                        <p:panel id="panelCarrito" header="3. Carrito de Compras">
+                            <p:dataTable id="tablaCarrito" var="entry" value="#{ventaBean.carritoAsList}" emptyMessage="El carrito está vacío.">
+                                <p:column headerText="Producto">
+                                    <h:outputText value="#{entry.key.nombreProducto}"/>
+                                </p:column>
+                                <p:column headerText="Cantidad" style="width: 120px;">
+                                    <p:inputNumber value="#{entry.value}" minValue="1" maxValue="#{entry.key.cantidadStock}">
+                                        <p:ajax event="change" listener="#{ventaBean.actualizarCantidad(entry.key)}" update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
+                                    </p:inputNumber>
+                                </p:column>
+                                <p:column headerText="Acción" style="width:50px; text-align: center">
+                                    <p:commandButton icon="pi pi-trash" title="Quitar" action="#{ventaBean.quitarProducto(entry.key)}" update=":formVenta:tablaProductos :formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl" styleClass="ui-button-danger"/>
+                                </p:column>
+                            </p:dataTable>
+
+                            <p:panel id="panelTotal" style="margin-top: 10px; text-align: right;">
+                                <h:panelGrid columns="2" style="width:100%;">
+                                    <h:outputText value="Total:" style="font-weight: bold; font-size: 1.2em;"/>
+                                    <h:outputText value="#{ventaBean.totalVenta}" style="font-weight: bold; font-size: 1.2em;">
+                                        <f:convertNumber type="currency" currencySymbol="$ "/>
+                                    </h:outputText>
+                                </h:panelGrid>
+                            </p:panel>
+                        </p:panel>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN FINALIZAR -->
+                <div style="margin-top: 20px; text-align: center;">
+                    <p:commandButton value="Registrar Venta" actionListener="#{ventaBean.registrarVenta}" 
+                                     icon="pi pi-check" update=":formVenta" styleClass="ui-button-success"/>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>
