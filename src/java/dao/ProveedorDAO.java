@@ -33,4 +33,39 @@ public class ProveedorDAO {
         }
         return proveedores;
     }
+
+    public void save(Proveedor proveedor) throws SQLException {
+        if (proveedor.getIdProveedor() == 0) {
+            insert(proveedor);
+        } else {
+            update(proveedor);
+        }
+    }
+
+    private void insert(Proveedor proveedor) throws SQLException {
+        String sql = "INSERT INTO proveedor (nombres, apellidos, telefono, correo, direccion) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, proveedor.getNombres());
+            stmt.setString(2, proveedor.getApellidos());
+            stmt.setString(3, proveedor.getTelefono());
+            stmt.setString(4, proveedor.getCorreo());
+            stmt.setString(5, proveedor.getDireccion());
+            stmt.executeUpdate();
+        }
+    }
+
+    private void update(Proveedor proveedor) throws SQLException {
+        String sql = "UPDATE proveedor SET nombres = ?, apellidos = ?, telefono = ?, correo = ?, direccion = ? WHERE idProveedor = ?";
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, proveedor.getNombres());
+            stmt.setString(2, proveedor.getApellidos());
+            stmt.setString(3, proveedor.getTelefono());
+            stmt.setString(4, proveedor.getCorreo());
+            stmt.setString(5, proveedor.getDireccion());
+            stmt.setInt(6, proveedor.getIdProveedor());
+            stmt.executeUpdate();
+        }
+    }
 }

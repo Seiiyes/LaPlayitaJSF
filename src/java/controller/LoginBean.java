@@ -51,10 +51,10 @@ public class LoginBean implements Serializable {
 
             password = null;
 
-            // Redirigir según el nombre del rol, que viene de la base de datos.
-            if (u.getRol() != null && "ADMIN".equalsIgnoreCase(u.getRol().getDescripcionRol())) {
+            // Redirigir según el ID del rol para consistencia con el AuthFilter.
+            if (u.getIdRol() == 1) { // 1 es el ID para ADMIN
                 context.getExternalContext().redirect(contextPath + "/admin/adminHome.xhtml");
-            } else { // Otros roles
+            } else { // Otros roles (Vendedor, Practicante, etc.)
                 context.getExternalContext().redirect(contextPath + "/home.xhtml");
             }
 

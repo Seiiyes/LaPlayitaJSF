@@ -88,8 +88,11 @@
                                     <h:outputText value="#{u.estadoUsuario eq 1 ? 'Activo' : 'Inactivo'}" styleClass="#{u.estadoUsuario eq 1 ? 'estado-activo' : 'estado-inactivo'}" />
                                 </p:column>
                                 <p:column headerText="Acciones" styleClass="col-acciones">
-                                    <p:commandButton title="Editar este usuario" actionListener="#{usuarioBean.prepararEdicion(u)}" update=":formPanel" icon="material-symbols-outlined icon-edit" styleClass="ui-button-warning" process="@this"/>
-                                    <p:commandButton title="Eliminar este usuario" actionListener="#{usuarioBean.eliminar(u)}" update=":adminForm:tablaUsuarios :formPanel" icon="material-symbols-outlined icon-delete" styleClass="ui-button-danger">
+                                    <p:commandButton value="Editar" title="Editar este usuario" actionListener="#{usuarioBean.prepararEdicion(u)}" update=":formPanel" styleClass="ui-button-info" process="@this">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </p:commandButton>
+                                    <p:commandButton value="Eliminar" title="Eliminar este usuario" actionListener="#{usuarioBean.eliminar(u)}" update=":adminForm:tablaUsuarios :formPanel" styleClass="ui-button-danger">
+                                        <span class="material-symbols-outlined">delete</span>
                                         <p:confirm header="Confirmación" message="¿Seguro que deseas eliminar a #{u.nombres}?" icon="pi pi-exclamation-triangle"/>
                                     </p:commandButton>
                                 </p:column>

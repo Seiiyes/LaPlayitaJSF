@@ -1,40 +1,32 @@
 package model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
- * Modelo que representa un registro de reabastecimiento.
- * Funciona como un DTO (Data Transfer Object) que combina información de las
- * tablas 'reabastecimiento', 'detallereabastecimiento', 'proveedor' y 'producto'
- * para facilitar su manejo en la vista.
+ * Modelo que representa la cabecera de una operación de reabastecimiento (maestro).
  */
 public class Reabastecimiento {
 
     private int idReabastecimiento;
     private Date fecha;
-    private String estado; // Corresponde a 'estadoCompra' en la BD
+    private EstadoReabastecimiento estado; // Corresponde a 'estadoCompra' en la BD
     private String observaciones;
-    private BigDecimal costoTotal; // Calculado o almacenado
-
-    // Objetos relacionados para mostrar información en la tabla
+    private BigDecimal costoTotal;
+    private String formaPago; // Añadido para consistencia con la BD
+    private java.sql.Time hora; // Añadido para consistencia con la BD
+    
     private Proveedor proveedor;
-    private Producto producto;
-
-    // Campos del detalle
-    private int cantidad;
-    private BigDecimal costoUnitario;
-
-    // IDs para el formulario
-    private int idProveedor;
-    private int idProducto;
+    private List<DetalleReabastecimiento> detalles;
 
     public Reabastecimiento() {
-        // Inicializar objetos para evitar NullPointerException en el formulario
         this.proveedor = new Proveedor();
-        this.producto = new Producto();
-        this.fecha = new Date(); // Pre-rellenar con la fecha actual
-        this.estado = "Recibido"; // Valor por defecto
+        this.detalles = new ArrayList<>();
+        this.fecha = new Date();
+        this.estado = EstadoReabastecimiento.RECIBIDO; // Usar el enum
+        this.costoTotal = BigDecimal.ZERO;
     }
 
     // Getters y Setters
@@ -55,11 +47,11 @@ public class Reabastecimiento {
         this.fecha = fecha;
     }
 
-    public String getEstado() {
+    public EstadoReabastecimiento getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoReabastecimiento estado) {
         this.estado = estado;
     }
 
@@ -71,17 +63,6 @@ public class Reabastecimiento {
         this.observaciones = observaciones;
     }
 
-    public BigDecimal getCostoTotal() {
-        if (this.cantidad > 0 && this.costoUnitario != null) {
-            return costoUnitario.multiply(new BigDecimal(cantidad));
-        }
-        return costoTotal;
-    }
-
-    public void setCostoTotal(BigDecimal costoTotal) {
-        this.costoTotal = costoTotal;
-    }
-
     public Proveedor getProveedor() {
         return proveedor;
     }
@@ -90,43 +71,48 @@ public class Reabastecimiento {
         this.proveedor = proveedor;
     }
 
-    public Producto getProducto() {
-        return producto;
+    public List<DetalleReabastecimiento> getDetalles() {
+        return detalles;
     }
 
-    public void setProducto(Producto producto) {
-        this.producto = producto;
+    public void setDetalles(List<DetalleReabastecimiento> detalles) {
+        this.detalles = detalles;
     }
 
-    public int getCantidad() {
-        return cantidad;
+    public BigDecimal getCostoTotal() {
+        // Si la lista de detalles está poblada (ej. en el diálogo de edición),
+        // calcula el total dinámicamente para reflejar los cambios en tiempo real.
+        if (this.detalles != null && !this.detalles.isEmpty()) {
+            BigDecimal total = BigDecimal.ZERO;
+            for (DetalleReabastecimiento det : detalles) {
+                if (det.getSubtotal() != null) {
+                    total = total.add(det.getSubtotal());
+                }
+            }
+            return total;
+        }
+        // Si no, devuelve el valor almacenado (ej. para la vista de tabla principal).
+        // Esto evita que se muestre 0 cuando los detalles no han sido cargados.
+        return this.costoTotal;
     }
 
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+    public void setCostoTotal(BigDecimal costoTotal) {
+        this.costoTotal = costoTotal;
     }
 
-    public BigDecimal getCostoUnitario() {
-        return costoUnitario;
+    public java.sql.Time getHora() {
+        return hora;
     }
 
-    public void setCostoUnitario(BigDecimal costoUnitario) {
-        this.costoUnitario = costoUnitario;
+    public void setHora(java.sql.Time hora) {
+        this.hora = hora;
     }
 
-    public int getIdProveedor() {
-        return idProveedor;
+    public String getFormaPago() {
+        return formaPago;
     }
 
-    public void setIdProveedor(int idProveedor) {
-        this.idProveedor = idProveedor;
-    }
-
-    public int getIdProducto() {
-        return idProducto;
-    }
-
-    public void setIdProducto(int idProducto) {
-        this.idProducto = idProducto;
+    public void setFormaPago(String formaPago) {
+        this.formaPago = formaPago;
     }
 }
