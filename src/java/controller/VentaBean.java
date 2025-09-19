@@ -35,7 +35,6 @@ public class VentaBean implements Serializable {
     private List<Producto> productosDisponibles;
     private List<Cliente> clientes;
     private int idClienteSeleccionado;
-    private BigDecimal totalVenta;
 
     private ProductoDAO productoDAO;
     private ClienteDAO clienteDAO;
@@ -46,9 +45,7 @@ public class VentaBean implements Serializable {
         productoDAO = new ProductoDAO();
         clienteDAO = new ClienteDAO();
         ventaService = new VentaService();
-        totalVenta = BigDecimal.ZERO;
 
-        // Cargar datos que no cambian con cada acción
         try {
             productosDisponibles = productoDAO.findAll();
         } catch (SQLException e) {
@@ -56,9 +53,6 @@ public class VentaBean implements Serializable {
             productosDisponibles = new ArrayList<>();
         }
         clientes = clienteDAO.listarTodos();
-        
-        // Recalcular el total basado en el carrito actual en la sesión
-        calcularTotal();
     }
 
     // --- Métodos para manejar los mapas del carrito en la SESIÓN ---
@@ -73,9 +67,9 @@ public class VentaBean implements Serializable {
         return carrito;
     }
 
-    public Map<Integer, Integer> getCarritoCantidades() {
+    public Map<Integer, Object> getCarritoCantidades() {
         Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
-        Map<Integer, Integer> carrito = (Map<Integer, Integer>) sessionMap.get(CART_QUANTITIES_KEY);
+        Map<Integer, Object> carrito = (Map<Integer, Object>) sessionMap.get(CART_QUANTITIES_KEY);
         if (carrito == null) {
             carrito = new LinkedHashMap<>();
             sessionMap.put(CART_QUANTITIES_KEY, carrito);
@@ -87,7 +81,7 @@ public class VentaBean implements Serializable {
 
     public void agregarProductoPorId(int idProducto) {
         Map<Integer, Producto> carritoProds = getCarritoProductos();
-        Map<Integer, Integer> carritoCant = getCarritoCantidades();
+        Map<Integer, Object> carritoCant = getCarritoCantidades();
 
         Producto productoAAgregar = findProductoById(idProducto);
         if (productoAAgregar == null) {
@@ -95,25 +89,20 @@ public class VentaBean implements Serializable {
             return;
         }
 
-        int cantidadActual = carritoCant.getOrDefault(idProducto, 0);
+        int cantidadActual = getCantidadAsInt(carritoCant.get(idProducto));
         carritoCant.put(idProducto, cantidadActual + 1);
         carritoProds.putIfAbsent(idProducto, productoAAgregar);
-
-        calcularTotal();
     }
 
     public void quitarProducto(int idProducto) {
         getCarritoProductos().remove(idProducto);
         getCarritoCantidades().remove(idProducto);
-        calcularTotal();
     }
 
     public void onCantidadChange(int idProducto) {
-        Integer cantidad = getCarritoCantidades().get(idProducto);
-        if (cantidad != null && cantidad <= 0) {
+        Object cantidadObj = getCarritoCantidades().get(idProducto);
+        if (getCantidadAsInt(cantidadObj) <= 0) {
             quitarProducto(idProducto);
-        } else {
-            calcularTotal();
         }
     }
 
@@ -136,15 +125,15 @@ public class VentaBean implements Serializable {
         Venta venta = new Venta();
         venta.setIdCliente(idClienteSeleccionado);
         venta.setIdUsuario(vendedor.getIdUsuario());
-        venta.setTotal(totalVenta);
+        venta.setTotal(getTotalVenta());
         long now = System.currentTimeMillis();
         venta.setFechaVenta(new Date(now));
         venta.setHoraVenta(new Time(now));
 
         List<DetalleVenta> detalles = new ArrayList<>();
-        for (Map.Entry<Integer, Integer> entry : getCarritoCantidades().entrySet()) {
+        for (Map.Entry<Integer, Object> entry : getCarritoCantidades().entrySet()) {
             Integer idProducto = entry.getKey();
-            Integer cantidad = entry.getValue();
+            int cantidad = getCantidadAsInt(entry.getValue());
             Producto p = getCarritoProductos().get(idProducto);
             if (p != null && cantidad > 0) {
                 BigDecimal subtotal = p.getPrecioUnitario().multiply(new BigDecimal(cantidad));
@@ -161,24 +150,11 @@ public class VentaBean implements Serializable {
         }
     }
 
-    private void calcularTotal() {
-        totalVenta = BigDecimal.ZERO;
-        for (Map.Entry<Integer, Integer> entry : getCarritoCantidades().entrySet()) {
-            Integer idProducto = entry.getKey();
-            Integer cantidad = entry.getValue();
-            Producto p = getCarritoProductos().get(idProducto);
-            if (p != null) {
-                totalVenta = totalVenta.add(p.getPrecioUnitario().multiply(new BigDecimal(cantidad)));
-            }
-        }
-    }
-
     private void limpiarFormulario() {
         Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
         sessionMap.remove(CART_PRODUCTS_KEY);
         sessionMap.remove(CART_QUANTITIES_KEY);
         idClienteSeleccionado = 0;
-        totalVenta = BigDecimal.ZERO;
     }
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
@@ -192,6 +168,21 @@ public class VentaBean implements Serializable {
             }
         }
         return null;
+    }
+
+    private int getCantidadAsInt(Object value) {
+        if (value == null) return 0;
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof String) {
+            try {
+                if (((String) value).isEmpty()) return 0;
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                return 0;
+            }
+        }
+        return 0;
     }
 
     // --- Getters y Setters para la VISTA ---
@@ -213,7 +204,16 @@ public class VentaBean implements Serializable {
     }
 
     public BigDecimal getTotalVenta() {
-        return totalVenta;
+        BigDecimal calculatedTotal = BigDecimal.ZERO;
+        for (Map.Entry<Integer, Object> entry : getCarritoCantidades().entrySet()) {
+            Integer idProducto = entry.getKey();
+            int cantidad = getCantidadAsInt(entry.getValue());
+            Producto p = getCarritoProductos().get(idProducto);
+            if (p != null && cantidad > 0) {
+                calculatedTotal = calculatedTotal.add(p.getPrecioUnitario().multiply(new BigDecimal(cantidad)));
+            }
+        }
+        return calculatedTotal;
     }
 
     public List<Producto> getCarritoAsList() {

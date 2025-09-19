@@ -15,7 +15,7 @@
 
                 <!-- SECCIÓN CLIENTE -->
                 <p:panel header="1. Seleccionar Cliente">
-                    <p:selectOneMenu id="cliente" value="#{ventaBean.idClienteSeleccionado}" required="true" requiredMessage="Debe seleccionar un cliente.">
+                    <p:selectOneMenu id="cliente" value="#{ventaBean.idClienteSeleccionado}" required="true" requiredMessage="Debe seleccionar un cliente." label="Cliente">
                         <f:selectItem itemLabel="Seleccione un cliente" itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{ventaBean.clientes}" var="cliente" itemLabel="#{cliente.nombres} #{cliente.apellidos} - #{cliente.documento}" itemValue="#{cliente.idCliente}"/>
                     </p:selectOneMenu>
@@ -42,7 +42,7 @@
                                 <p:column headerText="Acción" style="width:100px; text-align: center">
                                     <p:commandButton icon="pi pi-plus" title="Agregar"
                                                      actionListener="#{ventaBean.agregarProductoPorId(producto.idProducto)}"
-                                                     update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
+                                                     update="@form:panelCarrito @form:growl"/>
                                 </p:column>
                             </p:dataTable>
                         </p:panel>
@@ -53,29 +53,41 @@
                         <p:panel id="panelCarrito" header="3. Carrito de Compras">
                             <p:dataTable id="tablaCarrito" var="prodCarrito" value="#{ventaBean.carritoAsList}" emptyMessage="El carrito está vacío.">
                                 <p:column headerText="Producto">
-                                    <h:outputText value="#{prodCarrito.nombreProducto}"/>
+                                    <h:outputText value="#{prodCarrito.nombreProducto}" />
                                 </p:column>
+
+                                <p:column headerText="Precio Unit.">
+                                    <h:outputText value="#{prodCarrito.precioUnitario}">
+                                        <f:convertNumber type="currency" currencySymbol="$" />
+                                    </h:outputText>
+                                </p:column>
+
                                 <p:column headerText="Cantidad" style="width: 120px;">
-                                    <p:inputNumber value="#{ventaBean.carritoCantidades[prodCarrito.idProducto]}" minValue="0" maxValue="#{prodCarrito.cantidadStock}">
-                                        <p:ajax event="change" listener="#{ventaBean.onCantidadChange(prodCarrito.idProducto)}" update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"/>
+                                    <p:inputNumber value="#{ventaBean.carritoCantidades[prodCarrito.idProducto]}" minValue="1" maxValue="#{prodCarrito.cantidadStock}" style="width: 100px;" label="Cantidad">
+                                        <p:ajax process="@this" listener="#{ventaBean.onCantidadChange(prodCarrito.idProducto)}" update="@form:panelCarrito @form:growl" />
                                     </p:inputNumber>
                                 </p:column>
-                                <p:column headerText="Acción" style="width:50px; text-align: center">
+
+                                <p:column headerText="Subtotal">
+                                    <h:outputText value="#{prodCarrito.precioUnitario * ventaBean.carritoCantidades[prodCarrito.idProducto]}">
+                                        <f:convertNumber type="currency" currencySymbol="$" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <p:column style="width:50px; text-align: center">
                                     <p:commandButton icon="pi pi-trash" title="Quitar"
                                                      actionListener="#{ventaBean.quitarProducto(prodCarrito.idProducto)}"
-                                                     update=":formVenta:panelCarrito :formVenta:panelTotal :formVenta:growl"
+                                                     update="@form:panelCarrito @form:growl"
                                                      styleClass="ui-button-danger"/>
                                 </p:column>
                             </p:dataTable>
 
-                            <p:panel id="panelTotal" style="margin-top: 10px; text-align: right;">
-                                <h:panelGrid columns="2" style="width:100%;">
-                                    <h:outputText value="Total:" style="font-weight: bold; font-size: 1.2em;"/>
-                                    <h:outputText value="#{ventaBean.totalVenta}" style="font-weight: bold; font-size: 1.2em;">
-                                        <f:convertNumber type="currency" currencySymbol="$ "/>
-                                    </h:outputText>
-                                </h:panelGrid>
-                            </p:panel>
+                            <h:panelGroup id="panelTotal" layout="block" style="text-align: left; margin-top: 10px; padding: 15px; border: 1px solid #ddd; border-radius: 4px;">
+                                <h:outputText value="Total: " style="font-weight: bold; font-size: 1.2em;"/>
+                                <h:outputText value="#{ventaBean.totalVenta}" style="font-weight: bold; font-size: 1.2em; color: green;">
+                                    <f:convertNumber type="currency" currencySymbol="$"/>
+                                </h:outputText>
+                            </h:panelGroup>
                         </p:panel>
                     </div>
                 </div>
