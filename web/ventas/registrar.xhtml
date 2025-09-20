@@ -95,11 +95,35 @@
                 <!-- SECCIÓN FINALIZAR -->
                 <div style="margin-top: 20px; text-align: center;">
                     <p:commandButton value="Registrar Venta" 
-                                     actionListener="#{ventaBean.registrarVenta}" 
+                                     type="button"
+                                     onclick="PF('ventaConfirmDialog').show()"
                                      icon="pi pi-check" 
-                                     update=":formVenta"
                                      styleClass="ui-button-success"/>
                 </div>
+
+                <p:confirmDialog widgetVar="ventaConfirmDialog" header="Confirmar Venta" message="¿Desea generar una factura para esta venta?" showEffect="fade" hideEffect="fade" responsive="true">
+                    <p:commandButton value="Sí, Facturar" 
+                                     actionListener="#{ventaBean.registrarVenta(true)}"
+                                     update=":formVenta:growl" 
+                                     oncomplete="PF('ventaConfirmDialog').hide(); if (args &amp;&amp; args.facturaLista) { setTimeout(function() { PF('downloaderWidget').getJQ().click(); }, 100); setTimeout(function() { location.reload(); }, 2000); }"
+                                     icon="pi pi-file-pdf" 
+                                     styleClass="ui-button-success"/>
+                    <p:commandButton value="Solo Registrar" 
+                                     actionListener="#{ventaBean.registrarVenta(false)}"
+                                     update=":formVenta" 
+                                     oncomplete="PF('ventaConfirmDialog').hide()" 
+                                     styleClass="ui-button-secondary"/>
+                    <p:commandButton value="Cancelar" 
+                                     type="button" 
+                                     onclick="PF('ventaConfirmDialog').hide()" 
+                                     icon="pi pi-times" 
+                                     styleClass="ui-button-danger"/>
+                </p:confirmDialog>
+
+                <!-- Botón de descarga oculto, controlado por JS -->
+                <p:commandButton id="downloader" widgetVar="downloaderWidget" ajax="false" style="display:none;">
+                    <p:fileDownload value="#{ventaBean.file}" />
+                </p:commandButton>
             </div>
         </h:form>
     </ui:define>

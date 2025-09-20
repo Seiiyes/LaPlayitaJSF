@@ -67,6 +67,19 @@
                     <file>${file.reference.jasperreports-6.11.0.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
+                <library dirs="200">
+                    <file>${lib/javax.faces-2.2.20.jar}</file>
+                </library>
+                <library dirs="200">
+                    <file>${lib/javax.el-3.0.1-b08.jar}</file>
+                </library>
+                <library dirs="200">
+                    <file>${lib/javax.annotation-api.jar}</file>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.commons-beanutils-1.9.4.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
             <source-roots>

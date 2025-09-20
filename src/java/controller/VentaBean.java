@@ -7,6 +7,7 @@ import model.DetalleVenta;
 import model.Producto;
 import model.Usuario;
 import model.Venta;
+import service.FacturaService;
 import service.VentaService;
 
 import javax.annotation.PostConstruct;
@@ -23,6 +24,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import controller.Supplier;
+import org.primefaces.util.SerializableSupplier;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
+import org.primefaces.PrimeFaces;
 
 @ManagedBean
 @ViewScoped
@@ -39,12 +47,22 @@ public class VentaBean implements Serializable {
     private ProductoDAO productoDAO;
     private ClienteDAO clienteDAO;
     private VentaService ventaService;
+    private FacturaService facturaService; // Nuevo servicio de factura
+
+    // Propiedades para la descarga de factura
+    private StreamedContent file;
+    private Venta ultimaVentaRegistrada;
+    private Cliente clienteDeUltimaVenta;
+    private List<DetalleVenta> detallesDeUltimaVenta;
+    private boolean mostrarBotonDescarga;
 
     @PostConstruct
     public void init() {
         productoDAO = new ProductoDAO();
         clienteDAO = new ClienteDAO();
         ventaService = new VentaService();
+        facturaService = new FacturaService(); // Inicializar servicio de factura
+        mostrarBotonDescarga = false;
 
         try {
             productosDisponibles = productoDAO.findAll();
@@ -106,7 +124,7 @@ public class VentaBean implements Serializable {
         }
     }
 
-    public void registrarVenta() {
+    public void registrarVenta(boolean generarFactura) {
         if (idClienteSeleccionado == 0) {
             addMessage(FacesMessage.SEVERITY_WARN, "Atención", "Debe seleccionar un cliente.");
             return;
@@ -144,9 +162,27 @@ public class VentaBean implements Serializable {
         try {
             ventaService.realizarVenta(venta, detalles);
             addMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Venta registrada correctamente.");
-            limpiarFormulario();
+
+            // Almacenar datos de la venta para la factura
+            this.ultimaVentaRegistrada = venta;
+            this.clienteDeUltimaVenta = findClienteById(idClienteSeleccionado);
+            this.detallesDeUltimaVenta = detalles;
+
+            if (generarFactura) {
+                mostrarBotonDescarga = true;
+                addMessage(FacesMessage.SEVERITY_INFO, "Facturación", "La factura está lista para descargar.");
+                // Añadir el parámetro de callback para que el frontend sepa que debe descargar
+                if (FacesContext.getCurrentInstance().getPartialViewContext().isAjaxRequest()) {
+                    PrimeFaces.current().ajax().addCallbackParam("facturaLista", true);
+                }
+            } else {
+                mostrarBotonDescarga = false;
+                limpiarFormulario(); // Limpiar si no se va a descargar factura
+            }
+
         } catch (Exception e) {
             addMessage(FacesMessage.SEVERITY_FATAL, "Error Crítico", "No se pudo registrar la venta: " + e.getMessage());
+            mostrarBotonDescarga = false; // Asegurar que el botón no se muestre en caso de error
         }
     }
 
@@ -155,6 +191,11 @@ public class VentaBean implements Serializable {
         sessionMap.remove(CART_PRODUCTS_KEY);
         sessionMap.remove(CART_QUANTITIES_KEY);
         idClienteSeleccionado = 0;
+        mostrarBotonDescarga = false;
+        ultimaVentaRegistrada = null;
+        clienteDeUltimaVenta = null;
+        detallesDeUltimaVenta = null;
+        file = null; // Limpiar el StreamedContent
     }
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
@@ -165,6 +206,15 @@ public class VentaBean implements Serializable {
         for (Producto p : productosDisponibles) {
             if (p.getIdProducto() == idProducto) {
                 return p;
+            }
+        }
+        return null;
+    }
+
+    private Cliente findClienteById(int idCliente) {
+        for (Cliente c : clientes) {
+            if (c.getIdCliente() == idCliente) {
+                return c;
             }
         }
         return null;
@@ -214,6 +264,43 @@ public class VentaBean implements Serializable {
             }
         }
         return calculatedTotal;
+    }
+
+    public StreamedContent getFile() {
+        if (mostrarBotonDescarga && ultimaVentaRegistrada != null && clienteDeUltimaVenta != null && detallesDeUltimaVenta != null) {
+            try {
+                // Llamada al nuevo método de iText
+                byte[] pdfBytes = facturaService.generarFacturaConIText(
+                    ultimaVentaRegistrada, 
+                    detallesDeUltimaVenta, 
+                    clienteDeUltimaVenta,
+                    getCarritoProductos() // Pasando el mapa de productos del carrito
+                );
+                
+                InputStream stream = new ByteArrayInputStream(pdfBytes);
+                
+                // Asignar un ID de venta si es una venta nueva que aún no lo tiene del DAO
+                String idVentaStr = (ultimaVentaRegistrada.getIdVenta() > 0) ? String.valueOf(ultimaVentaRegistrada.getIdVenta()) : "nueva";
+
+                return new DefaultStreamedContent(
+                        stream,
+                        "application/pdf",
+                        "factura_" + idVentaStr + ".pdf"
+                );
+            } catch (Exception e) { // Captura una excepción más genérica
+                addMessage(FacesMessage.SEVERITY_FATAL, "Error Factura", "No se pudo generar la factura: " + e.getMessage());
+                e.printStackTrace(); // Imprimir el stack trace para depuración
+                return null;
+            } finally {
+                // Limpiar el formulario después de intentar la descarga
+                limpiarFormulario();
+            }
+        }
+        return null;
+    }
+
+    public boolean isMostrarBotonDescarga() {
+        return mostrarBotonDescarga;
     }
 
     public List<Producto> getCarritoAsList() {
