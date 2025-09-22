@@ -7,6 +7,7 @@ import model.DetalleVenta;
 import model.Producto;
 import model.Usuario;
 import model.Venta;
+import service.EmailService;
 import service.FacturaService;
 import service.VentaService;
 
@@ -48,6 +49,7 @@ public class VentaBean implements Serializable {
     private ClienteDAO clienteDAO;
     private VentaService ventaService;
     private FacturaService facturaService; // Nuevo servicio de factura
+    private EmailService emailService; // Servicio para enviar correos
 
     // Propiedades para la descarga de factura
     private StreamedContent file;
@@ -62,6 +64,7 @@ public class VentaBean implements Serializable {
         clienteDAO = new ClienteDAO();
         ventaService = new VentaService();
         facturaService = new FacturaService(); // Inicializar servicio de factura
+        emailService = new EmailService(); // Inicializar servicio de correo
         mostrarBotonDescarga = false;
 
         try {
@@ -163,10 +166,30 @@ public class VentaBean implements Serializable {
             ventaService.realizarVenta(venta, detalles);
             addMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Venta registrada correctamente.");
 
-            // Almacenar datos de la venta para la factura
+            // Almacenar datos de la venta para la factura y correo
             this.ultimaVentaRegistrada = venta;
             this.clienteDeUltimaVenta = findClienteById(idClienteSeleccionado);
             this.detallesDeUltimaVenta = detalles;
+
+            // --- INICIO: Enviar factura por correo ---
+            if (clienteDeUltimaVenta != null && clienteDeUltimaVenta.getCorreo() != null && !clienteDeUltimaVenta.getCorreo().isEmpty()) {
+                try {
+                    byte[] pdfBytes = facturaService.generarFacturaConIText(
+                        ultimaVentaRegistrada,
+                        detallesDeUltimaVenta,
+                        clienteDeUltimaVenta,
+                        getCarritoProductos()
+                    );
+
+                    emailService.enviarFactura(clienteDeUltimaVenta, ultimaVentaRegistrada, pdfBytes);
+                    addMessage(FacesMessage.SEVERITY_INFO, "Correo Enviado", "Factura enviada a: " + clienteDeUltimaVenta.getCorreo());
+
+                } catch (Exception emailEx) {
+                    addMessage(FacesMessage.SEVERITY_WARN, "Error de Correo", "La venta se registró, pero no se pudo enviar la factura por correo.");
+                    System.err.println("Error al intentar enviar factura por correo: " + emailEx.getMessage());
+                }
+            }
+            // --- FIN: Enviar factura por correo ---
 
             if (generarFactura) {
                 mostrarBotonDescarga = true;

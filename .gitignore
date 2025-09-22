@@ -3,3 +3,6 @@
 /nbproject/private/
 
 .fake
+
+# Ignorar archivo de propiedades de correo con credenciales
+src/java/resources/mail.properties
