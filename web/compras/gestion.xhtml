@@ -10,7 +10,7 @@
     <ui:define name="content">
         <div class="card admin-card">
             <h:form id="formPrincipal">
-                <p:inputText id="csrfToken" type="hidden" value="#{sessionScope.csrfToken}" />
+               <h:inputHidden id="csrfToken" value="#{sessionScope.csrfToken}" />
                 <h2>Historial de Reabastecimientos</h2>
                 <p>Gestiona las compras a proveedores y sus productos.</p>
 
@@ -19,7 +19,7 @@
                         <p:commandButton value="Nueva Compra" icon="pi pi-plus" 
                                          actionListener="#{reabastecimientoBean.prepararNuevo}" 
                                          oncomplete="PF('dialogGestion').show()"
-                                         update=":formDialog"
+                                       
                                          styleClass="ui-button-success"/>
                     </p:toolbarGroup>
                     <p:toolbarGroup align="right">
@@ -95,7 +95,7 @@
                                 <h:outputText value="#{detalle.costoUnitario}"><f:convertNumber type="currency" currencySymbol="$"/></h:outputText>
                             </p:column>
                             <p:column headerText="Subtotal">
-                                <h:outputText value="#{detalle.cantidad * detalle.costoUnitario}"><f:convertNumber type="currency" currencySymbol="$"/></h:outputText>
+                                <h:outputText value="#{detalle.subtotal}"><f:convertNumber type="currency" currencySymbol="$"/></h:outputText>
                             </p:column>
                         </p:dataTable>
                     </p:rowExpansion>
@@ -106,7 +106,7 @@
 
         <!-- DIALOGO PARA GESTIONAR REABASTECIMIENTO -->
         <p:dialog header="#{empty reabastecimientoBean.seleccionado.idReabastecimiento ? 'Nueva Compra' : 'Editar Compra'}" 
-                  widgetVar="dialogGestion" modal="true" width="800" styleClass="reabastecimiento-dialog">
+                  widgetVar="dialogGestion" modal="true" width="800" styleClass="reabastecimiento-dialog" fitViewport="true">
             <h:form id="formDialog">
                 <p:inputText id="csrfToken" type="hidden" value="#{sessionScope.csrfToken}" />
                 <p:messages id="dialogMessages" showDetail="true" closable="true"/>
@@ -120,7 +120,7 @@
                         <p:selectOneMenu id="proveedor" value="#{reabastecimientoBean.seleccionado.proveedor.idProveedor}" required="true">
                             <f:selectItems value="#{reabastecimientoBean.listaProveedores}" var="p" itemValue="#{p.idProveedor}" itemLabel="#{p.nombres}"/>
                         </p:selectOneMenu>
-                        <p:commandButton icon="pi pi-plus" title="Nuevo Proveedor" type="button" onclick="PF('dialogProveedor').show()"/>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" title="Nuevo Proveedor" type="button" onclick="PF('dialogProveedor').show()"/>
                     </p:panelGrid>
 
                     <p:outputLabel for="estado" value="Estado"/>
@@ -137,121 +137,146 @@
                 <p:toolbar styleClass="mt-3 mb-2">
                     <p:toolbarGroup>
                         <p:commandButton value="Añadir Producto" icon="pi pi-plus" 
-                                         actionListener="#{reabastecimientoBean.agregarDetalle}" 
-                                         update=":formDialog:tablaDetalles :formDialog:totalPanel"/>
+                                        actionListener="#{reabastecimientoBean.agregarDetalle}" 
+                                        process="@this"
+                                        update="detailsWrapper"/>
+                                        
+                        <p:commandButton value="Nuevo Producto" icon="pi pi-box" 
+                                        actionListener="#{reabastecimientoBean.prepararNuevoProducto}"
+                                        oncomplete="PF('dialogProducto').show()"
+                                        update=":formProducto"
+                                        process="@this"
+                                        styleClass="ui-button-help"/>
                     </p:toolbarGroup>
                 </p:toolbar>
+                
+                <p:outputPanel id="detailsWrapper">
+                    <p:dataTable id="tablaDetalles" value="#{reabastecimientoBean.seleccionado.detalles}" var="det" rowKey="#{det.uuid}">
 
-                <p:dataTable id="tablaDetalles" value="#{reabastecimientoBean.seleccionado.detalles}" var="det" editable="true">
-                    <p:ajax event="rowEdit" listener="#{reabastecimientoBean.onRowEdit}" update=":formDialog:dialogMessages :formDialog:totalPanel"/>
+                        <p:column headerText="Producto" style="width:35%;">
+                            <p:selectOneMenu value="#{det.producto}" converter="productoConverter" required="true" style="width:100%;">
+                                <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true" />
+                                <f:selectItems value="#{reabastecimientoBean.listaProductos}" var="prod" itemValue="#{prod}" itemLabel="#{prod.nombreProducto}"/>
+                                <p:ajax event="change" 
+                                        listener="#{reabastecimientoBean.onProductoChange(det)}" 
+                                        update="@form:totalPanel"/>
+                            </p:selectOneMenu>
+                        </p:column>
 
-                    <p:column headerText="Producto">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{det.producto.nombreProducto}"/></f:facet>
-                            <f:facet name="input">
-                                <p:selectOneMenu value="#{det.producto.idProducto}">
-                                    <f:selectItems value="#{reabastecimientoBean.listaProductos}" var="prod" itemValue="#{prod.idProducto}" itemLabel="#{prod.nombreProducto}"/>
-                                </p:selectOneMenu>
-                            </f:facet>
-                        </p:cellEditor>
-                    </p:column>
+                        <p:column headerText="Cantidad" style="width:15%;">
+                            <p:inputNumber value="#{det.cantidad}" minValue="1" decimalPlaces="0" required="true" style="width:100%;">
+                                <!-- ¡¡¡CAMBIO CLAVE!!! Se añade event="keyup" -->
+                                <p:ajax event="keyup" 
+                                        listener="#{reabastecimientoBean.recalcularTotal}" 
+                                        update="@form:totalPanel" process="@this"/>
+                            </p:inputNumber>
+                        </p:column>
 
-                    <p:column headerText="Cantidad">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{det.cantidad}"/></f:facet>
-                            <f:facet name="input"><p:inputText value="#{det.cantidad}" style="width:100%" required="true"/></f:facet>
-                        </p:cellEditor>
-                    </p:column>
+                        <p:column headerText="Costo Unitario" style="width:20%;">
+                            <h:outputText value="#{det.costoUnitario}">
+                                <f:convertNumber type="currency" currencySymbol="$"/>
+                            </h:outputText>
+                        </p:column>
 
-                    <p:column headerText="Costo Unitario">
-                        <p:cellEditor>
-                            <f:facet name="output"><h:outputText value="#{det.costoUnitario}"/></f:facet>
-                            <f:facet name="input"><p:inputText value="#{det.costoUnitario}" style="width:100%" required="true"/></f:facet>
-                        </p:cellEditor>
-                    </p:column>
+                        <p:column headerText="Subtotal" style="width:20%;">
+                            <h:outputText value="#{det.subtotal}">
+                                <f:convertNumber type="currency" currencySymbol="$"/>
+                            </h:outputText>
+                        </p:column>
+                        
+                        <p:column style="width:10%;">
+                            <p:commandButton icon="pi pi-trash" title="Quitar"
+                                            actionListener="#{reabastecimientoBean.quitarDetalle(det)}"
+                                            process="@this"
+                                            update="detailsWrapper"/>
+                        </p:column>
+                    </p:dataTable>
 
-                    <p:column headerText="Subtotal">
-                        <h:outputText value="#{det.cantidad * det.costoUnitario}"><f:convertNumber type="currency" currencySymbol="$"/></h:outputText>
-                    </p:column>
-
-                    <p:column style="width:6rem">
-                        <p:rowEditor/>
-                    </p:column>
-                    <p:column style="width:3rem">
-                        <p:commandButton icon="pi pi-trash" title="Quitar"
-                                         actionListener="#{reabastecimientoBean.quitarDetalle(det)}"
-                                         update=":formDialog:tablaDetalles :formDialog:totalPanel"/>
-                    </p:column>
-                </p:dataTable>
-
-                <p:outputPanel id="totalPanel" styleClass="summary-row">
-                    <span class="total-label">Total Compra:</span>
-                    <span class="total-value">
-                        <h:outputText value="#{reabastecimientoBean.seleccionado.costoTotal}">
-                            <f:convertNumber type="currency" currencySymbol="$"/>
-                        </h:outputText>
-                    </span>
+                    <p:outputPanel id="totalPanel" styleClass="summary-row">
+                        <span class="total-label">Total Compra:</span>
+                        <span class="total-value">
+                            <h:outputText value="#{reabastecimientoBean.seleccionado.costoTotal}">
+                                <f:convertNumber type="currency" currencySymbol="$"/>
+                            </h:outputText>
+                        </span>
+                    </p:outputPanel>
                 </p:outputPanel>
 
-                <f:facet name="footer">
+                <div class="ui-dialog-footer" style="text-align: right; padding-top: 10px;">
                     <p:commandButton value="Guardar" icon="pi pi-check" 
-                                     actionListener="#{reabastecimientoBean.guardarMaestroDetalle}" 
-                                     update=":formPrincipal:tablaMaestra" 
-                                     oncomplete="PF('dialogGestion').hide()"/>
+                                     actionListener="#{reabastecimientoBean.guardarMaestroDetalle}"
+                                     process="@form" 
+                                    update="dialogMessages :formPrincipal:tablaMaestra" 
+                                     oncomplete="if (!args.validationFailed) { PF('dialogGestion').hide(); }"/>
                     <p:commandButton value="Cancelar" icon="pi pi-times" 
                                      onclick="PF('dialogGestion').hide()" 
                                      styleClass="ui-button-secondary"/>
-                </f:facet>
+                </div>
+            </h:form>
+        </p:dialog>
+
+        <!-- DIÁLOGOS PARA PRODUCTO, PROVEEDOR, CARGA MASIVA, ETC. (SIN CAMBIOS) -->
+        <p:dialog header="Nuevo Producto" widgetVar="dialogProducto" modal="true" width="500">
+            <h:form id="formProducto">
+                <p:inputText id="csrfToken" type="hidden" value="#{sessionScope.csrfToken}" />
+                <p:messages id="productoMessages" for="formProducto" showDetail="true" closable="true"/>
+                <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank">
+                    <p:outputLabel for="prodNombre" value="Nombre"/>
+                    <p:inputText id="prodNombre" value="#{reabastecimientoBean.nuevoProducto.nombreProducto}" required="true"/>
+                    <p:outputLabel for="prodPrecio" value="Precio Unitario"/>
+                    <p:inputNumber id="prodPrecio" value="#{reabastecimientoBean.nuevoProducto.precioUnitario}" required="true" symbol="$" />
+                    <p:outputLabel for="prodStock" value="Stock Inicial"/>
+                    <p:inputNumber id="prodStock" value="#{reabastecimientoBean.nuevoProducto.cantidadStock}" required="true" decimalPlaces="0"/>
+                    <p:outputLabel for="prodDescripcion" value="Descripción"/>
+                    <p:inputTextarea id="prodDescripcion" value="#{reabastecimientoBean.nuevoProducto.descripcion}" rows="3"/>
+                </p:panelGrid>
+                <div class="ui-dialog-footer" style="text-align: right; padding-top: 10px;">
+                    <p:commandButton value="Guardar" icon="pi pi-check"
+                                     actionListener="#{reabastecimientoBean.guardarNuevoProducto}"
+                                     update=":formDialog:detailsWrapper :formProducto:productoMessages"
+                                     oncomplete="if (!args.validationFailed) { PF('dialogProducto').hide(); }"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" type="button" onclick="PF('dialogProducto').hide()" styleClass="ui-button-secondary"/>
+                </div>
             </h:form>
         </p:dialog>
 
         <h:form>
             <p:confirmDialog global="true">
                 <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
-                                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi fa-times"/>
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
             </p:confirmDialog>
         </h:form>
 
-        <!-- DIALOGO PARA CREAR PROVEEDOR -->
         <p:dialog header="Nuevo Proveedor" widgetVar="dialogProveedor" modal="true" width="500">
             <h:form id="formProveedor">
                 <p:inputText id="csrfToken" type="hidden" value="#{sessionScope.csrfToken}" />
                 <p:messages id="proveedorMessages" for="formProveedor" showDetail="true" closable="true"/>
                 <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank">
-                    
                     <p:outputLabel for="provNombre" value="Nombres"/>
                     <p:inputText id="provNombre" value="#{proveedorBean.proveedor.nombres}" required="true"/>
-
                     <p:outputLabel for="provApellidos" value="Apellidos (Opcional)"/>
                     <p:inputText id="provApellidos" value="#{proveedorBean.proveedor.apellidos}"/>
-
                     <p:outputLabel for="provTelefono" value="Teléfono"/>
                     <p:inputText id="provTelefono" value="#{proveedorBean.proveedor.telefono}" required="true"/>
-
                     <p:outputLabel for="provCorreo" value="Correo"/>
                     <p:inputText id="provCorreo" value="#{proveedorBean.proveedor.correo}" required="true"/>
-
                     <p:outputLabel for="provDireccion" value="Dirección"/>
                     <p:inputText id="provDireccion" value="#{proveedorBean.proveedor.direccion}" required="true"/>
-
                 </p:panelGrid>
-
-                <f:facet name="footer">
+                <div class="ui-dialog-footer" style="text-align: right; padding-top: 10px;">
                     <p:commandButton value="Guardar" icon="pi pi-check"
                                      actionListener="#{proveedorBean.guardar}"
                                      update=":formDialog:proveedor :formProveedor:proveedorMessages"
                                      oncomplete="if (!args.validationFailed) { PF('dialogProveedor').hide(); }"/>
                     <p:commandButton value="Cancelar" icon="pi pi-times" type="button" onclick="PF('dialogProveedor').hide()" styleClass="ui-button-secondary"/>
-                </f:facet>
+                </div>
             </h:form>
         </p:dialog>
 
-        <!-- DIALOGO PARA CARGA MASIVA -->
         <p:dialog header="Carga Masiva de Reabastecimientos" widgetVar="uploadDialogWV" modal="true" width="600">
             <h:form id="formUpload">
                 <p:inputText id="csrfToken" type="hidden" value="#{sessionScope.csrfToken}" />
                 <p:messages id="uploadMessages" showDetail="true" closable="true"/>
-                
                 <p:panelGrid columns="2" layout="grid" styleClass="ui-panelgrid-blank form-grid">
                     <p:outputLabel for="proveedorUpload" value="Proveedor"/>
                     <p:selectOneMenu id="proveedorUpload" value="#{reabastecimientoBean.selectedProveedorForUploadId}" required="true">
@@ -259,12 +284,17 @@
                         <f:selectItems value="#{reabastecimientoBean.listaProveedores}" var="p" itemValue="#{p.idProveedor}" itemLabel="#{p.nombres}"/>
                     </p:selectOneMenu>
                 </p:panelGrid>
-
-                <p:fileUpload mode="advanced" auto="false" label="Seleccionar Archivo" uploadLabel="Subir" cancelLabel="Cancelar"
-                              allowTypes="/\.(xlsx|xls)$/" sizeLimit="1000000" fileLimit="1"
+                <p:fileUpload mode="advanced" 
+                              auto="false"
+                              label="Seleccionar Archivo" 
+                              uploadLabel="Subir" 
+                              cancelLabel="Cancelar"
+                              allowTypes="/\.(xlsx|xls)$/"
+                              sizeLimit="1000000"
+                              fileLimit="1"
                               invalidFileMessage="Solo se permiten archivos Excel (.xlsx, .xls)"
                               fileLimitMessage="Solo se permite un archivo a la vez"
-                              listener="#{reabastecimientoBean.handleFileUpload}"
+                              listener="#{reabastecimientoBean.handleFileUpload}" 
                               update="uploadMessages"/>
                 <f:facet name="footer">
                     <p:commandButton value="Cerrar" icon="pi pi-times" onclick="PF('uploadDialogWV').hide()" styleClass="ui-button-secondary"/>

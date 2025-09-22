@@ -10,21 +10,24 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import model.DetalleReabastecimiento;
-import model.EstadoReabastecimiento; // Importar el enum
+import model.EstadoReabastecimiento;
 import model.Producto;
 import model.Proveedor;
 import model.Reabastecimiento;
-import org.primefaces.event.RowEditEvent;
 import service.ReabastecimientoService;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Date;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 @Named("reabastecimientoBean")
 @ViewScoped
@@ -41,6 +44,7 @@ public class ReabastecimientoBean implements Serializable {
     private List<Producto> listaProductos;
 
     private Reabastecimiento seleccionado;
+    private Producto nuevoProducto;
     private List<EstadoReabastecimiento> estadosReabastecimiento;
 
     @PostConstruct
@@ -48,77 +52,129 @@ public class ReabastecimientoBean implements Serializable {
         try {
             listaReabastecimientos = service.listar();
             listaProveedores = service.listarProveedores();
-            listaProductos = service.listarProductos(); // This populates listaProductos
-            estadosReabastecimiento = Arrays.asList(EstadoReabastecimiento.values()); // Initialize the list of enum values
-
-            // --- DEBUGGING: Check if products are loaded ---
-            System.out.println("DEBUG: listaProductos size: " + listaProductos.size());
-            for (Producto p : listaProductos) {
-                System.out.println("DEBUG: Producto ID: " + p.getIdProducto() + ", Nombre: " + p.getNombreProducto());
-            }
-            // --- END DEBUGGING ---
-
-            seleccionado = new Reabastecimiento(); 
-            seleccionado.setEstado(EstadoReabastecimiento.RECIBIDO); // Inicializar con el enum
+            refrescarProductos();
+            estadosReabastecimiento = Arrays.asList(EstadoReabastecimiento.values());
+            nuevoProducto = new Producto();
+            // Inicializar un objeto 'seleccionado' vacío para evitar NullPointerException al inicio
+            seleccionado = new Reabastecimiento();
+            seleccionado.setDetalles(new ArrayList<>());
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudieron cargar los datos iniciales."));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudieron cargar los datos iniciales."));
             e.printStackTrace();
+        }
+    }
+
+    public void refrescarProductos() {
+        try {
+            listaProductos = service.listarProductos();
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudo recargar la lista de productos."));
         }
     }
 
     public void prepararNuevo() {
         seleccionado = new Reabastecimiento();
-        seleccionado.setEstado(EstadoReabastecimiento.RECIBIDO); // Inicializar con el enum
+        seleccionado.setDetalles(new ArrayList<>());
+    }
+
+    public void prepararNuevoProducto() {
+        nuevoProducto = new Producto();
+        nuevoProducto.setPrecioUnitario(BigDecimal.ZERO);
+        nuevoProducto.setCantidadStock(0);
+    }
+
+    public void guardarNuevoProducto() {
+        try {
+            service.registrarProducto(nuevoProducto);
+            refrescarProductos();
+            PrimeFaces.current().executeScript("PF('dialogProducto').hide()");
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito",
+                            "Producto '" + nuevoProducto.getNombreProducto() + "' guardado."));
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage("formProducto:productoMessages",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "No se pudo guardar el producto. " + e.getMessage()));
+            e.printStackTrace();
+        }
     }
 
     public void prepararEdicion(Reabastecimiento reab) {
         try {
             this.seleccionado = service.obtenerCompleto(reab.getIdReabastecimiento());
+            if (this.seleccionado.getDetalles() == null) {
+                this.seleccionado.setDetalles(new ArrayList<>());
+            }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudo cargar el detalle de la compra."));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudo cargar el detalle de la compra."));
             e.printStackTrace();
         }
     }
 
     public void agregarDetalle() {
-        this.seleccionado.getDetalles().add(new DetalleReabastecimiento());
+        if (seleccionado.getDetalles() == null) {
+            seleccionado.setDetalles(new ArrayList<>());
+        }
+        DetalleReabastecimiento nuevoDetalle = new DetalleReabastecimiento();
+        nuevoDetalle.setProducto(null); // Correcto: empezar con null para el <f:selectItem ... itemValue="#{null}" />
+        nuevoDetalle.setCantidad(1);
+        nuevoDetalle.setCostoUnitario(BigDecimal.ZERO);
+        this.seleccionado.getDetalles().add(nuevoDetalle);
+        recalcularTotal();
     }
 
     public void quitarDetalle(DetalleReabastecimiento detalle) {
-        this.seleccionado.getDetalles().remove(detalle);
+        if (seleccionado != null && seleccionado.getDetalles() != null) {
+            this.seleccionado.getDetalles().remove(detalle);
+            recalcularTotal();
+        }
+    }
+    
+    public void onProductoChange(DetalleReabastecimiento detalle) {
+        if (detalle != null && detalle.getProducto() != null && detalle.getProducto().getPrecioUnitario() != null) {
+            // El converter ya nos dio el objeto Producto completo.
+            // Simplemente copiamos su precio al costo del detalle.
+            detalle.setCostoUnitario(detalle.getProducto().getPrecioUnitario());
+        } else {
+            // Si el producto se des-selecciona (vuelve a null), reseteamos el costo.
+            detalle.setCostoUnitario(BigDecimal.ZERO);
+        }
+        recalcularTotal();
     }
 
-    public void onRowEdit(RowEditEvent<DetalleReabastecimiento> event) {
-        DetalleReabastecimiento det = event.getObject();
-        
-        // Actualizar el objeto Producto completo en el detalle (versión Java 7)
-        Producto productoSeleccionado = null;
-        for (Producto p : listaProductos) {
-            if (p.getIdProducto() == det.getProducto().getIdProducto()) {
-                productoSeleccionado = p;
-                break;
+    public void recalcularTotal() {
+        if (seleccionado != null && seleccionado.getDetalles() != null) {
+            BigDecimal total = BigDecimal.ZERO;
+            for (DetalleReabastecimiento det : seleccionado.getDetalles()) {
+                total = total.add(det.getSubtotal()); // Usamos el método getSubtotal() del modelo
             }
+            seleccionado.setCostoTotal(total);
         }
-        
-        if (productoSeleccionado != null) {
-            det.setProducto(productoSeleccionado);
-        }
-
-        FacesMessage msg = new FacesMessage("Fila Editada", "Producto: " + det.getProducto().getNombreProducto());
-        FacesContext.getCurrentInstance().addMessage(null, msg);
     }
 
     public void guardarMaestroDetalle() {
         try {
-            // Asegurarse de que el costoTotal calculado se establezca en el objeto antes de guardar
-            seleccionado.setCostoTotal(seleccionado.getCostoTotal());
+            if (seleccionado.getDetalles() == null || seleccionado.getDetalles().isEmpty()) {
+                throw new IllegalArgumentException("Debe agregar al menos un detalle antes de guardar.");
+            }
+            // El total ya está calculado y actualizado, así que solo guardamos.
             service.guardarMaestroDetalle(seleccionado);
-            listaReabastecimientos = service.listar(); // Recargar la lista
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Compra guardada correctamente."));
+            listaReabastecimientos = service.listar();
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Compra guardada correctamente."));
+            PrimeFaces.current().ajax().update(":formPrincipal:tablaMaestra");
+            PrimeFaces.current().executeScript("PF('dialogGestion').hide()");
         } catch (IllegalArgumentException e) {
-            FacesContext.getCurrentInstance().addMessage("formDialog", new FacesMessage(FacesMessage.SEVERITY_WARN, "Advertencia", e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage("formDialog:dialogMessages",
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Advertencia", e.getMessage()));
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("formDialog", new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Ocurrió un error al guardar la compra. " + e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage("formDialog:dialogMessages",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
+                            "Ocurrió un error al guardar la compra. " + e.getMessage()));
             e.printStackTrace();
         }
     }
@@ -127,21 +183,23 @@ public class ReabastecimientoBean implements Serializable {
         try {
             service.eliminar(item.getIdReabastecimiento());
             listaReabastecimientos.remove(item);
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Registro eliminado."));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Registro eliminado."));
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudo eliminar el registro. " + e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudo eliminar el registro. " + e.getMessage()));
             e.printStackTrace();
         }
     }
 
-    // --- New method for debugging state change ---
     public void onEstadoChange() {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Estado cambiado a", seleccionado.getEstado().getDisplayValue()));
-        System.out.println("DEBUG: Estado cambiado a: " + seleccionado.getEstado().getDisplayValue());
+        if (seleccionado != null && seleccionado.getEstado() != null) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Estado cambiado a", seleccionado.getEstado().getDisplayValue()));
+        }
     }
 
-    // --- Getters y Setters ---
-
+    // --- Getters y Setters (Completos) ---
     public List<Reabastecimiento> getListaReabastecimientos() {
         return listaReabastecimientos;
     }
@@ -162,8 +220,16 @@ public class ReabastecimientoBean implements Serializable {
         return listaProveedores;
     }
 
+    public void setListaProveedores(List<Proveedor> listaProveedores) {
+        this.listaProveedores = listaProveedores;
+    }
+
     public List<Producto> getListaProductos() {
         return listaProductos;
+    }
+
+    public void setListaProductos(List<Producto> listaProductos) {
+        this.listaProductos = listaProductos;
     }
 
     public Reabastecimiento getSeleccionado() {
@@ -172,6 +238,14 @@ public class ReabastecimientoBean implements Serializable {
 
     public void setSeleccionado(Reabastecimiento seleccionado) {
         this.seleccionado = seleccionado;
+    }
+
+    public Producto getNuevoProducto() {
+        return nuevoProducto;
+    }
+
+    public void setNuevoProducto(Producto nuevoProducto) {
+        this.nuevoProducto = nuevoProducto;
     }
 
     public Integer getSelectedProveedorForUploadId() {
@@ -190,57 +264,44 @@ public class ReabastecimientoBean implements Serializable {
         this.estadosReabastecimiento = estadosReabastecimiento;
     }
 
+    // --- File Upload ---
     public void handleFileUpload(FileUploadEvent event) {
         FacesMessage message = null;
         try {
             UploadedFile file = event.getFile();
             if (file != null) {
-                // Validate selectedProveedorForUploadId
                 if (selectedProveedorForUploadId == null || selectedProveedorForUploadId == 0) {
                     throw new IllegalArgumentException("Debe seleccionar un proveedor para la carga masiva.");
                 }
 
-                // Create a new Reabastecimiento object
                 Reabastecimiento newReabastecimiento = new Reabastecimiento();
-                newReabastecimiento.setFecha(new Date()); // Current date
-                newReabastecimiento.setHora(new Time(System.currentTimeMillis())); // Current time
-                newReabastecimiento.setEstado(EstadoReabastecimiento.RECIBIDO); // Default to RECIBIDO
+                newReabastecimiento.setFecha(new Date());
+                newReabastecimiento.setHora(new Time(System.currentTimeMillis()));
+                newReabastecimiento.setEstado(EstadoReabastecimiento.RECIBIDO);
+                newReabastecimiento.setDetalles(new ArrayList<>());
 
-                // Set the selected supplier
-                Proveedor selectedProveedor = null;
-                for (Proveedor p : listaProveedores) {
-                    if (p.getIdProveedor() == selectedProveedorForUploadId) {
-                        selectedProveedor = p;
-                        break;
-                    }
-                }
-                if (selectedProveedor == null) {
-                    throw new IllegalArgumentException("Proveedor seleccionado no encontrado.");
-                }
+                Proveedor selectedProveedor = listaProveedores.stream()
+                        .filter(p -> p.getIdProveedor() != null && p.getIdProveedor().equals(selectedProveedorForUploadId))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Proveedor seleccionado no encontrado."));
+
                 newReabastecimiento.setProveedor(selectedProveedor);
 
-                // Process the Excel file
-                Workbook workbook = new XSSFWorkbook(file.getInputStream()); // For .xlsx files
-                // For .xls files, use HSSFWorkbook
-                // Workbook workbook = new HSSFWorkbook(file.getInputStream());
+                Workbook workbook = new XSSFWorkbook(file.getInputStream());
+                Sheet sheet = workbook.getSheetAt(0);
 
-                Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
-
-                // Assuming the first row is the header
                 boolean firstRow = true;
                 for (Row row : sheet) {
                     if (firstRow) {
                         firstRow = false;
-                        continue; // Skip header row
+                        continue;
                     }
 
-                    // Assuming columns: Producto (String), Cantidad (int), Costo Unitario (BigDecimal)
                     Cell productCell = row.getCell(0);
                     Cell quantityCell = row.getCell(1);
                     Cell unitCostCell = row.getCell(2);
 
                     if (productCell == null || quantityCell == null || unitCostCell == null) {
-                        // Skip empty or incomplete rows
                         continue;
                     }
 
@@ -248,18 +309,15 @@ public class ReabastecimientoBean implements Serializable {
                     int quantity = (int) quantityCell.getNumericCellValue();
                     BigDecimal unitCost = BigDecimal.valueOf(unitCostCell.getNumericCellValue());
 
-                    // Find the product by name
-                    Producto product = null;
-                    for (Producto p : listaProductos) {
-                        if (p.getNombreProducto().equalsIgnoreCase(productName)) {
-                            product = p;
-                            break;
-                        }
-                    }
+                    Producto product = listaProductos.stream()
+                            .filter(p -> p.getNombreProducto() != null && p.getNombreProducto().equalsIgnoreCase(productName))
+                            .findFirst()
+                            .orElse(null);
 
                     if (product == null) {
-                        // Handle case where product is not found
-                        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_WARN, "Advertencia", "Producto '" + productName + "' no encontrado. Se omitirá esta fila."));
+                        FacesContext.getCurrentInstance().addMessage(null,
+                                new FacesMessage(FacesMessage.SEVERITY_WARN, "Advertencia",
+                                        "Producto '" + productName + "' no encontrado. Se omitirá esta fila."));
                         continue;
                     }
 
@@ -271,14 +329,16 @@ public class ReabastecimientoBean implements Serializable {
                     newReabastecimiento.getDetalles().add(detalle);
                 }
 
-                // Set the calculated total cost before saving
-                newReabastecimiento.setCostoTotal(newReabastecimiento.getCostoTotal()); 
+                BigDecimal total = newReabastecimiento.getDetalles().stream()
+                        .map(d -> d.getSubtotal())
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                newReabastecimiento.setCostoTotal(total);
 
-                // Save the new replenishment
                 service.guardarMaestroDetalle(newReabastecimiento);
-                listaReabastecimientos = service.listar(); // Refresh the list
+                listaReabastecimientos = service.listar();
 
-                message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", file.getFileName() + " cargado y procesado correctamente.");
+                message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito",
+                        file.getFileName() + " cargado y procesado correctamente.");
                 PrimeFaces.current().executeScript("PF('uploadDialogWV').hide()");
             }
         } catch (IllegalArgumentException e) {
@@ -290,7 +350,9 @@ public class ReabastecimientoBean implements Serializable {
             message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Ocurrió un error al procesar el archivo: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            FacesContext.getCurrentInstance().addMessage(null, message);
+            if (message != null) {
+                FacesContext.getCurrentInstance().addMessage("formUpload:uploadMessages", message);
+            }
         }
     }
 }

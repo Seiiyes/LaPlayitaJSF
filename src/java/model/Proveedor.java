@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Proveedor implements Serializable {
 
-    private int idProveedor;
+    private Integer idProveedor;
     private String nombres;
     private String apellidos;
     private String telefono;
@@ -12,16 +12,16 @@ public class Proveedor implements Serializable {
     private String direccion;
 
     // Alias for JSF compatibility (e.g., itemValue="#{p.id}")
-    public int getId() {
+    public Integer getId() {
         return idProveedor;
     }
 
     // Getters and Setters
-    public int getIdProveedor() {
+    public Integer getIdProveedor() {
         return idProveedor;
     }
 
-    public void setIdProveedor(int idProveedor) {
+    public void setIdProveedor(Integer idProveedor) {
         this.idProveedor = idProveedor;
     }
 

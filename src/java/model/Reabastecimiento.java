@@ -80,21 +80,8 @@ public class Reabastecimiento {
     }
 
     public BigDecimal getCostoTotal() {
-        // Si la lista de detalles está poblada (ej. en el diálogo de edición),
-        // calcula el total dinámicamente para reflejar los cambios en tiempo real.
-        if (this.detalles != null && !this.detalles.isEmpty()) {
-            BigDecimal total = BigDecimal.ZERO;
-            for (DetalleReabastecimiento det : detalles) {
-                if (det.getSubtotal() != null) {
-                    total = total.add(det.getSubtotal());
-                }
-            }
-            return total;
-        }
-        // Si no, devuelve el valor almacenado (ej. para la vista de tabla principal).
-        // Esto evita que se muestre 0 cuando los detalles no han sido cargados.
-        return this.costoTotal;
-    }
+    return this.costoTotal;
+}
 
     public void setCostoTotal(BigDecimal costoTotal) {
         this.costoTotal = costoTotal;

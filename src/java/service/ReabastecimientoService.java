@@ -44,6 +44,11 @@ public class ReabastecimientoService {
         return productoDAO.findAll();
     }
 
+    public void registrarProducto(Producto producto) throws SQLException {
+        // Aquí se podrían añadir validaciones de negocio para el producto
+        productoDAO.insert(producto);
+    }
+
     public void guardarMaestroDetalle(Reabastecimiento reab) throws SQLException, IllegalArgumentException {
         // Validaciones de negocio
         if (reab.getProveedor() == null || reab.getProveedor().getIdProveedor() == 0) {

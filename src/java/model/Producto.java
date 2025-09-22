@@ -7,26 +7,26 @@ import java.util.Objects;
 
 public class Producto implements Serializable {
 
-    private int idProducto;
+    private Integer idProducto;
     private String nombreProducto;
     private BigDecimal precioUnitario;
     private double iva;
-    private int cantidadStock;
+    private Integer cantidadStock;
     private Date fechaCaducidad;
     private String descripcion;
-    private int idCategoria;
+    private Integer idCategoria;
 
     // Alias for JSF compatibility (e.g., itemValue="#{prod.id}")
-    public int getId() {
+    public Integer getId() {
         return idProducto;
     }
 
     // Getters and Setters
-    public int getIdProducto() {
+    public Integer getIdProducto() {
         return idProducto;
     }
 
-    public void setIdProducto(int idProducto) {
+    public void setIdProducto(Integer idProducto) {
         this.idProducto = idProducto;
     }
 
@@ -54,11 +54,11 @@ public class Producto implements Serializable {
         this.iva = iva;
     }
 
-    public int getCantidadStock() {
+    public Integer getCantidadStock() {
         return cantidadStock;
     }
 
-    public void setCantidadStock(int cantidadStock) {
+    public void setCantidadStock(Integer cantidadStock) {
         this.cantidadStock = cantidadStock;
     }
 
@@ -78,20 +78,24 @@ public class Producto implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public int getIdCategoria() {
+    public Integer getIdCategoria() {
         return idCategoria;
     }
 
-    public void setIdCategoria(int idCategoria) {
+    public void setIdCategoria(Integer idCategoria) {
         this.idCategoria = idCategoria;
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Producto producto = (Producto) o;
-        return idProducto == producto.idProducto;
+        return Objects.equals(idProducto, producto.idProducto);
     }
 
     @Override
