@@ -24,7 +24,12 @@ public class ReabastecimientoService {
     private ProductoDAO productoDAO;
 
     public List<Reabastecimiento> listar() throws SQLException {
-        return reabastecimientoDAO.findAllMasters();
+        List<Reabastecimiento> masters = reabastecimientoDAO.findAllMasters();
+        for (Reabastecimiento master : masters) {
+            List<DetalleReabastecimiento> details = reabastecimientoDAO.findDetailsByReabastecimientoId(master.getIdReabastecimiento());
+            master.setDetalles(details);
+        }
+        return masters;
     }
 
     public Reabastecimiento obtenerCompleto(int idReabastecimiento) throws SQLException {

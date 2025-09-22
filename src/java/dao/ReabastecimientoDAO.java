@@ -144,10 +144,10 @@ public class ReabastecimientoDAO {
         String sql = "INSERT INTO reabastecimiento (fecha, hora, costo, estadoCompra, formaPago, observaciones, idProveedor) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setDate(1, new java.sql.Date(reab.getFecha().getTime()));
-            stmt.setTime(2, reab.getHora());
+            stmt.setTime(2, reab.getHora() != null ? reab.getHora() : new java.sql.Time(System.currentTimeMillis()));
             stmt.setBigDecimal(3, reab.getCostoTotal());
             stmt.setString(4, reab.getEstado().getDisplayValue());
-            stmt.setString(5, reab.getFormaPago()); // Usar el campo del modelo
+            stmt.setString(5, reab.getFormaPago() != null ? reab.getFormaPago() : "Efectivo"); // Valor predeterminado
             stmt.setString(6, reab.getObservaciones());
             stmt.setInt(7, reab.getProveedor().getIdProveedor());
             stmt.executeUpdate();
@@ -166,10 +166,10 @@ public class ReabastecimientoDAO {
         String sql = "UPDATE reabastecimiento SET fecha = ?, hora = ?, costo = ?, estadoCompra = ?, formaPago = ?, observaciones = ?, idProveedor = ? WHERE idReabastecimiento = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setDate(1, new java.sql.Date(reab.getFecha().getTime()));
-            stmt.setTime(2, reab.getHora()); // Update hora
+            stmt.setTime(2, reab.getHora() != null ? reab.getHora() : new java.sql.Time(System.currentTimeMillis()));
             stmt.setBigDecimal(3, reab.getCostoTotal());
             stmt.setString(4, reab.getEstado().getDisplayValue());
-            stmt.setString(5, reab.getFormaPago());
+            stmt.setString(5, reab.getFormaPago() != null ? reab.getFormaPago() : "Efectivo"); // Valor predeterminado
             stmt.setString(6, reab.getObservaciones());
             stmt.setInt(7, reab.getProveedor().getIdProveedor());
             stmt.setInt(8, reab.getIdReabastecimiento());

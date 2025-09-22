@@ -20,7 +20,7 @@ public class Conexion {
     // Configuración fallback DriverManager
     private static final String URL = "jdbc:mysql://localhost:3306/laplayita?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASS = ""; // Ajustar según tu BD
+    private static final String PASS = "admi"; // Ajustar según tu BD
 
     /**
      * Obtiene una conexión a la base de datos.
