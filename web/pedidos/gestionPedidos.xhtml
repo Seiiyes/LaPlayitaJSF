@@ -7,6 +7,7 @@
 
     <ui:define name="content">
         <h:form id="form">
+            <p:messages id="msgs" showDetail="true" closable="true"/>
             <div class="card">
                 <p:toolbar>
                     <p:toolbarGroup>
@@ -59,35 +60,45 @@
                 </p:dataTable>
             </div>
 
-            <p:dialog header="Detalles del Pedido" widgetVar="managePedidoDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
-                <p:outputPanel id="manage-pedido-content" class="ui-fluid">
-                    <p:outputPanel rendered="#{not empty pedidoBean.selectedPedido}">
-                        <div class="p-field">
-                            <p:outputLabel for="cliente">Cliente</p:outputLabel>
-                            <p:selectOneMenu id="cliente" value="#{pedidoBean.selectedPedido.cliente}" converter="clienteConverter" required="true">
-                                <f:selectItem itemLabel="Seleccione un cliente" itemValue="#{null}" noSelectionOption="true"/>
-                                <f:selectItems value="#{pedidoBean.clientes}" var="cli" itemLabel="#{cli.nombres} #{cli.apellidos}" itemValue="#{cli}"/>
-                            </p:selectOneMenu>
-                        </div>
-                        <div class="p-field">
-                            <p:outputLabel for="direccion">Dirección</p:outputLabel>
-                            <p:inputText id="direccion" value="#{pedidoBean.selectedPedido.direccionEnvio}" required="true" />
-                        </div>
-                        <div class="p-field">
-                            <p:outputLabel for="estado">Estado</p:outputLabel>
-                            <p:inputText id="estado" value="#{pedidoBean.selectedPedido.estadoPedido}" required="true" />
-                        </div>
-                    </p:outputPanel>
-                </p:outputPanel>
+            <p:dialog header="Detalles del Pedido" widgetVar="managePedidoDialog"
+          modal="true" showEffect="fade" hideEffect="fade" resizable="false">
 
-                <f:facet name="footer">
-                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pedidoBean.save}" 
-                                     update="form:pedidosTable" process="manage-pedido-content @this" 
-                                     oncomplete="PF('managePedidoDialog').hide()"/>
-                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('managePedidoDialog').hide()" 
-                                     class="ui-button-secondary"/>
-                </f:facet>
-            </p:dialog>
+    <p:outputPanel id="manage-pedido-content" class="ui-fluid">
+        <div class="p-field">
+            <p:outputLabel for="cliente">Cliente</p:outputLabel>
+            <p:selectOneMenu id="cliente" value="#{pedidoBean.selectedPedido.cliente}"
+                             converter="clienteConverter" required="true">
+                <f:selectItem itemLabel="Seleccione un cliente" itemValue="#{null}" noSelectionOption="true"/>
+                <f:selectItems value="#{pedidoBean.clientes}" var="cli"
+                               itemLabel="#{cli.nombres} #{cli.apellidos}" itemValue="#{cli}"/>
+            </p:selectOneMenu>
+        </div>
+
+        <div class="p-field">
+            <p:outputLabel for="direccion">Dirección</p:outputLabel>
+            <p:inputText id="direccion" value="#{pedidoBean.selectedPedido.direccionEnvio}" required="true" />
+        </div>
+
+        <div class="p-field">
+            <p:outputLabel for="estado">Estado</p:outputLabel>
+            <p:inputText id="estado" value="#{pedidoBean.selectedPedido.estadoPedido}" required="true" />
+        </div>
+    </p:outputPanel>
+
+    <f:facet name="footer">
+        <p:commandButton value="Guardar" icon="pi pi-check"
+                         type="submit"
+                         action="#{pedidoBean.save}"
+                         update="form:pedidosTable form:msgs"
+                         process="@form"
+                         oncomplete="PF('managePedidoDialog').hide()"
+                         />
+        <p:commandButton value="Cancelar" icon="pi pi-times"
+                         onclick="PF('managePedidoDialog').hide()"
+                         class="ui-button-secondary" />
+    </f:facet>
+</p:dialog>
+
 
             <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
                 <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />

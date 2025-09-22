@@ -65,6 +65,7 @@ public class PedidoBean implements Serializable {
         }
         // Set the idUsuario from the logged-in user
         if (loginBean.isLogueado() && loginBean.getUsuarioSesion() != null) {
+            this.selectedPedido.setUsuario(loginBean.getUsuarioSesion());
             this.selectedPedido.setIdUsuario(loginBean.getUsuarioSesion().getIdUsuario());
         }
 

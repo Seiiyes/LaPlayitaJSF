@@ -91,6 +91,27 @@ public class PedidoDAO {
             throw new RuntimeException("Error al actualizar el pedido", e);
         }
     }
+    public void insertar(Pedido pedido) {
+    String sql = "INSERT INTO pedido (fechaPedido, estadoPedido, direccionEnvio, idCliente, idUsuario) VALUES (?, ?, ?, ?, ?)";
+    try (Connection con = Conexion.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+        ps.setDate(1, new java.sql.Date(new java.util.Date().getTime())); // Fecha actual
+        ps.setString(2, pedido.getEstadoPedido());
+        ps.setString(3, pedido.getDireccionEnvio());
+        ps.setInt(4, pedido.getIdCliente());
+        ps.setInt(5, pedido.getIdUsuario());
+        ps.executeUpdate();
+
+        try (ResultSet rs = ps.getGeneratedKeys()) {
+            if (rs.next()) {
+                pedido.setIdPedido(rs.getInt(1));
+            }
+        }
+    } catch (SQLException e) {
+        throw new RuntimeException("Error al insertar el pedido", e);
+    }
+}
 
     public void eliminar(int id) {
         String sql = "DELETE FROM pedido WHERE idPedido = ?";
@@ -153,5 +174,6 @@ public class PedidoDAO {
         pedido.setUsuario(usuario);
 
         return pedido;
+        
     }
 }
