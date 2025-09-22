@@ -1,0 +1,24 @@
+# Configuracion del Servidor SMTP
+# Reemplaza estos valores con los de tu proveedor de correo (ej. Gmail, SendGrid, etc.)
+
+# Host del servidor SMTP
+mail.smtp.host=smtp.gmail.com
+
+# Puerto del servidor SMTP (587 para TLS, 465 para SSL)
+mail.smtp.port=587
+
+# Habilitar autenticacion
+mail.smtp.auth=true
+
+# Habilitar cifrado STARTTLS
+mail.smtp.starttls.enable=true
+
+# Tu direccion de correo completa
+mail.smtp.user=tu_correo@gmail.com
+
+# La contraseña de tu correo o una contraseña de aplicacion
+# Si usas Gmail con 2FA, debes generar una "Contraseña de aplicacion"
+mail.smtp.password=tu_contraseña
+
+# La direccion "De:" que aparecera en el correo
+mail.from=ventas@laplayita.com
