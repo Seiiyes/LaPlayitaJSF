@@ -1,0 +1,98 @@
+<ui:composition template="/templates/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+        <h:form id="form">
+            <div class="card">
+                <p:toolbar>
+                    <p:toolbarGroup>
+                        <p:commandButton value="Nuevo" icon="pi pi-plus" actionListener="#{pedidoBean.openNew}" 
+                                         update=":form:manage-pedido-content" oncomplete="PF('managePedidoDialog').show()" 
+                                         styleClass="ui-button-success" style="margin-right: .5rem">
+                            <p:resetInput target=":form:manage-pedido-content" />
+                        </p:commandButton>
+                        <p:commandButton value="Editar" icon="pi pi-pencil" 
+                                         update=":form:manage-pedido-content" oncomplete="PF('managePedidoDialog').show()" 
+                                         disabled="#{empty pedidoBean.selectedPedido}" styleClass="ui-button-warning">
+                        </p:commandButton>
+                    </p:toolbarGroup>
+                    <p:toolbarGroup align="right">
+                        <p:commandButton value="Eliminar" icon="pi pi-trash" actionListener="#{pedidoBean.delete}" 
+                                         update="form:pedidosTable" disabled="#{empty pedidoBean.selectedPedido}" 
+                                         styleClass="ui-button-danger">
+                            <p:confirm header="Confirmación" message="¿Estás seguro de que quieres eliminar este pedido?" icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                    </p:toolbarGroup>
+                </p:toolbar>
+
+                <p:dataTable id="pedidosTable" var="pedido" value="#{pedidoBean.pedidos}"
+                             selectionMode="single" selection="#{pedidoBean.selectedPedido}" rowKey="#{pedido.idPedido}" paginator="true" rows="10">
+                    <f:facet name="header">
+                        Gestión de Pedidos a Domicilio
+                    </f:facet>
+                    <p:ajax event="rowSelect" update=":form:pedidosTable" />
+                    <p:ajax event="rowUnselect" update=":form:pedidosTable" />
+                    <p:column headerText="ID">
+                        <h:outputText value="#{pedido.idPedido}" />
+                    </p:column>
+                    <p:column headerText="Fecha">
+                        <h:outputText value="#{pedido.fechaPedido}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Cliente">
+                        <h:outputText value="#{pedido.cliente.nombres} #{pedido.cliente.apellidos}" />
+                    </p:column>
+                    <p:column headerText="Dirección">
+                        <h:outputText value="#{pedido.direccionEnvio}" />
+                    </p:column>
+                    <p:column headerText="Estado">
+                        <h:outputText value="#{pedido.estadoPedido}" />
+                    </p:column>
+                    <p:column headerText="Atendido por">
+                        <h:outputText value="#{pedido.usuario.nombres}" />
+                    </p:column>
+                </p:dataTable>
+            </div>
+
+            <p:dialog header="Detalles del Pedido" widgetVar="managePedidoDialog" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <p:outputPanel id="manage-pedido-content" class="ui-fluid">
+                    <p:outputPanel rendered="#{not empty pedidoBean.selectedPedido}">
+                        <div class="p-field">
+                            <p:outputLabel for="cliente">Cliente</p:outputLabel>
+                            <p:selectOneMenu id="cliente" value="#{pedidoBean.selectedPedido.cliente}" converter="clienteConverter" required="true">
+                                <f:selectItem itemLabel="Seleccione un cliente" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{pedidoBean.clientes}" var="cli" itemLabel="#{cli.nombres} #{cli.apellidos}" itemValue="#{cli}"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field">
+                            <p:outputLabel for="direccion">Dirección</p:outputLabel>
+                            <p:inputText id="direccion" value="#{pedidoBean.selectedPedido.direccionEnvio}" required="true" />
+                        </div>
+                        <div class="p-field">
+                            <p:outputLabel for="estado">Estado</p:outputLabel>
+                            <p:inputText id="estado" value="#{pedidoBean.selectedPedido.estadoPedido}" required="true" />
+                        </div>
+                    </p:outputPanel>
+                </p:outputPanel>
+
+                <f:facet name="footer">
+                    <p:commandButton value="Guardar" icon="pi pi-check" actionListener="#{pedidoBean.save}" 
+                                     update="form:pedidosTable" process="manage-pedido-content @this" 
+                                     oncomplete="PF('managePedidoDialog').hide()"/>
+                    <p:commandButton value="Cancelar" icon="pi pi-times" onclick="PF('managePedidoDialog').hide()" 
+                                     class="ui-button-secondary"/>
+                </f:facet>
+            </p:dialog>
+
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+            </p:confirmDialog>
+        </h:form>
+    </ui:define>
+</ui:composition>
