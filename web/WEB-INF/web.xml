@@ -37,7 +37,7 @@
     </filter>
     <filter-mapping>
         <filter-name>SecurityHeadersFilter</filter-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>*.xhtml</url-pattern>
     </filter-mapping>
     <!-- Protección CSRF -->
     <filter>
@@ -55,7 +55,7 @@
     </filter>
     <filter-mapping>
         <filter-name>LoggingFilter</filter-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>*.xhtml</url-pattern>
     </filter-mapping>
 
     <!-- PrimeFaces FileUpload Filter -->

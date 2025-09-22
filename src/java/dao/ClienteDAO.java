@@ -9,6 +9,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
 public class ClienteDAO {
 
     public List<Cliente> listarTodos() {
