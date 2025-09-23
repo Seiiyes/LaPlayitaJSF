@@ -58,6 +58,22 @@ public class UsuarioDAO {
         return null;
     }
 
+    public Usuario findByResetToken(String token) {
+        String sql = "SELECT u.*, r.descripcionRol " +
+                     "FROM usuario u LEFT JOIN rol r ON u.idRol = r.idRol " +
+                     "WHERE u.resetToken = ?";
+        try (Connection con = Conexion.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, token);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return map(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error consultando usuario por token", e);
+        }
+        return null;
+    }
+
     public int crear(Usuario u) {
         String sql = "INSERT INTO usuario "
                 + "(documento, nombres, apellidos, correo, telefono, contrasena, estadoUsuario, fechaCreacion, idRol) "
@@ -99,6 +115,19 @@ public class UsuarioDAO {
         }
     }
 
+    public void updateResetToken(int usuarioId, String token, Timestamp expiry) {
+        String sql = "UPDATE usuario SET resetToken = ?, resetTokenExpiry = ? WHERE idUsuario = ?";
+        try (Connection con = Conexion.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, token);
+            ps.setTimestamp(2, expiry);
+            ps.setInt(3, usuarioId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error guardando token de reseteo", e);
+        }
+    }
+
     public List<Usuario> findAll() {
         String sql = "SELECT u.*, r.descripcionRol FROM usuario u LEFT JOIN rol r ON u.idRol = r.idRol ORDER BY u.idUsuario";
         List<Usuario> lista = new ArrayList<>();
@@ -136,6 +165,8 @@ public class UsuarioDAO {
         u.setFechaCreacion(rs.getTimestamp("fechaCreacion"));
         u.setUltimoLogin(rs.getTimestamp("ultimoLogin"));
         u.setIdRol(rs.getInt("idRol"));
+        u.setResetToken(rs.getString("resetToken"));
+        u.setResetTokenExpiry(rs.getTimestamp("resetTokenExpiry"));
 
         // POBLAR EL OBJETO ROL (si existe la columna descripcionRol en ResultSet)
         try {
@@ -195,4 +226,15 @@ public class UsuarioDAO {
         }
     }
 
+    public void updatePasswordAndClearToken(int usuarioId, String newPasswordHash) {
+        String sql = "UPDATE usuario SET contrasena = ?, resetToken = NULL, resetTokenExpiry = NULL WHERE idUsuario = ?";
+        try (Connection con = Conexion.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, newPasswordHash);
+            ps.setInt(2, usuarioId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error actualizando contraseña", e);
+        }
+    }
 }

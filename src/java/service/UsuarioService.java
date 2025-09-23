@@ -132,4 +132,46 @@ public class UsuarioService { // Ahora es un bean de CDI
 
         usuarioDAO.actualizar(u);
     }
+
+    // ---------------- RECUPERACION DE CLAVE ----------------
+
+    public Usuario buscarPorEmail(String email) {
+        return usuarioDAO.findByCorreo(email);
+    }
+
+    public void guardarTokenReinicio(int usuarioId, String token, java.sql.Timestamp expiryDate) {
+        usuarioDAO.updateResetToken(usuarioId, token, expiryDate);
+    }
+
+    public Usuario buscarPorToken(String token) {
+        return usuarioDAO.findByResetToken(token);
+    }
+
+    public void resetearClave(String token, String nuevaContrasena) {
+        if (token == null || nuevaContrasena == null || nuevaContrasena.trim().isEmpty()) {
+            throw new IllegalArgumentException("Token y contraseña son requeridos.");
+        }
+
+        Usuario usuario = usuarioDAO.findByResetToken(token);
+        if (usuario == null) {
+            throw new IllegalArgumentException("Token no válido.");
+        }
+
+        if (usuario.getResetTokenExpiry().before(new java.sql.Timestamp(System.currentTimeMillis()))) {
+            throw new IllegalArgumentException("El token ha expirado.");
+        }
+
+        // Validar complejidad de la nueva contraseña
+        if (nuevaContrasena.length() < 8)
+            throw new IllegalArgumentException("La contraseña debe tener mínimo 8 caracteres");
+        if (!nuevaContrasena.matches(".*[A-Z].*"))
+            throw new IllegalArgumentException("Debe incluir al menos una mayúscula");
+        if (!nuevaContrasena.matches(".*[a-z].*"))
+            throw new IllegalArgumentException("Debe incluir al menos una minúscula");
+        if (!nuevaContrasena.matches(".*\\d.*"))
+            throw new IllegalArgumentException("Debe incluir al menos un dígito");
+
+        String hash = BCrypt.hashpw(nuevaContrasena, BCrypt.gensalt(10));
+        usuarioDAO.updatePasswordAndClearToken(usuario.getIdUsuario(), hash);
+    }
 }

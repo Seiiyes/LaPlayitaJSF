@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="content">
+
+            <div class="main-container">
+                <div class="card login-card">
+
+                    <h:form id="recuperarForm">
+                        <!-- Token CSRF -->
+                        <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
+
+                        <h2>Recuperar Contraseña</h2>
+
+                        <p:messages id="recuperarMessages" showDetail="false" closable="true">
+                            <p:autoUpdate/>
+                        </p:messages>
+
+                        <p>
+                            Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+                        </p>
+
+                        <div class="form-group">
+                            <p:inputText id="correo" value="#{recuperarClaveBean.email}"
+                                         placeholder="Correo electrónico" required="true"
+                                         requiredMessage="El correo es obligatorio."/>
+                        </div>
+
+                        <p:commandButton value="Enviar Enlace" action="#{recuperarClaveBean.solicitarReinicio}"
+                                         styleClass="ui-button-primary"
+                                         ajax="false"/>
+
+                        <div class="register-link" style="margin-top: 15px;">
+                            <h:link outcome="/login" value="Volver a Iniciar Sesión"/>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+
+        </ui:define>
+    </ui:composition>
+</html>

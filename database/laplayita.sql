@@ -466,3 +466,9 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-08-27 20:12:19
+
+--
+-- Alter table for password recovery
+--
+ALTER TABLE `usuario` ADD COLUMN `resetToken` VARCHAR(36) NULL DEFAULT NULL AFTER `idRol`;
+ALTER TABLE `usuario` ADD COLUMN `resetTokenExpiry` TIMESTAMP NULL DEFAULT NULL AFTER `resetToken`;

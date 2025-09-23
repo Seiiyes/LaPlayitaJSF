@@ -94,4 +94,53 @@ public class EmailService {
             throw new RuntimeException("No se pudo enviar el correo de la factura.", e);
         }
     }
+
+    public void enviarCorreoReinicio(String toEmail, String resetUrl) {
+        final String username = mailProperties.getProperty("mail.smtp.user");
+        final String password = mailProperties.getProperty("mail.smtp.password");
+
+        Session session = Session.getInstance(mailProperties, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(mailProperties.getProperty("mail.from")));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("Restablecimiento de Contraseña - La Playita");
+
+            MimeBodyPart textPart = new MimeBodyPart();
+            textPart.setContent(
+                "<h1>Restablecimiento de Contraseña</h1>" +
+                "<p>Hola,</p>" +
+                "<p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para continuar:</p>" +
+                "<p><a href=\"" + resetUrl + "\">Restablecer mi contraseña</a></p>" +
+                "<p>Si no solicitaste esto, puedes ignorar este correo.</p>" +
+                "<br/>" +
+                "<p>Atentamente,<br/>El equipo de La Playita</p>",
+                "text/html; charset=utf-8"
+            );
+
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(textPart);
+            message.setContent(multipart);
+
+            System.out.println("EmailService: Intentando enviar correo de reinicio a " + toEmail + "...");
+            Transport.send(message);
+            System.out.println("EmailService: ¡Correo de reinicio enviado exitosamente!");
+
+        } catch (AuthenticationFailedException authEx) {
+            System.err.println("EmailService: ¡FALLO DE AUTENTICACIÓN! Verifique 'mail.smtp.user' y 'mail.smtp.password' en mail.properties.");
+            throw new RuntimeException("Fallo de autenticación al enviar correo.", authEx);
+        } catch (MessagingException me) {
+            System.err.println("EmailService: Error de mensajería. Causa: " + me.getMessage());
+            throw new RuntimeException("Error de conexión o configuración al enviar correo de reinicio.", me);
+        } catch (Exception e) {
+            System.err.println("EmailService: Ocurrió un error inesperado al construir o enviar el correo.");
+            throw new RuntimeException("No se pudo enviar el correo de reinicio.", e);
+        }
+    }
 }

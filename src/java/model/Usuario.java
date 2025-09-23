@@ -15,6 +15,8 @@ public class Usuario implements Serializable {
     private Timestamp fechaCreacion;
     private Timestamp ultimoLogin;
     private int idRol;             // FK a rol
+    private String resetToken;
+    private Timestamp resetTokenExpiry;
 
     // NUEVO: referencia al objeto Rol
     private Rol rol;
@@ -77,6 +79,12 @@ public class Usuario implements Serializable {
     // NUEVO: getter/setter para el objeto Rol
     public Rol getRol() { return rol; }
     public void setRol(Rol rol) { this.rol = rol; }
+
+    public String getResetToken() { return resetToken; }
+    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+
+    public Timestamp getResetTokenExpiry() { return resetTokenExpiry; }
+    public void setResetTokenExpiry(Timestamp resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
 
     @Override
     public String toString() {

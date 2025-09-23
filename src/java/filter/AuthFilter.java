@@ -20,7 +20,7 @@ public class AuthFilter implements Filter {
 
     // Páginas completamente públicas (no requieren login)
     private static final Set<String> PUBLIC_PAGES = new HashSet<>(
-            Arrays.asList("/login.xhtml", "/registro.xhtml", "/home.xhtml", "/index.xhtml")
+            Arrays.asList("/login.xhtml", "/registro.xhtml", "/home.xhtml", "/index.xhtml", "/recuperar.xhtml", "/resetear.xhtml")
     );
 
     // IDs de Roles para una comprobación más robusta y segura
