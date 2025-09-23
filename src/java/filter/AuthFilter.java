@@ -65,6 +65,16 @@ public class AuthFilter implements Filter {
         HttpSession session = req.getSession(false);
         Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
 
+        // Si el usuario está logueado y trata de acceder a login o registro, redirigirlo a su página de inicio.
+        if (usuario != null && (path.equals("/login.xhtml") || path.equals("/registro.xhtml"))) {
+            if (usuario.getIdRol() == ROLE_ADMIN) {
+                res.sendRedirect(req.getContextPath() + "/admin/adminHome.xhtml");
+            } else {
+                res.sendRedirect(req.getContextPath() + "/home.xhtml");
+            }
+            return;
+        }
+
         // Si la página no es pública y no hay un usuario logueado, redirigir al login
         if (usuario == null) {
             res.sendRedirect(req.getContextPath() + "/login.xhtml");

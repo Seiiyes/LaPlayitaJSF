@@ -1,0 +1,89 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/templates/template.xhtml">
+
+    <ui:define name="title">Gestión de PQRC</ui:define>
+
+    <ui:define name="content">
+        <h:form id="formPqrc">
+            <h:inputHidden value="#{sessionScope.csrfToken}" id="csrfToken"/>
+            <div class="page-container">
+                <div class="form-panel">
+                    <div class="pqrc-form-panel">
+                        <h3>Registrar Nueva PQRC</h3>
+                        <p:messages id="messages" showDetail="true" closable="true">
+                            <p:autoUpdate/>
+                        </p:messages>
+
+                        <h:panelGrid columns="2" styleClass="form-grid" cellpadding="5">
+                            <p:outputLabel for="tipo" value="Tipo de PQRC:"/>
+                            <p:selectOneMenu id="tipo" value="#{pqrcBean.nuevaPqrc.tipo}" required="true">
+                                <f:selectItem itemLabel="Seleccione un tipo" itemValue=""/>
+                                <f:selectItems value="#{pqrcBean.tiposPqrc}"/>
+                            </p:selectOneMenu>
+
+                            <p:outputLabel for="cliente" value="Cliente:"/>
+                            <p:selectOneMenu id="cliente" value="#{pqrcBean.idClienteSeleccionado}" required="true">
+                                <f:selectItem itemLabel="Seleccione un cliente" itemValue="0"/>
+                                <f:selectItems value="#{pqrcBean.clientes}" var="cli" itemLabel="#{cli.nombres} #{cli.apellidos}" itemValue="#{cli.idCliente}"/>
+                            </p:selectOneMenu>
+
+                            <p:outputLabel for="descripcion" value="Descripción:"/>
+                            <p:inputTextarea id="descripcion" value="#{pqrcBean.nuevaPqrc.descripcion}" required="true" rows="5" cols="30"/>
+                        </h:panelGrid>
+
+                        <div class="form-actions">
+                            <p:commandButton value="Registrar" actionListener="#{pqrcBean.registrar}" process="@form" update="formPqrc:tablaPqrcs formPqrc" styleClass="ui-button-primary"/>
+                            <p:commandButton value="Limpiar" actionListener="#{pqrcBean.limpiarFormulario}" process="@this" update="@form" styleClass="ui-button-secondary"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-panel">
+                    <div class="pqrc-table-panel">
+                        <p:dataTable id="tablaPqrcs" var="pqrc" value="#{pqrcBean.pqrcs}" styleClass="custom-datatable"
+                                     paginator="true" rows="10">
+                            <p:column headerText="Tipo" style="width: 10%;">
+                                <h:outputText value="#{pqrc.tipo}"/>
+                            </p:column>
+                            <p:column headerText="Cliente" style="width: 15%;">
+                                <h:outputText value="#{pqrc.cliente.nombres} #{pqrc.cliente.apellidos}"/>
+                            </p:column>
+                            <p:column headerText="Usuario" style="width: 15%;">
+                                <h:outputText value="#{pqrc.usuario.nombres}"/>
+                            </p:column>
+                            <p:column headerText="Fecha" style="width: 10%;">
+                                <h:outputText value="#{pqrc.fecha}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                </h:outputText>
+                            </p:column>
+                            <p:column headerText="Estado" style="width: 10%;">
+                                <h:outputText value="#{pqrc.estado}" styleClass="estado-#{pqrc.estado.toLowerCase().replace(' ', '_')}"/>
+                            </p:column>
+                            <p:column headerText="Descripción" style="width: 20%;">
+                                <h:outputText value="#{pqrc.descripcion}"/>
+                            </p:column>
+                            <p:column headerText="Acciones" style="width: 20%;">
+                                <p:splitButton value="Cambiar Estado" update="tablaPqrcs" styleClass="ui-button-info">
+                                    <p:menuitem value="Pendiente" actionListener="#{pqrcBean.cambiarEstado(pqrc, 'Pendiente')}" process="@this" update="tablaPqrcs"/>
+                                    <p:menuitem value="En Proceso" actionListener="#{pqrcBean.cambiarEstado(pqrc, 'En_Proceso')}" process="@this" update="tablaPqrcs"/>
+                                    <p:menuitem value="Resuelta" actionListener="#{pqrcBean.cambiarEstado(pqrc, 'Resuelta')}" process="@this" update="tablaPqrcs"/>
+                                </p:splitButton>
+                                <p:commandButton icon="pi pi-trash" styleClass="ui-button-danger"
+                                                 actionListener="#{pqrcBean.eliminarPqrc(pqrc)}"
+                                                 rendered="#{pqrcBean.isEsAdmin()}"
+                                                 update="tablaPqrcs formPqrc:messages"
+                                                 process="@this">
+                                    <p:confirm header="Confirmación" message="¿Está seguro de que desea eliminar esta PQRC?" icon="pi pi-exclamation-triangle"/>
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </div>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>

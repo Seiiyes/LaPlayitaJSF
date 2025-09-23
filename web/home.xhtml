@@ -19,8 +19,8 @@
                         <p:link outcome="/pedidos/gestionPedidos.xhtml" styleClass="dashboard-button">
                             <i class="pi pi-inbox" style="margin-right: .5rem;"></i> Gestionar Pedidos
                         </p:link>
-                        <p:link outcome="#{homeBean.irCrearPqrc()}" styleClass="dashboard-button" disabled="true">
-                            <i class="pi pi-comment" style="margin-right: .5rem;"></i> Crear PQRC
+                        <p:link outcome="/pqrc/gestion" styleClass="dashboard-button">
+                            <i class="pi pi-comment" style="margin-right: .5rem;"></i> Gestionar PQRCs
                         </p:link>
                     </div>
                 </h:panelGroup>
@@ -34,6 +34,9 @@
                         </p:link>
                         <p:link outcome="#{homeBean.irHistorialVentas()}" styleClass="dashboard-button" disabled="true">
                             <i class="pi pi-book" style="margin-right: .5rem;"></i> Historial de Ventas
+                        </p:link>
+                        <p:link outcome="/pqrc/gestion" styleClass="dashboard-button">
+                            <i class="pi pi-comment" style="margin-right: .5rem;"></i> Gestionar PQRCs
                         </p:link>
                     </div>
                 </h:panelGroup>
