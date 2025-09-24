@@ -89,14 +89,25 @@ public class ReabastecimientoBean implements Serializable {
         try {
             service.registrarProducto(nuevoProducto);
             refrescarProductos();
-            PrimeFaces.current().executeScript("PF('dialogProducto').hide()");
+            // No es necesario el hide() explícito si oncomplete ya lo hace.
+            // PrimeFaces.current().executeScript("PF('dialogProducto').hide()");
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito",
                             "Producto '" + nuevoProducto.getNombreProducto() + "' guardado."));
+        } catch (java.sql.SQLException e) {
+            String msg;
+            if (e.getSQLState().startsWith("23")) { // Unique constraint violation
+                msg = "Ya existe un producto con ese nombre.";
+            } else {
+                msg = "Error de base de datos al intentar guardar el producto.";
+            }
+            FacesContext.getCurrentInstance().addMessage("formProducto:productoMessages",
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", msg));
+            e.printStackTrace();
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage("formProducto:productoMessages",
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error",
-                            "No se pudo guardar el producto. " + e.getMessage()));
+                            "No se pudo guardar el producto: " + e.getMessage()));
             e.printStackTrace();
         }
     }

@@ -12,27 +12,17 @@
                     <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
                     <div class="dashboard-menu">
-                        <p:link outcome="/ventas/registrar.xhtml" styleClass="dashboard-button">
-                            <i class="pi pi-shopping-cart" style="margin-right: .5rem;"></i> Registrar Venta
-                        </p:link>
-                        <p:link outcome="#{adminBean.irUsuarios()}" styleClass="dashboard-button">
-                            <i class="pi pi-users" style="margin-right: .5rem;"></i> Gestión de Usuarios
-                        </p:link>
-                        <p:link outcome="#{adminBean.irCompras()}" styleClass="dashboard-button">
-                            <i class="pi pi-shopping-bag" style="margin-right: .5rem;"></i> Gestión de Compras
-                        </p:link>
-                        <p:link outcome="/pedidos/gestionPedidos.xhtml" styleClass="dashboard-button">
-                            <i class="pi pi-inbox" style="margin-right: .5rem;"></i> Gestión de Pedidos
-                        </p:link>
-                        <p:link outcome="/pqrc/gestion" styleClass="dashboard-button">
-                            <i class="pi pi-comment" style="margin-right: .5rem;"></i> Gestionar PQRCs
-                        </p:link>
-                        <p:link outcome="#{adminBean.irProductos()}" styleClass="dashboard-button" disabled="true">
-                            <i class="pi pi-box" style="margin-right: .5rem;"></i> Gestión de Productos
-                        </p:link>
-                        <p:link outcome="#{adminBean.irRoles()}" styleClass="dashboard-button" disabled="true">
-                            <i class="pi pi-id-card" style="margin-right: .5rem;"></i> Gestión de Roles
-                        </p:link>
+                        <p:button outcome="/ventas/registrar.xhtml" styleClass="dashboard-button ui-button-primary"
+                                  value="Registrar Venta" icon="pi pi-shopping-cart" />
+
+                        <p:button outcome="#{adminBean.irUsuarios()}" styleClass="dashboard-button ui-button-info"
+                                  value="Gestión de Usuarios" icon="pi pi-users" />
+
+                        <p:button outcome="#{adminBean.irCompras()}" styleClass="dashboard-button ui-button-warning"
+                                  value="Gestión de Compras" icon="pi pi-shopping-bag" />
+
+                        <p:button outcome="/pqrc/gestion" styleClass="dashboard-button ui-button-success"
+                                  value="Gestionar PQRCs" icon="pi pi-comment" />
                     </div>
                 </h:form>
             </div>

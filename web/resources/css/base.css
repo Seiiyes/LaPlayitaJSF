@@ -379,15 +379,37 @@ body {
 }
 .dashboard-menu {
     margin-top: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
 }
+
 .dashboard-button {
     width: 100%;
-    padding: 15px !important;
-    font-size: 1.2rem !important;
-    justify-content: center !important;
+    height: 130px;
+    padding: 0 !important;
+    font-size: 1.1rem !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.dashboard-button .ui-icon {
+    font-size: 2.2rem !important;
+    margin: 0 !important;
+}
+
+.dashboard-button .ui-button-text {
+    padding: 0 !important;
+}
+
+.dashboard-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4) !important;
 }
 .dashboard-button.ui-button.ui-state-disabled {
     background-color: #495057 !important;

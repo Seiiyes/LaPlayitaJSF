@@ -236,6 +236,7 @@
                 <div class="ui-dialog-footer" style="text-align: right; padding-top: 10px;">
                     <p:commandButton value="Guardar" icon="pi pi-check"
                                      actionListener="#{reabastecimientoBean.guardarNuevoProducto}"
+                                     process="@form"
                                      update=":formDialog:detailsWrapper :formProducto:productoMessages"
                                      oncomplete="if (!args.validationFailed) { PF('dialogProducto').hide(); }"/>
                     <p:commandButton value="Cancelar" icon="pi pi-times" type="button" onclick="PF('dialogProducto').hide()" styleClass="ui-button-secondary"/>
@@ -269,6 +270,7 @@
                 <div class="ui-dialog-footer" style="text-align: right; padding-top: 10px;">
                     <p:commandButton value="Guardar" icon="pi pi-check"
                                      actionListener="#{proveedorBean.guardar}"
+                                     process="@form"
                                      update=":formDialog:proveedor :formProveedor:proveedorMessages"
                                      oncomplete="if (!args.validationFailed) { PF('dialogProveedor').hide(); }"/>
                     <p:commandButton value="Cancelar" icon="pi pi-times" type="button" onclick="PF('dialogProveedor').hide()" styleClass="ui-button-secondary"/>

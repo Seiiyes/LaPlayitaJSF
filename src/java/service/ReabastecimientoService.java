@@ -1,5 +1,6 @@
 package service;
 
+import dao.CategoriaDAO;
 import dao.ProductoDAO;
 import dao.ProveedorDAO;
 import dao.ReabastecimientoDAO;
@@ -7,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import model.Categoria;
 import model.DetalleReabastecimiento;
 import model.EstadoReabastecimiento; // Importar el enum
 import model.Producto;
@@ -22,6 +24,8 @@ public class ReabastecimientoService {
     private ProveedorDAO proveedorDAO;
     @Inject
     private ProductoDAO productoDAO;
+    @Inject
+    private CategoriaDAO categoriaDAO;
 
     public List<Reabastecimiento> listar() throws SQLException {
         List<Reabastecimiento> masters = reabastecimientoDAO.findAllMasters();

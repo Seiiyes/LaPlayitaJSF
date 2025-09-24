@@ -33,13 +33,13 @@ public class SecurityHeadersFilter implements Filter {
         res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 
         // Política de contenido (CSP) ajustada para JSF/PrimeFaces
-        res.setHeader("Content-Security-Policy",
+                res.setHeader("Content-Security-Policy",
                 "default-src 'self'; " +
                 "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; " +
                 "img-src 'self' data:; " +
-                "font-src 'self' data: https://fonts.gstatic.com; " +
-                "connect-src 'self'; " +
+                "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+                "connect-src 'self' https://cdn.jsdelivr.net; " +
                 "frame-ancestors 'none';");
 
         chain.doFilter(request, response);
