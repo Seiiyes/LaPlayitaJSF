@@ -34,8 +34,29 @@ public class ProveedorDAO {
         return proveedores;
     }
 
+    public Proveedor findById(int id) throws SQLException {
+        String sql = "SELECT * FROM proveedor WHERE idProveedor = ?";
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Proveedor p = new Proveedor();
+                    p.setIdProveedor(rs.getInt("idProveedor"));
+                    p.setNombres(rs.getString("nombres"));
+                    p.setApellidos(rs.getString("apellidos"));
+                    p.setTelefono(rs.getString("telefono"));
+                    p.setCorreo(rs.getString("correo"));
+                    p.setDireccion(rs.getString("direccion"));
+                    return p;
+                }
+            }
+        }
+        return null;
+    }
+
     public void save(Proveedor proveedor) throws SQLException {
-        if (proveedor.getIdProveedor() == 0) {
+        if (proveedor.getIdProveedor() == null || proveedor.getIdProveedor() == 0) {
             insert(proveedor);
         } else {
             update(proveedor);
@@ -65,6 +86,15 @@ public class ProveedorDAO {
             stmt.setString(4, proveedor.getCorreo());
             stmt.setString(5, proveedor.getDireccion());
             stmt.setInt(6, proveedor.getIdProveedor());
+            stmt.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+        String sql = "DELETE FROM proveedor WHERE idProveedor = ?";
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
             stmt.executeUpdate();
         }
     }

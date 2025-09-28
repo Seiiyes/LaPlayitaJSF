@@ -1,7 +1,5 @@
 package controller;
 
-import dao.ClienteDAO;
-import dao.ProductoDAO;
 import model.Cliente;
 import model.DetalleVenta;
 import model.Producto;
@@ -9,17 +7,19 @@ import model.Usuario;
 import model.Venta;
 import service.EmailService;
 import service.FacturaService;
+import service.ProductoService;
 import service.VentaService;
+import service.ClienteService;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,31 +27,32 @@ import java.util.List;
 import java.util.Map;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import controller.Supplier;
-import org.primefaces.util.SerializableSupplier;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.PrimeFaces;
 
-@ManagedBean
+@Named("ventaBean")
 @ViewScoped
 public class VentaBean implements Serializable {
 
-    // Claves para guardar el carrito en la sesión HTTP
     private static final String CART_PRODUCTS_KEY = "session.cart.products";
     private static final String CART_QUANTITIES_KEY = "session.cart.quantities";
+
+    @Inject
+    private ProductoService productoService;
+    @Inject
+    private ClienteService clienteService;
+    @Inject
+    private VentaService ventaService;
+    @Inject
+    private FacturaService facturaService;
+    @Inject
+    private EmailService emailService;
 
     private List<Producto> productosDisponibles;
     private List<Cliente> clientes;
     private int idClienteSeleccionado;
 
-    private ProductoDAO productoDAO;
-    private ClienteDAO clienteDAO;
-    private VentaService ventaService;
-    private FacturaService facturaService; // Nuevo servicio de factura
-    private EmailService emailService; // Servicio para enviar correos
-
-    // Propiedades para la descarga de factura
     private StreamedContent file;
     private Venta ultimaVentaRegistrada;
     private Cliente clienteDeUltimaVenta;
@@ -60,23 +61,26 @@ public class VentaBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        productoDAO = new ProductoDAO();
-        clienteDAO = new ClienteDAO();
-        ventaService = new VentaService();
-        facturaService = new FacturaService(); // Inicializar servicio de factura
-        emailService = new EmailService(); // Inicializar servicio de correo
         mostrarBotonDescarga = false;
-
+        refrescarProductos();
         try {
-            productosDisponibles = productoDAO.findAll();
-        } catch (SQLException e) {
+            clientes = clienteService.listarTodos();
+        } catch (Exception e) {
+            addMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudieron cargar los clientes.");
+            clientes = new ArrayList<>();
+        }
+    }
+
+    private void refrescarProductos() {
+        try {
+            productosDisponibles = productoService.obtenerTodosConStock();
+        } catch (Exception e) {
             addMessage(FacesMessage.SEVERITY_ERROR, "Error", "No se pudieron cargar los productos.");
             productosDisponibles = new ArrayList<>();
         }
-        clientes = clienteDAO.listarTodos();
     }
 
-    // --- Métodos para manejar los mapas del carrito en la SESIÓN ---
+    // --- Métodos para manejar el carrito en la SESIÓN ---
 
     private Map<Integer, Producto> getCarritoProductos() {
         Map<String, Object> sessionMap = FacesContext.getCurrentInstance().getExternalContext().getSessionMap();
@@ -111,6 +115,13 @@ public class VentaBean implements Serializable {
         }
 
         int cantidadActual = getCantidadAsInt(carritoCant.get(idProducto));
+        
+        // Validar stock antes de agregar al carrito
+        if (productoAAgregar.getStockActual() < (cantidadActual + 1)) {
+            addMessage(FacesMessage.SEVERITY_WARN, "Stock Insuficiente", "No hay más stock para: " + productoAAgregar.getNombreProducto());
+            return;
+        }
+
         carritoCant.put(idProducto, cantidadActual + 1);
         carritoProds.putIfAbsent(idProducto, productoAAgregar);
     }
@@ -122,8 +133,18 @@ public class VentaBean implements Serializable {
 
     public void onCantidadChange(int idProducto) {
         Object cantidadObj = getCarritoCantidades().get(idProducto);
-        if (getCantidadAsInt(cantidadObj) <= 0) {
+        int cantidadDeseada = getCantidadAsInt(cantidadObj);
+        Producto producto = getCarritoProductos().get(idProducto);
+
+        if (cantidadDeseada <= 0) {
             quitarProducto(idProducto);
+            return;
+        }
+
+        if (producto != null && producto.getStockActual() < cantidadDeseada) {
+            // Si la cantidad excede el stock, se ajusta al máximo disponible
+            getCarritoCantidades().put(idProducto, producto.getStockActual());
+            addMessage(FacesMessage.SEVERITY_WARN, "Stock Máximo", "La cantidad para '" + producto.getNombreProducto() + "' se ajustó al stock disponible: " + producto.getStockActual());
         }
     }
 
@@ -135,6 +156,16 @@ public class VentaBean implements Serializable {
         if (getCarritoCantidades().isEmpty()) {
             addMessage(FacesMessage.SEVERITY_WARN, "Atención", "El carrito está vacío.");
             return;
+        }
+
+        // 1. Validar stock ANTES de intentar registrar la venta
+        for (Map.Entry<Integer, Object> entry : getCarritoCantidades().entrySet()) {
+            Producto p = getCarritoProductos().get(entry.getKey());
+            int cantidadPedida = getCantidadAsInt(entry.getValue());
+            if (p.getStockActual() < cantidadPedida) {
+                addMessage(FacesMessage.SEVERITY_ERROR, "Stock Insuficiente", "No hay suficiente stock para: " + p.getNombreProducto() + ". Disponible: " + p.getStockActual());
+                return; // Detener la venta
+            }
         }
 
         Usuario vendedor = (Usuario) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("usuario");
@@ -153,9 +184,8 @@ public class VentaBean implements Serializable {
 
         List<DetalleVenta> detalles = new ArrayList<>();
         for (Map.Entry<Integer, Object> entry : getCarritoCantidades().entrySet()) {
-            Integer idProducto = entry.getKey();
+            Producto p = getCarritoProductos().get(entry.getKey());
             int cantidad = getCantidadAsInt(entry.getValue());
-            Producto p = getCarritoProductos().get(idProducto);
             if (p != null && cantidad > 0) {
                 BigDecimal subtotal = p.getPrecioUnitario().multiply(new BigDecimal(cantidad));
                 detalles.add(new DetalleVenta(p.getIdProducto(), 0, cantidad, subtotal));
@@ -163,49 +193,47 @@ public class VentaBean implements Serializable {
         }
 
         try {
+            // 2. Realizar la venta (insertar en DB)
             ventaService.realizarVenta(venta, detalles);
+
+            // 3. Descontar el stock (registrar movimientos de SALIDA)
+            for (DetalleVenta detalle : detalles) {
+                String desc = "Salida por Venta #" + venta.getIdVenta();
+                productoService.registrarMovimientoInventario(detalle.getIdProducto(), detalle.getCantidad(), "SALIDA", desc);
+            }
+
             addMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Venta registrada correctamente.");
 
-            // Almacenar datos de la venta para la factura y correo
             this.ultimaVentaRegistrada = venta;
             this.clienteDeUltimaVenta = findClienteById(idClienteSeleccionado);
             this.detallesDeUltimaVenta = detalles;
 
-            // --- INICIO: Enviar factura por correo ---
+            // 4. Refrescar la lista de productos para mostrar el nuevo stock
+            refrescarProductos();
+
+            // 5. Lógica de facturación y correo (sin cambios)
             if (clienteDeUltimaVenta != null && clienteDeUltimaVenta.getCorreo() != null && !clienteDeUltimaVenta.getCorreo().isEmpty()) {
                 try {
-                    byte[] pdfBytes = facturaService.generarFacturaConIText(
-                        ultimaVentaRegistrada,
-                        detallesDeUltimaVenta,
-                        clienteDeUltimaVenta,
-                        getCarritoProductos()
-                    );
-
+                    byte[] pdfBytes = facturaService.generarFacturaConIText(ultimaVentaRegistrada, detallesDeUltimaVenta, clienteDeUltimaVenta, getCarritoProductos());
                     emailService.enviarFactura(clienteDeUltimaVenta, ultimaVentaRegistrada, pdfBytes);
                     addMessage(FacesMessage.SEVERITY_INFO, "Correo Enviado", "Factura enviada a: " + clienteDeUltimaVenta.getCorreo());
-
                 } catch (Exception emailEx) {
-                    addMessage(FacesMessage.SEVERITY_WARN, "Error de Correo", "La venta se registró, pero no se pudo enviar la factura por correo.");
-                    System.err.println("Error al intentar enviar factura por correo: " + emailEx.getMessage());
+                    addMessage(FacesMessage.SEVERITY_WARN, "Error de Correo", "La venta se registró, pero no se pudo enviar la factura.");
+                    emailEx.printStackTrace();
                 }
             }
-            // --- FIN: Enviar factura por correo ---
 
             if (generarFactura) {
                 mostrarBotonDescarga = true;
-                addMessage(FacesMessage.SEVERITY_INFO, "Facturación", "La factura está lista para descargar.");
-                // Añadir el parámetro de callback para que el frontend sepa que debe descargar
-                if (FacesContext.getCurrentInstance().getPartialViewContext().isAjaxRequest()) {
-                    PrimeFaces.current().ajax().addCallbackParam("facturaLista", true);
-                }
+                PrimeFaces.current().ajax().addCallbackParam("facturaLista", true);
             } else {
-                mostrarBotonDescarga = false;
-                limpiarFormulario(); // Limpiar si no se va a descargar factura
+                limpiarFormulario();
             }
 
         } catch (Exception e) {
             addMessage(FacesMessage.SEVERITY_FATAL, "Error Crítico", "No se pudo registrar la venta: " + e.getMessage());
-            mostrarBotonDescarga = false; // Asegurar que el botón no se muestre en caso de error
+            e.printStackTrace();
+            mostrarBotonDescarga = false;
         }
     }
 
@@ -218,7 +246,7 @@ public class VentaBean implements Serializable {
         ultimaVentaRegistrada = null;
         clienteDeUltimaVenta = null;
         detallesDeUltimaVenta = null;
-        file = null; // Limpiar el StreamedContent
+        file = null;
     }
 
     private void addMessage(FacesMessage.Severity severity, String summary, String detail) {
@@ -226,36 +254,21 @@ public class VentaBean implements Serializable {
     }
     
     private Producto findProductoById(int idProducto) {
-        for (Producto p : productosDisponibles) {
-            if (p.getIdProducto() == idProducto) {
-                return p;
-            }
-        }
-        return null;
+        return productosDisponibles.stream().filter(p -> p.getIdProducto() == idProducto).findFirst().orElse(null);
     }
 
     private Cliente findClienteById(int idCliente) {
-        for (Cliente c : clientes) {
-            if (c.getIdCliente() == idCliente) {
-                return c;
-            }
-        }
-        return null;
+        return clientes.stream().filter(c -> c.getIdCliente() == idCliente).findFirst().orElse(null);
     }
 
     private int getCantidadAsInt(Object value) {
         if (value == null) return 0;
-        if (value instanceof Integer) {
-            return (Integer) value;
-        } else if (value instanceof String) {
-            try {
-                if (((String) value).isEmpty()) return 0;
-                return Integer.parseInt((String) value);
-            } catch (NumberFormatException e) {
-                return 0;
-            }
+        if (value instanceof Number) return ((Number) value).intValue();
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (NumberFormatException e) {
+            return 0;
         }
-        return 0;
     }
 
     // --- Getters y Setters para la VISTA ---
@@ -279,9 +292,8 @@ public class VentaBean implements Serializable {
     public BigDecimal getTotalVenta() {
         BigDecimal calculatedTotal = BigDecimal.ZERO;
         for (Map.Entry<Integer, Object> entry : getCarritoCantidades().entrySet()) {
-            Integer idProducto = entry.getKey();
+            Producto p = getCarritoProductos().get(entry.getKey());
             int cantidad = getCantidadAsInt(entry.getValue());
-            Producto p = getCarritoProductos().get(idProducto);
             if (p != null && cantidad > 0) {
                 calculatedTotal = calculatedTotal.add(p.getPrecioUnitario().multiply(new BigDecimal(cantidad)));
             }
@@ -290,32 +302,21 @@ public class VentaBean implements Serializable {
     }
 
     public StreamedContent getFile() {
-        if (mostrarBotonDescarga && ultimaVentaRegistrada != null && clienteDeUltimaVenta != null && detallesDeUltimaVenta != null) {
+        if (mostrarBotonDescarga && ultimaVentaRegistrada != null) {
             try {
-                // Llamada al nuevo método de iText
-                byte[] pdfBytes = facturaService.generarFacturaConIText(
-                    ultimaVentaRegistrada, 
-                    detallesDeUltimaVenta, 
-                    clienteDeUltimaVenta,
-                    getCarritoProductos() // Pasando el mapa de productos del carrito
-                );
-                
+                byte[] pdfBytes = facturaService.generarFacturaConIText(ultimaVentaRegistrada, detallesDeUltimaVenta, clienteDeUltimaVenta, getCarritoProductos());
                 InputStream stream = new ByteArrayInputStream(pdfBytes);
-                
-                // Asignar un ID de venta si es una venta nueva que aún no lo tiene del DAO
-                String idVentaStr = (ultimaVentaRegistrada.getIdVenta() > 0) ? String.valueOf(ultimaVentaRegistrada.getIdVenta()) : "nueva";
-
-                return new DefaultStreamedContent(
-                        stream,
-                        "application/pdf",
-                        "factura_" + idVentaStr + ".pdf"
-                );
-            } catch (Exception e) { // Captura una excepción más genérica
+                String idVentaStr = String.valueOf(ultimaVentaRegistrada.getIdVenta());
+                return DefaultStreamedContent.builder()
+                        .name("factura_" + idVentaStr + ".pdf")
+                        .contentType("application/pdf")
+                        .stream(() -> stream)
+                        .build();
+            } catch (Exception e) {
                 addMessage(FacesMessage.SEVERITY_FATAL, "Error Factura", "No se pudo generar la factura: " + e.getMessage());
-                e.printStackTrace(); // Imprimir el stack trace para depuración
+                e.printStackTrace();
                 return null;
             } finally {
-                // Limpiar el formulario después de intentar la descarga
                 limpiarFormulario();
             }
         }

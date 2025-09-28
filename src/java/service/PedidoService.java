@@ -6,13 +6,14 @@ import model.DetallePedido;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.List;
 
 @ApplicationScoped
-public class PedidoService {
+public class PedidoService implements Serializable {
 
     @Inject
-    private PedidoDAO pedidoDAO;
+    private transient PedidoDAO pedidoDAO;
 
     public List<Pedido> listarTodos() {
         return pedidoDAO.findAll();

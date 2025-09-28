@@ -7,7 +7,6 @@
 
     <ui:define name="content">
         <h:form id="formVenta">
-            <h:inputHidden id="csrfToken" value="#{sessionScope.csrfToken}" />
             <p:growl id="growl" showDetail="true" life="3000"/>
 
             <div class="card">
@@ -37,7 +36,7 @@
                                     </h:outputText>
                                 </p:column>
                                 <p:column headerText="Stock">
-                                    <h:outputText value="#{producto.cantidadStock}"/>
+                                    <h:outputText value="#{producto.stockActual}"/>
                                 </p:column>
                                 <p:column headerText="Acción" style="width:100px; text-align: center">
                                     <p:commandButton icon="pi pi-plus" title="Agregar"
@@ -63,7 +62,7 @@
                                 </p:column>
 
                                 <p:column headerText="Cantidad" style="width: 120px;">
-                                    <p:inputNumber value="#{ventaBean.carritoCantidades[prodCarrito.idProducto]}" minValue="1" maxValue="#{prodCarrito.cantidadStock}" style="width: 100px;" label="Cantidad">
+                                    <p:inputNumber value="#{ventaBean.carritoCantidades[prodCarrito.idProducto]}" minValue="1" maxValue="#{prodCarrito.stockActual}" style="width: 100px;" label="Cantidad">
                                         <p:ajax process="@this" listener="#{ventaBean.onCantidadChange(prodCarrito.idProducto)}" update="@form:panelCarrito @form:growl" />
                                     </p:inputNumber>
                                 </p:column>
@@ -105,7 +104,7 @@
                     <p:commandButton value="Sí, Facturar" 
                                      actionListener="#{ventaBean.registrarVenta(true)}"
                                      update=":formVenta:growl" 
-                                     oncomplete="PF('ventaConfirmDialog').hide(); if (args &amp;&amp; args.facturaLista) { setTimeout(function() { PF('downloaderWidget').getJQ().click(); }, 100); setTimeout(function() { location.reload(); }, 2000); }"
+                                     oncomplete="PF('ventaConfirmDialog').hide(); if (args && args.facturaLista) { setTimeout(function() { PF('downloaderWidget').getJQ().click(); }, 100); setTimeout(function() { location.reload(); }, 2000); }"
                                      icon="pi pi-file-pdf" 
                                      styleClass="ui-button-success"/>
                     <p:commandButton value="Solo Registrar" 

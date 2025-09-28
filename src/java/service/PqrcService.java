@@ -3,12 +3,13 @@ package service;
 import dao.PqrcDAO;
 import model.Pqrc;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.List;
 
-public class PqrcService {
+public class PqrcService implements Serializable {
 
-    private PqrcDAO pqrcDAO;
+    private transient PqrcDAO pqrcDAO;
 
     public PqrcService() {
         this.pqrcDAO = new PqrcDAO();

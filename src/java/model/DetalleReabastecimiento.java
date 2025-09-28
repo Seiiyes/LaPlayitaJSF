@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
-public class DetalleReabastecimiento {
+public class DetalleReabastecimiento implements java.io.Serializable {
 
     private int idDetalle; // Opcional, si la tabla detalle tiene su propio PK
     private int idReabastecimiento;

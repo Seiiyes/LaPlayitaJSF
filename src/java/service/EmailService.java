@@ -13,9 +13,10 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.Properties;
 
-public class EmailService {
+public class EmailService implements Serializable {
 
     private Properties mailProperties;
 

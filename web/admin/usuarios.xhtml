@@ -12,7 +12,6 @@
             <div class="form-panel">
                  <div class="card form-card">
                     <h:form id="formPanel">
-                        <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
                         
                         <h3>#{empty usuarioBean.usuarioSeleccionado.idUsuario ? 'Crear Nuevo Usuario' : 'Editando Usuario'}</h3>
                         
@@ -67,7 +66,6 @@
 
                     <div class="table-responsive-wrapper">
                         <h:form id="adminForm">
-                            <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
                             <p:dataTable id="tablaUsuarios" widgetVar="tablaUsuariosWV" value="#{usuarioBean.listaUsuarios}" var="u"
                                          paginator="true" rows="8" resizableColumns="false"

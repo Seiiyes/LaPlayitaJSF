@@ -8,21 +8,24 @@ import service.PqrcService;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-@ManagedBean
+@Named
 @ViewScoped
 public class PqrcBean implements Serializable {
 
+    @Inject
     private PqrcService pqrcService;
-    private ClienteDAO clienteDAO;
+    @Inject
+    private transient ClienteDAO clienteDAO;
 
     private Pqrc nuevaPqrc;
     private List<Pqrc> pqrcs;
@@ -32,8 +35,6 @@ public class PqrcBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        pqrcService = new PqrcService();
-        clienteDAO = new ClienteDAO();
         
         nuevaPqrc = new Pqrc();
         pqrcs = pqrcService.obtenerTodosPqrc();

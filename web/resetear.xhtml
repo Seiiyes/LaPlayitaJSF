@@ -16,8 +16,6 @@
             <div class="main-container">
                 <div class="card login-card">
                     <h:form id="resetearForm" rendered="#{recuperarClaveBean.tokenValido}">
-                        <!-- Token CSRF -->
-                        <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
                         <h2>Restablecer Contraseña</h2>
 

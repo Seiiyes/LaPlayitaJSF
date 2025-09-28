@@ -46,7 +46,6 @@
 
             <div class="navbar-right">
                 <h:form>
-                    <input type="hidden" name="csrfToken" value="#{sessionScope.csrfToken}" />
 
                     <h:panelGroup rendered="#{loginBean.isLogueado()}">
                         <span style="margin-right: 15px; color: #f0f0f0;">Hola, #{loginBean.nombreMostrado}</span>   
@@ -72,5 +71,23 @@
             <p>&#169; 2025 La Playita - Todos los derechos reservados</p>
         </footer>
 
+        <h:outputScript>
+            document.addEventListener('DOMContentLoaded', function() {
+                const csrfTokenName = '#{csrfBean.paramName}';
+                const csrfTokenValue = '#{csrfBean.token}';
+
+                if (csrfTokenName &amp;&amp; csrfTokenValue) {
+                    document.querySelectorAll('form').forEach(function(form) {
+                        if (!form.querySelector('input[name="' + csrfTokenName + '"]')) {
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.setAttribute('type', 'hidden');
+                            hiddenInput.setAttribute('name', csrfTokenName);
+                            hiddenInput.setAttribute('value', csrfTokenValue);
+                            form.appendChild(hiddenInput);
+                        }
+                    });
+                }
+            });
+        </h:outputScript>
     </h:body>
 </html>

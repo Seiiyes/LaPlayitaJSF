@@ -10,11 +10,12 @@ public class Producto implements Serializable {
     private Integer idProducto;
     private String nombreProducto;
     private BigDecimal precioUnitario;
-    private double iva;
-    private Integer cantidadStock;
     private Date fechaCaducidad;
     private String descripcion;
     private Integer idCategoria;
+
+    // Campo transitorio para almacenar el stock calculado.
+    private int stockActual;
 
     // Alias for JSF compatibility (e.g., itemValue="#{prod.id}")
     public Integer getId() {
@@ -46,22 +47,6 @@ public class Producto implements Serializable {
         this.precioUnitario = precioUnitario;
     }
 
-    public double getIva() {
-        return iva;
-    }
-
-    public void setIva(double iva) {
-        this.iva = iva;
-    }
-
-    public Integer getCantidadStock() {
-        return cantidadStock;
-    }
-
-    public void setCantidadStock(Integer cantidadStock) {
-        this.cantidadStock = cantidadStock;
-    }
-
     public Date getFechaCaducidad() {
         return fechaCaducidad;
     }
@@ -84,6 +69,14 @@ public class Producto implements Serializable {
 
     public void setIdCategoria(Integer idCategoria) {
         this.idCategoria = idCategoria;
+    }
+
+    public int getStockActual() {
+        return stockActual;
+    }
+
+    public void setStockActual(int stockActual) {
+        this.stockActual = stockActual;
     }
 
     @Override

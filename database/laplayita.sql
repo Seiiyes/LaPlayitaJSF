@@ -252,12 +252,11 @@ CREATE TABLE `producto` (
   `idProducto` int(11) NOT NULL AUTO_INCREMENT,
   `nombreProducto` varchar(50) NOT NULL,
   `precioUnitario` decimal(12,2) NOT NULL,
-  `iva` decimal(5,2) DEFAULT 0.00,
-  `cantidadStock` int(11) NOT NULL,
   `fechaCaducidad` date DEFAULT NULL,
   `descripcion` varchar(255) DEFAULT NULL,
   `idCategoria` int(11) NOT NULL,
   PRIMARY KEY (`idProducto`),
+  UNIQUE KEY `uq_producto_nombre` (`nombreProducto`),
   KEY `idCategoria` (`idCategoria`),
   CONSTRAINT `fk_producto_categoria` FOREIGN KEY (`idCategoria`) REFERENCES `categoria` (`idCategoria`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -269,8 +268,36 @@ CREATE TABLE `producto` (
 
 LOCK TABLES `producto` WRITE;
 /*!40000 ALTER TABLE `producto` DISABLE KEYS */;
-INSERT INTO `producto` VALUES (1,'Leche Entera',3800.00,19.00,120,'2025-12-01','Leche pasteurizada',2),(2,'Queso Campesino',9500.00,5.00,60,'2025-09-01','Queso fresco de vaca',2),(3,'Yogurt Fresa',4500.00,19.00,75,'2025-08-10','Yogurt de fruta',2),(4,'Mantequilla',7000.00,10.00,50,'2025-10-15','Mantequilla sin sal',2),(5,'Leche Deslactosada',4000.00,19.00,110,'2025-11-01','Leche para intolerantes',2),(6,'Queso Mozzarella',12000.00,5.00,40,'2025-09-15','Queso fundido',2),(7,'Yogurt Natural',4300.00,19.00,90,'2025-08-05','Yogurt sin azúcar',2),(8,'Kumis',4600.00,19.00,70,'2025-08-20','Bebida láctea',2),(9,'Queso doble crema',9800.00,5.00,45,'2025-09-30','Suave y cremoso',2),(10,'Leche en polvo',15000.00,19.00,80,'2026-01-01','Duración prolongada',2);
+INSERT INTO `producto` VALUES (1,'Leche Entera',3800.00,'2025-12-01','Leche pasteurizada',2),(2,'Queso Campesino',9500.00,'2025-09-01','Queso fresco de vaca',2),(3,'Yogurt Fresa',4500.00,'2025-08-10','Yogurt de fruta',2),(4,'Mantequilla',7000.00,'2025-10-15','Mantequilla sin sal',2),(5,'Leche Deslactosada',4000.00,'2025-11-01','Leche para intolerantes',2),(6,'Queso Mozzarella',12000.00,'2025-09-15','Queso fundido',2),(7,'Yogurt Natural',4300.00,'2025-08-05','Yogurt sin azúcar',2),(8,'Kumis',4600.00,'2025-08-20','Bebida láctea',2),(9,'Queso doble crema',9800.00,'2025-09-30','Suave y cremoso',2),(10,'Leche en polvo',15000.00,'2026-01-01','Duración prolongada',2);
 /*!40000 ALTER TABLE `producto` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventario`
+--
+
+DROP TABLE IF EXISTS `inventario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `inventario` (
+    `idInventario` INT AUTO_INCREMENT PRIMARY KEY,
+    `idProducto` INT NOT NULL,
+    `cantidad` INT NOT NULL,
+    `tipoMovimiento` ENUM('ENTRADA','SALIDA') NOT NULL,
+    `fechaMovimiento` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `descripcionMovimiento` VARCHAR(255),
+    FOREIGN KEY (`idProducto`) REFERENCES `producto`(`idProducto`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventario`
+--
+
+LOCK TABLES `inventario` WRITE;
+/*!40000 ALTER TABLE `inventario` DISABLE KEYS */;
+INSERT INTO `inventario` (`idProducto`, `cantidad`, `tipoMovimiento`, `descripcionMovimiento`) VALUES (1,120,'ENTRADA','Stock inicial del dump'),(2,60,'ENTRADA','Stock inicial del dump'),(3,75,'ENTRADA','Stock inicial del dump'),(4,50,'ENTRADA','Stock inicial del dump'),(5,110,'ENTRADA','Stock inicial del dump'),(6,40,'ENTRADA','Stock inicial del dump'),(7,90,'ENTRADA','Stock inicial del dump'),(8,70,'ENTRADA','Stock inicial del dump'),(9,45,'ENTRADA','Stock inicial del dump'),(10,80,'ENTRADA','Stock inicial del dump');
+/*!40000 ALTER TABLE `inventario` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

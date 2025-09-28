@@ -7,16 +7,17 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.List;
 import java.util.regex.Pattern;
 
 @ApplicationScoped
-public class UsuarioService { // Ahora es un bean de CDI
+public class UsuarioService implements Serializable { // Ahora es un bean de CDI
 
     @Inject
-    private UsuarioDAO usuarioDAO;
+    private transient UsuarioDAO usuarioDAO;
     @Inject
-    private RolDAO rolDAO;
+    private transient RolDAO rolDAO;
 
     private static final Pattern EMAIL_RE =
             Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");

@@ -12,7 +12,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class ClienteDAO {
+public class ClienteDAO implements java.io.Serializable {
 
     public List<Cliente> listarTodos() {
         Connection conn = null;

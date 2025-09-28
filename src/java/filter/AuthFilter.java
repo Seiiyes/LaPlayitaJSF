@@ -47,16 +47,13 @@ public class AuthFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
 
-        // Obtenemos la ruta relativa a la aplicación (ej. /login.xhtml)
         String path = req.getRequestURI().substring(req.getContextPath().length());
 
-        // Permitir acceso a recursos de JSF (CSS, JS, imágenes)
         if (path.startsWith("/javax.faces.resource/")) {
             chain.doFilter(request, response);
             return;
         }
 
-        // Si la página es pública, permitir el acceso a todos
         if (PUBLIC_PAGES.contains(path)) {
             chain.doFilter(request, response);
             return;
@@ -65,54 +62,55 @@ public class AuthFilter implements Filter {
         HttpSession session = req.getSession(false);
         Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
 
-        // Si el usuario está logueado y trata de acceder a login o registro, redirigirlo a su página de inicio.
+        boolean isAjax = "partial/ajax".equals(req.getHeader("Faces-Request"));
+
         if (usuario != null && (path.equals("/login.xhtml") || path.equals("/registro.xhtml"))) {
-            if (usuario.getIdRol() == ROLE_ADMIN) {
-                res.sendRedirect(req.getContextPath() + "/admin/adminHome.xhtml");
-            } else {
-                res.sendRedirect(req.getContextPath() + "/home.xhtml");
-            }
+            String redirectUrl = req.getContextPath() + (usuario.getIdRol() == ROLE_ADMIN ? "/admin/adminHome.xhtml" : "/home.xhtml");
+            handleRedirect(res, redirectUrl, isAjax);
             return;
         }
 
-        // Si la página no es pública y no hay un usuario logueado, redirigir al login
         if (usuario == null) {
-            res.sendRedirect(req.getContextPath() + "/login.xhtml");
+            handleRedirect(res, req.getContextPath() + "/login.xhtml", isAjax);
             return;
         }
 
-        // Si llegamos aquí, el usuario ESTÁ logueado. Ahora verificamos sus permisos.
         int userRoleId = usuario.getIdRol();
-
-        // Si el ID del rol es 0, significa que no se asignó correctamente.
         if (userRoleId == 0) {
-            res.sendRedirect(req.getContextPath() + "/access-denied.xhtml");
+            handleRedirect(res, req.getContextPath() + "/access-denied.xhtml", isAjax);
             return;
         }
 
-        // Regla 1: ¿La página es exclusiva para Admins?
         if (ADMIN_PAGES.contains(path)) {
             if (userRoleId == ROLE_ADMIN) {
-                chain.doFilter(request, response); // Es Admin, tiene acceso
+                chain.doFilter(request, response);
             } else {
-                res.sendRedirect(req.getContextPath() + "/access-denied.xhtml"); // No es Admin, acceso denegado
+                handleRedirect(res, req.getContextPath() + "/access-denied.xhtml", isAjax);
             }
             return;
         }
 
-        // Regla 2: ¿La página es para el personal (Admin o Vendedor)?
         if (STAFF_PAGES.contains(path)) {
             if (userRoleId == ROLE_ADMIN || userRoleId == ROLE_VENDEDOR) {
-                chain.doFilter(request, response); // Es Admin o Vendedor, tiene acceso
+                chain.doFilter(request, response);
             } else {
-                res.sendRedirect(req.getContextPath() + "/access-denied.xhtml"); // No tiene el rol adecuado, acceso denegado
+                handleRedirect(res, req.getContextPath() + "/access-denied.xhtml", isAjax);
             }
             return;
         }
 
-        // Si la página no está en ninguna lista de protección, permitimos el acceso
-        // (Esto es útil para páginas como un "dashboard" de vendedor que no son públicas pero son para todos los roles logueados)
         chain.doFilter(request, response);
+    }
+
+    private void handleRedirect(HttpServletResponse res, String url, boolean isAjax)
+            throws IOException {
+        if (isAjax) {
+            res.setContentType("text/xml;charset=UTF-8");
+            res.getWriter().append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            res.getWriter().append("<partial-response><redirect url=\"").append(url).append("\"></redirect></partial-response>");
+        } else {
+            res.sendRedirect(url);
+        }
     }
 
     @Override

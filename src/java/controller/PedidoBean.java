@@ -19,8 +19,8 @@ public class PedidoBean implements Serializable {
     @Inject
     private PedidoService pedidoService;
 
-    @Inject
-    private ClienteDAO clienteDAO;
+        @Inject
+    private transient ClienteDAO clienteDAO;
 
     @Inject
     private LoginBean loginBean;

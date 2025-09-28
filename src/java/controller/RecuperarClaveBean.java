@@ -26,7 +26,8 @@ public class RecuperarClaveBean implements Serializable {
     @Inject
     private UsuarioService usuarioService;
 
-    private EmailService emailService = new EmailService();
+    @Inject
+    private EmailService emailService;
 
     public void solicitarReinicio() {
         FacesContext context = FacesContext.getCurrentInstance();

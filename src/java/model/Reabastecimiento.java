@@ -1,5 +1,6 @@
 package model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,7 +9,7 @@ import java.util.List;
 /**
  * Modelo que representa la cabecera de una operación de reabastecimiento (maestro).
  */
-public class Reabastecimiento {
+public class Reabastecimiento implements Serializable {
 
     private int idReabastecimiento;
     private Date fecha;
@@ -27,6 +28,7 @@ public class Reabastecimiento {
         this.fecha = new Date();
         this.estado = EstadoReabastecimiento.RECIBIDO; // Usar el enum
         this.costoTotal = BigDecimal.ZERO;
+        this.formaPago = "Efectivo"; // Valor predeterminado
     }
 
     // Getters y Setters

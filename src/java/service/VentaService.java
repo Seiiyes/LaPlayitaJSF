@@ -4,11 +4,12 @@ import dao.VentaDAO;
 import model.DetalleVenta;
 import model.Venta;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class VentaService {
+public class VentaService implements Serializable {
 
-    private VentaDAO ventaDAO;
+    private transient VentaDAO ventaDAO;
 
     public VentaService() {
         this.ventaDAO = new VentaDAO();

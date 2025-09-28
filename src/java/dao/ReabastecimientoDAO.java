@@ -16,35 +16,59 @@ import model.Proveedor;
 import model.Reabastecimiento;
 
 @ApplicationScoped
-public class ReabastecimientoDAO {
+public class ReabastecimientoDAO implements java.io.Serializable {
 
     public List<Reabastecimiento> findAllMasters() throws SQLException {
         List<Reabastecimiento> reabastecimientos = new ArrayList<>();
-        String sql = "SELECT r.idReabastecimiento, r.fecha, r.hora, r.costo, r.estadoCompra, r.observaciones, " +
-                     "p.idProveedor, p.nombres AS nombreProveedor " +
+        String sql = "SELECT r.idReabastecimiento, r.fecha, r.hora, r.costo, r.estadoCompra, r.observaciones, r.formaPago, " +
+                     "p.idProveedor, p.nombres AS nombreProveedor, " +
+                     "dr.cantidad, dr.costoUnitario, prod.idProducto, prod.nombreProducto " +
                      "FROM reabastecimiento r " +
                      "JOIN proveedor p ON r.idProveedor = p.idProveedor " +
+                     "LEFT JOIN detallereabastecimiento dr ON r.idReabastecimiento = dr.idReabastecimiento " +
+                     "LEFT JOIN producto prod ON dr.idProducto = prod.idProducto " +
                      "ORDER BY r.fecha DESC, r.idReabastecimiento DESC";
 
         try (Connection conn = Conexion.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
+            Reabastecimiento currentReabastecimiento = null;
             while (rs.next()) {
-                Reabastecimiento item = new Reabastecimiento();
-                item.setIdReabastecimiento(rs.getInt("idReabastecimiento"));
-                item.setFecha(rs.getDate("fecha"));
-                item.setHora(rs.getTime("hora")); // Retrieve hora
-                item.setEstado(EstadoReabastecimiento.fromDisplayValue(rs.getString("estadoCompra")));
-                item.setObservaciones(rs.getString("observaciones"));
-                item.setCostoTotal(rs.getBigDecimal("costo"));
+                int reabastecimientoId = rs.getInt("idReabastecimiento");
 
-                Proveedor prov = new Proveedor();
-                prov.setIdProveedor(rs.getInt("idProveedor"));
-                prov.setNombres(rs.getString("nombreProveedor"));
-                item.setProveedor(prov);
-                
-                reabastecimientos.add(item);
+                if (currentReabastecimiento == null || currentReabastecimiento.getIdReabastecimiento() != reabastecimientoId) {
+                    currentReabastecimiento = new Reabastecimiento();
+                    currentReabastecimiento.setIdReabastecimiento(reabastecimientoId);
+                    currentReabastecimiento.setFecha(rs.getDate("fecha"));
+                    currentReabastecimiento.setHora(rs.getTime("hora"));
+                    currentReabastecimiento.setEstado(EstadoReabastecimiento.fromDisplayValue(rs.getString("estadoCompra")));
+                    currentReabastecimiento.setObservaciones(rs.getString("observaciones"));
+                    currentReabastecimiento.setCostoTotal(rs.getBigDecimal("costo"));
+                    currentReabastecimiento.setFormaPago(rs.getString("formaPago"));
+
+                    Proveedor prov = new Proveedor();
+                    prov.setIdProveedor(rs.getInt("idProveedor"));
+                    prov.setNombres(rs.getString("nombreProveedor"));
+                    currentReabastecimiento.setProveedor(prov);
+                    
+                    currentReabastecimiento.setDetalles(new ArrayList<>());
+                    reabastecimientos.add(currentReabastecimiento);
+                }
+
+                // Add details if they exist
+                if (rs.getObject("idProducto") != null) { // Check if there's a detail row
+                    DetalleReabastecimiento det = new DetalleReabastecimiento();
+                    det.setCantidad(rs.getInt("cantidad"));
+                    det.setCostoUnitario(rs.getBigDecimal("costoUnitario"));
+
+                    Producto prod = new Producto();
+                    prod.setIdProducto(rs.getInt("idProducto"));
+                    prod.setNombreProducto(rs.getString("nombreProducto"));
+                    det.setProducto(prod);
+                    
+                    currentReabastecimiento.getDetalles().add(det);
+                }
             }
         }
         return reabastecimientos;
@@ -147,7 +171,7 @@ public class ReabastecimientoDAO {
             stmt.setTime(2, reab.getHora() != null ? reab.getHora() : new java.sql.Time(System.currentTimeMillis()));
             stmt.setBigDecimal(3, reab.getCostoTotal());
             stmt.setString(4, reab.getEstado().getDisplayValue());
-            stmt.setString(5, reab.getFormaPago() != null ? reab.getFormaPago() : "Efectivo"); // Valor predeterminado
+            stmt.setString(5, reab.getFormaPago());
             stmt.setString(6, reab.getObservaciones());
             stmt.setInt(7, reab.getProveedor().getIdProveedor());
             stmt.executeUpdate();
@@ -169,7 +193,7 @@ public class ReabastecimientoDAO {
             stmt.setTime(2, reab.getHora() != null ? reab.getHora() : new java.sql.Time(System.currentTimeMillis()));
             stmt.setBigDecimal(3, reab.getCostoTotal());
             stmt.setString(4, reab.getEstado().getDisplayValue());
-            stmt.setString(5, reab.getFormaPago() != null ? reab.getFormaPago() : "Efectivo"); // Valor predeterminado
+            stmt.setString(5, reab.getFormaPago());
             stmt.setString(6, reab.getObservaciones());
             stmt.setInt(7, reab.getProveedor().getIdProveedor());
             stmt.setInt(8, reab.getIdReabastecimiento());

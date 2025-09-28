@@ -32,8 +32,8 @@ public class UsuarioBean implements Serializable {
     // (ej. anotados con @ApplicationScoped o @RequestScoped).
     @Inject
     private UsuarioService usuarioService;
-    @Inject
-    private RolDAO rolDAO;
+        @Inject
+    private transient RolDAO rolDAO;
 
     @PostConstruct
     public void init() {

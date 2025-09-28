@@ -25,10 +25,12 @@ public class ProveedorBean implements Serializable {
     }
 
     public void guardar() {
+        System.out.println("--- INTENTO DE GUARDAR NUEVO PROVEEDOR ---");
         try {
             service.guardar(proveedor);
             // Limpiar el objeto para el siguiente uso
             init(); 
+            System.out.println("--- PROVEEDOR GUARDADO CON ÉXITO ---");
             FacesContext.getCurrentInstance().addMessage(null, 
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Proveedor guardado correctamente."));
         } catch (IllegalArgumentException e) {
@@ -45,8 +47,8 @@ public class ProveedorBean implements Serializable {
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", msg));
             e.printStackTrace(); // Mantener para el log del servidor
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage("formProveedor:proveedorMessages", 
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Ocurrió un error inesperado al guardar el proveedor."));
+                        FacesContext.getCurrentInstance().addMessage("formProveedor:proveedorMessages", 
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Ocurrió un error inesperado al guardar el proveedor: " + e.getMessage()));
             e.printStackTrace();
         }
     }
