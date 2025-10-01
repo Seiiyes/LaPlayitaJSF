@@ -36,7 +36,7 @@ public class AuthFilter implements Filter {
 
     // Páginas que el personal (Admins Rol 1 y Vendedores Rol 2) pueden ver
     private static final Set<String> STAFF_PAGES = new HashSet<>(
-            Arrays.asList("/ventas/registrar.xhtml", "/ventas/historial.xhtml", "/pedidos/gestion.xhtml")
+            Arrays.asList("/ventas/registrar.xhtml", "/ventas/historial.xhtml", "/pedidos/gestion.xhtml", "/inventario/inventario.xhtml")
     // A medida que crees más páginas para el personal, añádelas aquí.
     );
 

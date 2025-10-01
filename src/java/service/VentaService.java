@@ -2,11 +2,15 @@ package service;
 
 import dao.VentaDAO;
 import model.DetalleVenta;
+import model.ProductoVendido;
 import model.Venta;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.List;
 
+@ApplicationScoped
 public class VentaService implements Serializable {
 
     private transient VentaDAO ventaDAO;
@@ -35,6 +39,15 @@ public class VentaService implements Serializable {
             // Por ahora, la relanzamos para que la capa superior (el Bean) la capture.
             System.err.println("VentaService: Ocurrió un error al intentar realizar la venta.");
             throw e;
+        }
+    }
+
+    public List<ProductoVendido> getBestSellingProducts(int limit) {
+        try {
+            return ventaDAO.findBestSellingProducts(limit);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al obtener los productos más vendidos", e);
         }
     }
 }

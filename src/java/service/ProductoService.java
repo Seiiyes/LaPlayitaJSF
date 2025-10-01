@@ -78,4 +78,22 @@ public class ProductoService implements java.io.Serializable {
             throw new RuntimeException("Error al registrar el movimiento de inventario", e);
         }
     }
+
+    public List<model.MovimientoInventario> obtenerTodosLosMovimientos() {
+        try {
+            return productoDAO.findAllMovimientos();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al obtener los movimientos de inventario", e);
+        }
+    }
+
+    public List<model.MovimientoInventario> obtenerMovimientosPorProducto(int idProducto) {
+        try {
+            return productoDAO.findMovimientosByProductoId(idProducto);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al obtener los movimientos de inventario para el producto", e);
+        }
+    }
 }

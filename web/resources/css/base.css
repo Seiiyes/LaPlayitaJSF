@@ -10,7 +10,7 @@ html, body {
 /* ===== VARIABLES CSS (CUSTOM PROPERTIES) ===== */
 :root {
     /* Paleta de colores principal inspirada en Synthwave/Neon */
-    --color-primario: #00f2ea; /* Turquesa Neón más vibrante */
+    --color-primario: #0347c4; /* Turquesa Neón más vibrante */
     --color-primario-transparente-10: rgba(0, 242, 234, 0.1);
     --color-primario-transparente-15: rgba(0, 242, 234, 0.15);
     --color-primario-transparente-20: rgba(0, 242, 234, 0.2);
@@ -24,9 +24,9 @@ html, body {
     --color-excel: #1fdd64; /* Verde Neón */
 
     /* Paleta de texto para legibilidad */
-    --color-texto: #e5e5e5; /* Blanco ligeramente apagado */
-    --color-texto-claro: #f5f5f5;
-    --color-texto-medio: #a0a0a0;
+    --color-texto: #010924; /* Blanco ligeramente apagado */
+    --color-texto-claro: #07fde9;
+    --color-texto-medio: #ece9e9;
     --color-texto-apagado: #888;
     --texto-sombra: 0 0 5px rgba(0,0,0,0.5); /* Sombra para legibilidad */
 
@@ -174,24 +174,101 @@ body {
     font-size: 1.1rem;
 }
 
-/* ===== INPUTS Y BOTONES ===== */
-.ui-inputfield, input, textarea, .ui-selectonemenu {
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 14px;
-    border: none;
-    border-radius: 8px;
-    background: var(--color-fondo-input-rgba);
-    color: #fff;
-    font-size: 1rem;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    border: 1px solid var(--borde-color-input);
+/* ======================================================= */
+/* ======   ESTILOS GLOBALES PARA INPUTS (V4)       ====== */
+/* ======================================================= */
+
+/* --- Contenedor base para componentes de PrimeFaces --- */
+/* Usamos Flexbox para alinear verticalmente el contenido interno (label, icono) */
+body .ui-selectonemenu,
+body .ui-calendar {
+    display: flex !important;
+    align-items: center;
+    position: relative; /* Necesario para posicionar el trigger/botón */
 }
-.ui-inputfield:focus, input:focus, textarea:focus, .ui-selectonemenu:focus {
+
+/* --- Estilo unificado para todos los campos de formulario --- */
+body .ui-inputfield,
+body .ui-selectonemenu {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 42px; /* Altura mínima uniforme */
+    margin: 0 !important;
+    padding: 0 14px !important; /* Padding horizontal. Vertical se maneja con flexbox. */
+    border-radius: 8px !important;
+    background: var(--color-fondo-input-rgba) !important;
+    color: var(--color-texto-claro) !important;
+    font-size: 1rem !important;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 1px solid var(--borde-color-input) !important;
+}
+
+/* --- Textarea específico --- */
+body .ui-inputtextarea.ui-inputfield {
+    padding: 10px 14px !important;
+    min-height: 80px;
+}
+
+/* --- Label de SelectOneMenu (el texto visible) --- */
+body .ui-selectonemenu .ui-selectonemenu-label {
+    width: 100%;
+    border: none !important;
+    background: transparent !important;
+    color: var(--color-texto-claro) !important;
+    padding: 0 !important;
+}
+
+/* --- Placeholder (para inputs y el label del select) --- */
+body .ui-inputfield::placeholder {
+    color: var(--texto-sombra) !important; /* Usando una variable existente para placeholder */
+    opacity: 1;
+}
+body .ui-selectonemenu-label.ui-state-placeholder {
+    color: var(--texto-sombra) !important; /* Usando una variable existente para placeholder */
+}
+
+/* --- Estado de Foco General --- */
+body .ui-inputfield:focus,
+body .ui-selectonemenu.ui-state-focus,
+body .ui-inputnumber.ui-state-focus,
+body .ui-calendar.ui-state-focus-within {
     outline: none !important;
     background: var(--color-fondo-input-focus-rgba) !important;
-    box-shadow: 0 0 12px var(--color-primario) !important;
+    box-shadow: 0 0 12px var(--color-primario-sombra) !important;
     border-color: var(--color-primario) !important;
+}
+
+/* --- Corrección para inputs internos en componentes con foco --- */
+body .ui-inputnumber.ui-state-focus .ui-inputfield {
+    background: transparent !important;
+    color: var(--color-texto-claro) !important;
+}
+
+/* --- Iconos y Triggers --- */
+body .ui-selectonemenu-trigger {
+    height: 100%;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primario) !important;
+}
+
+body .ui-datepicker-trigger.ui-button {
+    min-height: 42px;
+    width: 42px;
+    margin-left: -1px;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    background: var(--color-primario) !important;
+}
+body .ui-datepicker-trigger.ui-button .ui-icon {
+    color: var(--color-fondo) !important;
+}
+
+/* --- Inputs dentro de tablas --- */
+body .ui-datatable .ui-datatable-data td {
+    vertical-align: middle;
 }
 
 /* ===== FOOTER ===== */

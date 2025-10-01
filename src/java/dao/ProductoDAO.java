@@ -150,4 +150,58 @@ public class ProductoDAO implements java.io.Serializable {
             stmt.executeUpdate();
         }
     }
+
+    public List<model.MovimientoInventario> findAllMovimientos() throws SQLException {
+        List<model.MovimientoInventario> movimientos = new ArrayList<>();
+        String sql = "SELECT i.idInventario, i.idProducto, p.nombreProducto, i.cantidad, i.tipoMovimiento, i.descripcionMovimiento, i.fechaMovimiento " +
+                     "FROM inventario i " +
+                     "JOIN producto p ON i.idProducto = p.idProducto " +
+                     "ORDER BY i.fechaMovimiento DESC";
+
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                model.MovimientoInventario m = new model.MovimientoInventario();
+                m.setIdInventario(rs.getInt("idInventario"));
+                m.setIdProducto(rs.getInt("idProducto"));
+                m.setNombreProducto(rs.getString("nombreProducto"));
+                m.setCantidad(rs.getInt("cantidad"));
+                m.setTipoMovimiento(rs.getString("tipoMovimiento"));
+                m.setDescripcionMovimiento(rs.getString("descripcionMovimiento"));
+                m.setFechaMovimiento(rs.getTimestamp("fechaMovimiento"));
+                movimientos.add(m);
+            }
+        }
+        return movimientos;
+    }
+
+    public List<model.MovimientoInventario> findMovimientosByProductoId(int idProducto) throws SQLException {
+        List<model.MovimientoInventario> movimientos = new ArrayList<>();
+        String sql = "SELECT i.idInventario, i.idProducto, p.nombreProducto, i.cantidad, i.tipoMovimiento, i.descripcionMovimiento, i.fechaMovimiento " +
+                     "FROM inventario i " +
+                     "JOIN producto p ON i.idProducto = p.idProducto " +
+                     "WHERE i.idProducto = ? " +
+                     "ORDER BY i.fechaMovimiento DESC";
+
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, idProducto);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    model.MovimientoInventario m = new model.MovimientoInventario();
+                    m.setIdInventario(rs.getInt("idInventario"));
+                    m.setIdProducto(rs.getInt("idProducto"));
+                    m.setNombreProducto(rs.getString("nombreProducto"));
+                    m.setCantidad(rs.getInt("cantidad"));
+                    m.setTipoMovimiento(rs.getString("tipoMovimiento"));
+                    m.setDescripcionMovimiento(rs.getString("descripcionMovimiento"));
+                    m.setFechaMovimiento(rs.getTimestamp("fechaMovimiento"));
+                    movimientos.add(m);
+                }
+            }
+        }
+        return movimientos;
+    }
 }

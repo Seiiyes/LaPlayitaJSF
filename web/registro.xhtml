@@ -14,35 +14,49 @@
                 <h2>Registro de Usuario</h2>
                 <p:messages id="msgs" showDetail="true"/>
 
-                <p:inputText id="documento" value="#{registroBean.documento}" 
-                             placeholder="Documento" required="true"
-                             requiredMessage="El documento es obligatorio"/>
+                <div class="form-group">
+                    <p:inputText id="documento" value="#{registroBean.documento}" 
+                                 placeholder="Documento" required="true"
+                                 requiredMessage="El documento es obligatorio"/>
+                </div>
 
-                <p:inputText id="nombres" value="#{registroBean.nombres}" 
-                             placeholder="Nombres" required="true"
-                             requiredMessage="Los nombres son obligatorios"/>
+                <div class="form-group">
+                    <p:inputText id="nombres" value="#{registroBean.nombres}" 
+                                 placeholder="Nombres" required="true"
+                                 requiredMessage="Los nombres son obligatorios"/>
+                </div>
 
-                <p:inputText id="apellidos" value="#{registroBean.apellidos}" 
-                             placeholder="Apellidos" required="true"
-                             requiredMessage="Los apellidos son obligatorios"/>
+                <div class="form-group">
+                    <p:inputText id="apellidos" value="#{registroBean.apellidos}" 
+                                 placeholder="Apellidos" required="true"
+                                 requiredMessage="Los apellidos son obligatorios"/>
+                </div>
 
-                <p:inputText id="telefono" value="#{registroBean.telefono}" 
-                             placeholder="Teléfono"/>
+                <div class="form-group">
+                    <p:inputText id="telefono" value="#{registroBean.telefono}" 
+                                 placeholder="Teléfono"/>
+                </div>
 
-                <p:inputText id="email" value="#{registroBean.correo}" 
-                             placeholder="Correo electrónico" required="true"
-                             requiredMessage="El correo es obligatorio"
-                             validatorMessage="Formato de correo inválido">
-                    <f:validateRegex pattern="^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$"/>
-                </p:inputText>
+                <div class="form-group">
+                    <p:inputText id="email" value="#{registroBean.correo}" 
+                                 placeholder="Correo electrónico" required="true"
+                                 requiredMessage="El correo es obligatorio"
+                                 validatorMessage="Formato de correo inválido">
+                        <f:validateRegex pattern="^[\\w.%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$"/>
+                    </p:inputText>
+                </div>
 
-                <p:password id="password" value="#{registroBean.password}" 
-                            placeholder="Contraseña" required="true" feedback="true"
-                            requiredMessage="La contraseña es obligatoria"/>
+                <div class="form-group">
+                    <p:password id="password" value="#{registroBean.password}" 
+                                placeholder="Contraseña" required="true" feedback="true"
+                                requiredMessage="La contraseña es obligatoria"/>
+                </div>
 
-                <p:password id="confirmPassword" value="#{registroBean.confirmarPassword}" 
-                            placeholder="Confirmar contraseña" required="true"
-                            requiredMessage="Debes confirmar la contraseña"/>
+                <div class="form-group">
+                    <p:password id="confirmPassword" value="#{registroBean.confirmarPassword}" 
+                                placeholder="Confirmar contraseña" required="true"
+                                requiredMessage="Debes confirmar la contraseña"/>
+                </div>
 
                 <!-- Botón alineado al centro -->
                 <div class="btn-container">

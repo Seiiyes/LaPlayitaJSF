@@ -12,16 +12,20 @@ import java.util.List;
 
 public class VentaDAO {
 
+    private final ProductoDAO productoDAO;
+
+    public VentaDAO() {
+        this.productoDAO = new ProductoDAO();
+    }
+
     public void registrar(Venta venta, List<DetalleVenta> detalles) {
         Connection conn = null;
         PreparedStatement psVenta = null;
         PreparedStatement psDetalle = null;
-        PreparedStatement psUpdateStock = null;
         ResultSet rs = null;
 
         String sqlVenta = "INSERT INTO venta (fechaVenta, horaVenta, total, idCliente, idUsuario) VALUES (?, ?, ?, ?, ?)";
         String sqlDetalle = "INSERT INTO detalleventa (idVenta, idProducto, cantidad, subtotal) VALUES (?, ?, ?, ?)";
-        String sqlUpdateStock = "UPDATE producto SET cantidadStock = cantidadStock - ? WHERE idProducto = ?";
 
         try {
             conn = Conexion.getConnection();
@@ -47,9 +51,8 @@ public class VentaDAO {
                 throw new SQLException("No se pudo obtener el ID de la venta generada.");
             }
 
-            // 2. Insertar los detalles de la venta y actualizar el stock
+            // 2. Insertar los detalles de la venta y registrar movimiento de inventario
             psDetalle = conn.prepareStatement(sqlDetalle);
-            psUpdateStock = conn.prepareStatement(sqlUpdateStock);
 
             for (DetalleVenta detalle : detalles) {
                 // Insertar detalle
@@ -60,14 +63,11 @@ public class VentaDAO {
                 psDetalle.setBigDecimal(4, detalle.getSubtotal());
                 psDetalle.addBatch();
 
-                // Actualizar stock
-                psUpdateStock.setInt(1, detalle.getCantidad());
-                psUpdateStock.setInt(2, detalle.getIdProducto());
-                psUpdateStock.addBatch();
+                // Registrar movimiento de inventario
+                productoDAO.registrarMovimiento(conn, detalle.getIdProducto(), detalle.getCantidad(), "SALIDA", "Venta #" + idVentaGenerado);
             }
 
             psDetalle.executeBatch();
-            psUpdateStock.executeBatch();
 
             // Si todo fue exitoso, confirmar la transacción
             conn.commit();
@@ -90,11 +90,30 @@ public class VentaDAO {
                 if (rs != null) rs.close();
                 if (psVenta != null) psVenta.close();
                 if (psDetalle != null) psDetalle.close();
-                if (psUpdateStock != null) psUpdateStock.close();
                 if (conn != null) conn.close();
             } catch (SQLException e) {
                 System.err.println("Error al cerrar recursos: " + e.getMessage());
             }
         }
+    public List<ProductoVendido> findBestSellingProducts(int limit) throws SQLException {
+        List<ProductoVendido> productos = new ArrayList<>();
+        String sql = "SELECT p.nombreProducto, SUM(dv.cantidad) AS totalVendido " +
+                     "FROM detalleventa dv " +
+                     "JOIN producto p ON dv.idProducto = p.idProducto " +
+                     "GROUP BY p.nombreProducto " +
+                     "ORDER BY totalVendido DESC " +
+                     "LIMIT ?";
+
+        try (Connection conn = Conexion.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String nombreProducto = rs.getString("nombreProducto");
+                    int totalVendido = rs.getInt("totalVendido");
+                    productos.add(new ProductoVendido(nombreProducto, totalVendido));
+                }
+            }
+        }
+        return productos;
     }
-}

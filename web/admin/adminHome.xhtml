@@ -6,8 +6,7 @@
     <ui:define name="content">
         <div class="main-content">
             <div class="card admin-home-card">
-                <h2>Bienvenido, Administrador</h2>
-                <p>Desde aquí puede gestionar los módulos principales del sistema.</p>
+                <h2>Bienvenido, Administrador</h2>              
                 <h:form>
 
                     <div class="dashboard-menu">
@@ -22,6 +21,9 @@
 
                         <p:button outcome="/pqrc/gestion" styleClass="dashboard-button ui-button-success"
                                   value="Gestionar PQRCs" icon="pi pi-comment" />
+
+                        <p:button outcome="/admin/inventario.xhtml" styleClass="dashboard-button ui-button-help"
+                                  value="Historial de Inventario" icon="pi pi-book" />
                     </div>
                 </h:form>
             </div>

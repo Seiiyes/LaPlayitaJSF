@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="/templates/template.xhtml">
+
+    <ui:define name="title">Inventario de Productos</ui:define>
+
+    <ui:define name="content">
+        <h:form id="formInventario">
+            <div class="card">
+                <p:dataTable var="prod" value="#{inventarioBean.productos}" paginator="true" rows="10">
+                    <f:facet name="header">
+                        Inventario de Productos
+                    </f:facet>
+
+                    <p:column style="width:16px">
+                        <p:rowToggler />
+                    </p:column>
+
+                    <p:column headerText="Producto" sortBy="#{prod.nombreProducto}">
+                        <h:outputText value="#{prod.nombreProducto}" />
+                    </p:column>
+
+                    <p:column headerText="Stock Actual">
+                        <h:outputText value="#{prod.stockActual}" />
+                    </p:column>
+
+                    <p:rowExpansion>
+                        <p:dataTable var="mov" value="#{inventarioBean.getMovimientosPorProducto(prod.idProducto)}">
+                            <f:facet name="header">
+                                Historial de Movimientos para #{prod.nombreProducto}
+                            </f:facet>
+                            <p:column headerText="Fecha">
+                                <h:outputText value="#{mov.fechaMovimiento}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+                                </h:outputText>
+                            </p:column>
+                            <p:column headerText="Tipo">
+                                <h:outputText value="#{mov.tipoMovimiento}" />
+                            </p:column>
+                            <p:column headerText="Cantidad">
+                                <h:outputText value="#{mov.cantidad}" />
+                            </p:column>
+                            <p:column headerText="Descripción">
+                                <h:outputText value="#{mov.descripcionMovimiento}" />
+                            </p:column>
+                        </p:dataTable>
+                    </p:rowExpansion>
+                </p:dataTable>
+            </div>
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+</html>
